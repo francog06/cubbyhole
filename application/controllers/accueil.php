@@ -12,4 +12,9 @@ class Accueil extends CI_Controller {
 	{
 		$this->load->view('Front/accueil');
 	}
+
+	public function prix()
+	{
+		$this->load->view('Front/prix');
+	}
 }
