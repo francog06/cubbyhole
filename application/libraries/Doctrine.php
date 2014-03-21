@@ -31,6 +31,7 @@ class Doctrine
         $yamlDriver = new \Doctrine\ORM\Mapping\Driver\YamlDriver(APPPATH.'models/Mappings');
         $config->setMetadataDriverImpl($yamlDriver);
  
+        /*
         $CI =& get_instance();
         $CI->load->database();
 
@@ -40,6 +41,14 @@ class Doctrine
             'password' => $CI->db->password,
             'host' => $CI->db->hostname,
             'dbname' => $CI->db->database
+        );
+        */
+        $connectionOptions = array(
+            'driver' => 'pdo_mysql',
+            'user' => 'dev',
+            'password' => 'yFJ25T3d28d96l1',
+            'host' => 'sql.cubbyhole.name',
+            'dbname' => 'cubbydev'
         );
  
         $em = \Doctrine\ORM\EntityManager::create($connectionOptions, $config);

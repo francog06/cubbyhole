@@ -1,47 +1,17 @@
-
-<!DOCTYPE html>
-<html lang="fr">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="shortcut icon" href="">
-
-    <title>CubbyHole</title>
-
-    <!-- Bootstrap core CSS -->
-    <link href="<?php echo css("bootstrap.min"); ?>" rel="stylesheet">
-
-    <!-- Custom styles for this template -->
-    <link href="<?php echo css("style"); ?>" rel="stylesheet">
-
-    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
-  </head>
-
-  <body>
-
-    <div class="site-wrapper">
-
-      <div class="site-wrapper-inner">
-
-        <div class="cover-container">
+<div class="site-wrapper">
+	<div class="site-wrapper-inner">
+		<div class="cover-container">
         <!-- Menu -->
-          <div class="masthead clearfix">
-            <div class="">
-              <h3 class="masthead-brand"><img src="<?php echo img("logo.png");?>" height="60" alt="logo" /></h3>
-              <ul class="nav nav-pills pull-right" style="margin-top:20px;">
-                <li class="active"><a href="#">Accueil</a></li>
-                <li><a href="#">Prix</a></li>
-                <li><a href="#">Télécharger</a></li>
-              </ul>
-            </div>
-          </div>
+			<div class="masthead clearfix">
+			<div class="">
+				<h3 class="masthead-brand"><img src="<?php echo img("logo.png");?>" height="60" alt="logo" /></h3>
+				<ul class="nav nav-pills pull-right" style="margin-top:20px;">
+					<li><a href="/Home/index">Accueil</a></li>
+					<li class="active"><a href="/Home/price">Prix</a></li>
+					<li><a href="/Home/download">Télécharger</a></li>
+				</ul>
+			</div>
+		</div>
 			<section class="section">
 				<div class="section-headlines text-center">
 					<h2>Nos différents plans</h2>
@@ -132,14 +102,6 @@
 					<p class="muted text-center">Note: You can change or cancel your plan at anytime in your account settings.</p>
 				</div>
 			</section>
- </div>
-
-      </div>
-
-    </div>
-
-    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
-    <script src="<?php js("bootstrap.min"); ?>"></script>
-    <script src="<?php js("assets/js/docs.min"); ?>"></script>
-  </body>
-</html>
+		</div>
+	</div>
+</div>
