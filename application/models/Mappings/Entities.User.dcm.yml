@@ -1,6 +1,6 @@
 Entities\User:
   type: entity
-  table: users
+  table: user
   uniqueConstraints:
     email_index:
       columns:
@@ -11,14 +11,30 @@ Entities\User:
       id: true
       generator:
         strategy: AUTO
-    password:
-      type: string
-      length: 32
-      nullable: false
     email:
       type: string
       length: 255
       nullable: false
+    password:
+      type: string
+      length: 32
+      nullable: false
     registration_date:
       type: datetime
       nullable: false
+    user_location_ip:
+      type: string
+      nullable: false
+  oneToMany:
+    plan_historys:
+      targetEntity: PlanHistory
+      mappedBy: user
+      cascade: ["persist", "merge"]
+    folders:
+      targetEntity: Folder
+      mappedBy: user
+      cascade: ["persist", "merge"]
+    files:
+      targetEntity: File
+      mappedBy: user
+      cascade: ["persist", "merge"]

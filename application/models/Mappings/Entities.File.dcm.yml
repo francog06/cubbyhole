@@ -1,0 +1,51 @@
+Entities\File:
+  type: entity
+  table: file
+  fields:
+    id:
+      type: integer
+      id: true
+      generator:
+        strategy: AUTO
+    name:
+      type: string
+      nullable: false
+    creation_date:
+      type: datetime
+      nullable: false
+    last_update_date:
+      type: datetime
+      nullable: false
+    relative_path:
+      type: string
+      nullable: false
+    absolute_path:
+      type: string
+      nullable: false
+    is_public:
+      type: boolean
+      nullable: false
+    access_key:
+      type: string
+      nullable: true
+    public_link_path:
+      type: string
+      nullable: false
+  oneToMany:
+    data_histories:
+      targetEntity: DataHistory
+      mappedBy: file
+      cascade: ["persist", "merge"]
+  manyToOne:
+    user:
+      targetEntity: User
+      inversedBy: user
+      joinColumn:
+        name: user_id
+        referencedColumnName: id
+    folder:
+      targetEntity: Folder
+      inversedBy: foler
+      joinColumn:
+        name: folder_id
+        referencedColumnName: id

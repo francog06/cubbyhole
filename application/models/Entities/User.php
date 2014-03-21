@@ -15,21 +15,47 @@ class User
     private $id;
 
     /**
-     * @var string $password
-     */
-    private $password;
-
-    /**
      * @var string $email
      */
     private $email;
+
+    /**
+     * @var string $password
+     */
+    private $password;
 
     /**
      * @var datetime $registration_date
      */
     private $registration_date;
 
+    /**
+     * @var string $user_location_ip
+     */
+    private $user_location_ip;
 
+    /**
+     * @var \Doctrine\Common\Collections\ArrayCollection
+     */
+    private $plan_historys;
+
+    /**
+     * @var \Doctrine\Common\Collections\ArrayCollection
+     */
+    private $folders;
+
+    /**
+     * @var \Doctrine\Common\Collections\ArrayCollection
+     */
+    private $files;
+
+    public function __construct()
+    {
+        $this->plan_historys = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->folders = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->files = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+    
     /**
      * Get id
      *
@@ -38,28 +64,6 @@ class User
     public function getId()
     {
         return $this->id;
-    }
-
-    /**
-     * Set password
-     *
-     * @param string $password
-     * @return User
-     */
-    public function setPassword($password)
-    {
-        $this->password = $password;
-        return $this;
-    }
-
-    /**
-     * Get password
-     *
-     * @return string 
-     */
-    public function getPassword()
-    {
-        return $this->password;
     }
 
     /**
@@ -85,6 +89,28 @@ class User
     }
 
     /**
+     * Set password
+     *
+     * @param string $password
+     * @return User
+     */
+    public function setPassword($password)
+    {
+        $this->password = $password;
+        return $this;
+    }
+
+    /**
+     * Get password
+     *
+     * @return string 
+     */
+    public function getPassword()
+    {
+        return $this->password;
+    }
+
+    /**
      * Set registration_date
      *
      * @param datetime $registrationDate
@@ -104,5 +130,123 @@ class User
     public function getRegistrationDate()
     {
         return $this->registration_date;
+    }
+
+    /**
+     * Set user_location_ip
+     *
+     * @param string $userLocationIp
+     * @return User
+     */
+    public function setUserLocationIp($userLocationIp)
+    {
+        $this->user_location_ip = $userLocationIp;
+        return $this;
+    }
+
+    /**
+     * Get user_location_ip
+     *
+     * @return string 
+     */
+    public function getUserLocationIp()
+    {
+        return $this->user_location_ip;
+    }
+
+    /**
+     * Add plan_historys
+     *
+     * @param Entities\PlanHistory $planHistorys
+     * @return User
+     */
+    public function addPlanHistory(\Entities\PlanHistory $planHistorys)
+    {
+        $this->plan_historys[] = $planHistorys;
+        return $this;
+    }
+
+    /**
+     * Remove plan_historys
+     *
+     * @param Entities\PlanHistory $planHistorys
+     */
+    public function removePlanHistory(\Entities\PlanHistory $planHistorys)
+    {
+        $this->plan_historys->removeElement($planHistorys);
+    }
+
+    /**
+     * Get plan_historys
+     *
+     * @return Doctrine\Common\Collections\Collection 
+     */
+    public function getPlanHistorys()
+    {
+        return $this->plan_historys;
+    }
+
+    /**
+     * Add folders
+     *
+     * @param Entities\Folder $folders
+     * @return User
+     */
+    public function addFolder(\Entities\Folder $folders)
+    {
+        $this->folders[] = $folders;
+        return $this;
+    }
+
+    /**
+     * Remove folders
+     *
+     * @param Entities\Folder $folders
+     */
+    public function removeFolder(\Entities\Folder $folders)
+    {
+        $this->folders->removeElement($folders);
+    }
+
+    /**
+     * Get folders
+     *
+     * @return Doctrine\Common\Collections\Collection 
+     */
+    public function getFolders()
+    {
+        return $this->folders;
+    }
+
+    /**
+     * Add files
+     *
+     * @param Entities\File $files
+     * @return User
+     */
+    public function addFile(\Entities\File $files)
+    {
+        $this->files[] = $files;
+        return $this;
+    }
+
+    /**
+     * Remove files
+     *
+     * @param Entities\File $files
+     */
+    public function removeFile(\Entities\File $files)
+    {
+        $this->files->removeElement($files);
+    }
+
+    /**
+     * Get files
+     *
+     * @return Doctrine\Common\Collections\Collection 
+     */
+    public function getFiles()
+    {
+        return $this->files;
     }
 }

@@ -1,0 +1,31 @@
+Entities\PlanHistory:
+  type: entity
+  table: plan_history
+  fields:
+    id:
+      type: integer
+      id: true
+      generator:
+        strategy: AUTO
+    subscription_plan_date:
+      type: datetime
+      nullable: false
+    expiration_plan_date:
+      type: datetime
+      nullable: false
+    is_active:
+      type: boolean
+      nullable: false
+  manyToOne:
+    user:
+      targetEntity: User
+      inversedBy: user
+      joinColumn:
+        name: user_id
+        referencedColumnName: id
+    plan:
+      targetEntity: Plan
+      inversedBy: plan
+      joinColumn:
+        name: plan_id
+        referencedColumnName: id

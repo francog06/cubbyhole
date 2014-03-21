@@ -1,0 +1,25 @@
+Entities\DataHistory:
+  type: entity
+  table: data_history
+  fields:
+    id:
+      type: integer
+      id: true
+      generator:
+        strategy: AUTO
+    date:
+      type: datetime
+      nullable: false
+    download_ip:
+      type: string
+      nullable: false
+    download_zone:
+      type: string
+      nullable: false
+  manyToOne:
+    file:
+      targetEntity: File
+      inversedBy: file
+      joinColumn:
+        name: file_id
+        referencedColumnName: id

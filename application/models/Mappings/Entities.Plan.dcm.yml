@@ -1,0 +1,32 @@
+Entities\Plan:
+  type: entity
+  table: plan
+  fields:
+    id:
+      type: integer
+      id: true
+      generator:
+        strategy: AUTO
+    name:
+      type: string
+      nullable: false
+    price:
+      type: float
+      nullable: false
+    duration:
+      type: integer
+      nullable: false
+    storage_space:
+      type: integer
+      nullable: false
+    max_bandwidth:
+      type: integer
+      nullable: false
+    daily_data_transfert:
+      type: integer
+      nullable: false
+  oneToMany:
+    plan_historys:
+      targetEntity: PlanHistory
+      mappedBy: plan
+      cascade: ["persist", "merge"]
