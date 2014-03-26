@@ -62,6 +62,9 @@ class Login extends CI_Controller {
 		} catch (Doctrine\ORM\NoResultException $e) {
 			$this->prevent_messages[] = array('type' => 'danger', 'message' => 'No user exist for the email specified.');
 			return null;
+		} catch (Exception $e) {
+			$this->prevent_messages[] = array('type' => 'danger', 'message' => 'An error occured, please contact administrator: '. $e->getMessage());
+			return null;
 		}
 
 		if ($this->encrypt->decode($user->getPassword()) == $user_pass) {
