@@ -5,8 +5,6 @@ class Home extends CI_Controller {
 	public function __construct()
 	{
 		parent::__construct();
-
-		$this->load->helper(array("url", "assets"));
 	}
 
 	public function index()
@@ -24,6 +22,6 @@ class Home extends CI_Controller {
 	public function download()
 	{
 		$viewModel["view"] = "front/download";
-		$this->load->view('layouts/download.php', $viewModel);
+		$this->load->view('layouts/main.php', $viewModel);
 	}
 }

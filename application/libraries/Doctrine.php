@@ -48,7 +48,15 @@ class Doctrine
             'user' => 'dev',
             'password' => 'yFJ25T3d28d96l1',
             'host' => 'sql.cubbyhole.name',
-            'dbname' => 'cubbydev'
+            'dbname' => 'cubbydev',
+            'charset' => 'utf8',
+            'driverOptions' => array(
+                1002 => 'SET NAMES utf8'
+            ),
+            'attributes' => array(
+                'default_table_collate' => 'utf8_unicode_ci',
+                'default_table_charset' => 'utf8'
+            )
         );
  
         $em = \Doctrine\ORM\EntityManager::create($connectionOptions, $config);
