@@ -26,7 +26,7 @@ class Login extends CI_Controller {
 
 		$viewModel["view"] = "front/login";
 		$viewModel["prevent_messages"] = $this->prevent_messages;
-		$this->load->view('layouts/main.php', $viewModel);
+		$this->load->view('layouts/main', $viewModel);
 	}
 
 	public function register()
@@ -43,7 +43,7 @@ class Login extends CI_Controller {
 
 		$viewModel["view"] = "front/register";
 		$viewModel["prevent_messages"] = $this->prevent_messages;
-		$this->load->view('layouts/main.php', $viewModel);
+		$this->load->view('layouts/main', $viewModel);
 	}
 
 	private function connect_user() {
@@ -101,6 +101,18 @@ class Login extends CI_Controller {
 			$this->doctrine->em->flush();
 
 			// Send user email
+
+			$this->email->clear();
+			$this->email->initialize(array(
+				'mailtype' => 'html',
+				'charset'  => 'utf-8',
+				'priority' => '1'
+            ));
+			$this->email->to($user->getEmail());
+			$this->email->from('registration@cubbyhole.name');
+			$this->email->subject('Votre inscription sur Cubbyhole');
+			$this->email->message($this->load->view('layouts/main', array('user' => $user, 'view' => 'email/registration'), TRUE));
+			$this->email->send();
 
 			$this->session->set_flashdata('message', 'Successfull registration.');
 			redirect('/Login', 'location');
