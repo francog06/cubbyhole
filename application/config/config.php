@@ -14,7 +14,7 @@
 | path to your installation.
 |
 */
-$config['base_url']	= 'http://www.cubbyhole.name';
+$config['base_url']	= 'http://local.cubbyhole.name';
 
 /*
 |--------------------------------------------------------------------------
@@ -224,7 +224,7 @@ $config['cache_path'] = '';
 | MUST set an encryption key.  See the user guide for info.
 |
 */
-$config['encryption_key'] = 'test';
+$config['encryption_key'] = 'cubbyhole2014';
 
 /*
 |--------------------------------------------------------------------------
