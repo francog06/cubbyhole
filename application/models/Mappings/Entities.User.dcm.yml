@@ -25,6 +25,9 @@ Entities\User:
     user_location_ip:
       type: string
       nullable: false
+    is_admin:
+      type: boolean
+      nullable: false
   oneToMany:
     plan_historys:
       targetEntity: PlanHistory
@@ -38,3 +41,8 @@ Entities\User:
       targetEntity: File
       mappedBy: user
       cascade: ["persist", "merge"]
+    shares:
+      targetEntity: Share
+      mappedBy: user
+      cascade: ["persist", "merge"]
+    

@@ -1,6 +1,6 @@
-Entities\DataHistory:
+Entities\Share:
   type: entity
-  table: data_history
+  table: share
   fields:
     id:
       type: integer
@@ -10,16 +10,19 @@ Entities\DataHistory:
     date:
       type: datetime
       nullable: false
-    ip:
-      type: string
-      nullable: false
-    country:
-      type: string
-      nullable: false
-  manyToOne:
+  oneToMany:
+    users:
+      targetEntity: User
+      mappedBy: share
+      cascade: ["persist", "merge"]
+  oneToOne:
+    folder:
+      targetEntity: Folder
+      joinColumn:
+        name: folder_id
+        referencedColumnName: id
     file:
       targetEntity: File
-      inversedBy: file
       joinColumn:
         name: file_id
         referencedColumnName: id

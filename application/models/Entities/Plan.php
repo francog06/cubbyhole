@@ -30,9 +30,9 @@ class Plan
     private $duration;
 
     /**
-     * @var integer $storage_space
+     * @var integer $usable_storage_space
      */
-    private $storage_space;
+    private $usable_storage_space;
 
     /**
      * @var integer $max_bandwidth
@@ -131,25 +131,25 @@ class Plan
     }
 
     /**
-     * Set storage_space
+     * Set usable_storage_space
      *
-     * @param integer $storageSpace
+     * @param integer $usableStorageSpace
      * @return Plan
      */
-    public function setStorageSpace($storageSpace)
+    public function setUsableStorageSpace($usableStorageSpace)
     {
-        $this->storage_space = $storageSpace;
+        $this->usable_storage_space = $usableStorageSpace;
         return $this;
     }
 
     /**
-     * Get storage_space
+     * Get usable_storage_space
      *
      * @return integer 
      */
-    public function getStorageSpace()
+    public function getUsableStorageSpace()
     {
-        return $this->storage_space;
+        return $this->usable_storage_space;
     }
 
     /**

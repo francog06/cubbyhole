@@ -20,14 +20,14 @@ class DataHistory
     private $date;
 
     /**
-     * @var string $download_ip
+     * @var string $ip
      */
-    private $download_ip;
+    private $ip;
 
     /**
-     * @var string $download_zone
+     * @var string $country
      */
-    private $download_zone;
+    private $country;
 
     /**
      * @var Entities\File
@@ -68,47 +68,47 @@ class DataHistory
     }
 
     /**
-     * Set download_ip
+     * Set ip
      *
-     * @param string $downloadIp
+     * @param string $ip
      * @return DataHistory
      */
-    public function setDownloadIp($downloadIp)
+    public function setIp($ip)
     {
-        $this->download_ip = $downloadIp;
+        $this->ip = $ip;
         return $this;
     }
 
     /**
-     * Get download_ip
+     * Get ip
      *
      * @return string 
      */
-    public function getDownloadIp()
+    public function getIp()
     {
-        return $this->download_ip;
+        return $this->ip;
     }
 
     /**
-     * Set download_zone
+     * Set country
      *
-     * @param string $downloadZone
+     * @param string $country
      * @return DataHistory
      */
-    public function setDownloadZone($downloadZone)
+    public function setCountry($country)
     {
-        $this->download_zone = $downloadZone;
+        $this->country = $country;
         return $this;
     }
 
     /**
-     * Get download_zone
+     * Get country
      *
      * @return string 
      */
-    public function getDownloadZone()
+    public function getCountry()
     {
-        return $this->download_zone;
+        return $this->country;
     }
 
     /**

@@ -22,14 +22,17 @@ Entities\File:
     absolute_path:
       type: string
       nullable: false
+    public_link_path:
+      type: string
+      nullable: false
     is_public:
       type: boolean
       nullable: false
     access_key:
       type: string
       nullable: true
-    public_link_path:
-      type: string
+    size:
+      type: float
       nullable: false
   oneToMany:
     data_histories:
@@ -48,4 +51,10 @@ Entities\File:
       inversedBy: foler
       joinColumn:
         name: folder_id
+        referencedColumnName: id
+  oneToOne:
+    share:
+      targetEntity: Share
+      joinColumn:
+        name: share_id
         referencedColumnName: id

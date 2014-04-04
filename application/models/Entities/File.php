@@ -40,6 +40,11 @@ class File
     private $absolute_path;
 
     /**
+     * @var string $public_link_path
+     */
+    private $public_link_path;
+
+    /**
      * @var boolean $is_public
      */
     private $is_public;
@@ -50,9 +55,14 @@ class File
     private $access_key;
 
     /**
-     * @var string $public_link_path
+     * @var float $size
      */
-    private $public_link_path;
+    private $size;
+
+    /**
+     * @var Entities\Share
+     */
+    private $share;
 
     /**
      * @var \Doctrine\Common\Collections\ArrayCollection
@@ -195,6 +205,28 @@ class File
     }
 
     /**
+     * Set public_link_path
+     *
+     * @param string $publicLinkPath
+     * @return File
+     */
+    public function setPublicLinkPath($publicLinkPath)
+    {
+        $this->public_link_path = $publicLinkPath;
+        return $this;
+    }
+
+    /**
+     * Get public_link_path
+     *
+     * @return string 
+     */
+    public function getPublicLinkPath()
+    {
+        return $this->public_link_path;
+    }
+
+    /**
      * Set is_public
      *
      * @param boolean $isPublic
@@ -239,25 +271,47 @@ class File
     }
 
     /**
-     * Set public_link_path
+     * Set size
      *
-     * @param string $publicLinkPath
+     * @param float $size
      * @return File
      */
-    public function setPublicLinkPath($publicLinkPath)
+    public function setSize($size)
     {
-        $this->public_link_path = $publicLinkPath;
+        $this->size = $size;
         return $this;
     }
 
     /**
-     * Get public_link_path
+     * Get size
      *
-     * @return string 
+     * @return float 
      */
-    public function getPublicLinkPath()
+    public function getSize()
     {
-        return $this->public_link_path;
+        return $this->size;
+    }
+
+    /**
+     * Set share
+     *
+     * @param Entities\Share $share
+     * @return File
+     */
+    public function setShare(\Entities\Share $share = null)
+    {
+        $this->share = $share;
+        return $this;
+    }
+
+    /**
+     * Get share
+     *
+     * @return Entities\Share 
+     */
+    public function getShare()
+    {
+        return $this->share;
     }
 
     /**

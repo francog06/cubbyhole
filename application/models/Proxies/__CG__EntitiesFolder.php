@@ -135,16 +135,16 @@ class Folder extends \Entities\Folder implements \Doctrine\ORM\Proxy\Proxy
         return parent::getAccessKey();
     }
 
-    public function setPublicLinkPath($publicLinkPath)
+    public function setShare(\Entities\Share $share = NULL)
     {
         $this->__load();
-        return parent::setPublicLinkPath($publicLinkPath);
+        return parent::setShare($share);
     }
 
-    public function getPublicLinkPath()
+    public function getShare()
     {
         $this->__load();
-        return parent::getPublicLinkPath();
+        return parent::getShare();
     }
 
     public function addFile(\Entities\File $files)
@@ -180,7 +180,7 @@ class Folder extends \Entities\Folder implements \Doctrine\ORM\Proxy\Proxy
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'name', 'creation_date', 'last_update_date', 'relative_path', 'absolute_path', 'is_public', 'access_key', 'public_link_path', 'files', 'user');
+        return array('__isInitialized__', 'id', 'name', 'creation_date', 'last_update_date', 'relative_path', 'absolute_path', 'is_public', 'access_key', 'share', 'files', 'user');
     }
 
     public function __clone()

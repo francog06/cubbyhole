@@ -16,7 +16,7 @@ Entities\Plan:
     duration:
       type: integer
       nullable: false
-    storage_space:
+    usable_storage_space:
       type: integer
       nullable: false
     max_bandwidth:

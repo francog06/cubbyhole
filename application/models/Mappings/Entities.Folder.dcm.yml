@@ -28,9 +28,6 @@ Entities\Folder:
     access_key:
       type: string
       nullable: true
-    public_link_path:
-      type: string
-      nullable: false
   oneToMany:
     files:
       targetEntity: File
@@ -42,4 +39,10 @@ Entities\Folder:
       inversedBy: user
       joinColumn:
         name: user_id
+        referencedColumnName: id
+  oneToOne:
+    share:
+      targetEntity: Share
+      joinColumn:
+        name: share_id
         referencedColumnName: id

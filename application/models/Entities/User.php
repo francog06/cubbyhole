@@ -35,6 +35,11 @@ class User
     private $user_location_ip;
 
     /**
+     * @var boolean $is_admin
+     */
+    private $is_admin;
+
+    /**
      * @var \Doctrine\Common\Collections\ArrayCollection
      */
     private $plan_historys;
@@ -49,11 +54,17 @@ class User
      */
     private $files;
 
+    /**
+     * @var \Doctrine\Common\Collections\ArrayCollection
+     */
+    private $shares;
+
     public function __construct()
     {
         $this->plan_historys = new \Doctrine\Common\Collections\ArrayCollection();
         $this->folders = new \Doctrine\Common\Collections\ArrayCollection();
         $this->files = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->shares = new \Doctrine\Common\Collections\ArrayCollection();
     }
     
     /**
@@ -155,6 +166,28 @@ class User
     }
 
     /**
+     * Set is_admin
+     *
+     * @param boolean $isAdmin
+     * @return User
+     */
+    public function setIsAdmin($isAdmin)
+    {
+        $this->is_admin = $isAdmin;
+        return $this;
+    }
+
+    /**
+     * Get is_admin
+     *
+     * @return boolean 
+     */
+    public function getIsAdmin()
+    {
+        return $this->is_admin;
+    }
+
+    /**
      * Add plan_historys
      *
      * @param Entities\PlanHistory $planHistorys
@@ -248,5 +281,37 @@ class User
     public function getFiles()
     {
         return $this->files;
+    }
+
+    /**
+     * Add shares
+     *
+     * @param Entities\Share $shares
+     * @return User
+     */
+    public function addShare(\Entities\Share $shares)
+    {
+        $this->shares[] = $shares;
+        return $this;
+    }
+
+    /**
+     * Remove shares
+     *
+     * @param Entities\Share $shares
+     */
+    public function removeShare(\Entities\Share $shares)
+    {
+        $this->shares->removeElement($shares);
+    }
+
+    /**
+     * Get shares
+     *
+     * @return Doctrine\Common\Collections\Collection 
+     */
+    public function getShares()
+    {
+        return $this->shares;
     }
 }

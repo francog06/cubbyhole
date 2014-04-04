@@ -87,16 +87,16 @@ class Plan extends \Entities\Plan implements \Doctrine\ORM\Proxy\Proxy
         return parent::getDuration();
     }
 
-    public function setStorageSpace($storageSpace)
+    public function setUsableStorageSpace($usableStorageSpace)
     {
         $this->__load();
-        return parent::setStorageSpace($storageSpace);
+        return parent::setUsableStorageSpace($usableStorageSpace);
     }
 
-    public function getStorageSpace()
+    public function getUsableStorageSpace()
     {
         $this->__load();
-        return parent::getStorageSpace();
+        return parent::getUsableStorageSpace();
     }
 
     public function setMaxBandwidth($maxBandwidth)
@@ -144,7 +144,7 @@ class Plan extends \Entities\Plan implements \Doctrine\ORM\Proxy\Proxy
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'name', 'price', 'duration', 'storage_space', 'max_bandwidth', 'daily_data_transfert', 'plan_historys');
+        return array('__isInitialized__', 'id', 'name', 'price', 'duration', 'usable_storage_space', 'max_bandwidth', 'daily_data_transfert', 'plan_historys');
     }
 
     public function __clone()

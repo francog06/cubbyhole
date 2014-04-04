@@ -50,9 +50,9 @@ class Folder
     private $access_key;
 
     /**
-     * @var string $public_link_path
+     * @var Entities\Share
      */
-    private $public_link_path;
+    private $share;
 
     /**
      * @var \Doctrine\Common\Collections\ArrayCollection
@@ -234,25 +234,25 @@ class Folder
     }
 
     /**
-     * Set public_link_path
+     * Set share
      *
-     * @param string $publicLinkPath
+     * @param Entities\Share $share
      * @return Folder
      */
-    public function setPublicLinkPath($publicLinkPath)
+    public function setShare(\Entities\Share $share = null)
     {
-        $this->public_link_path = $publicLinkPath;
+        $this->share = $share;
         return $this;
     }
 
     /**
-     * Get public_link_path
+     * Get share
      *
-     * @return string 
+     * @return Entities\Share 
      */
-    public function getPublicLinkPath()
+    public function getShare()
     {
-        return $this->public_link_path;
+        return $this->share;
     }
 
     /**

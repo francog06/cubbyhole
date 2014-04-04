@@ -111,6 +111,18 @@ class File extends \Entities\File implements \Doctrine\ORM\Proxy\Proxy
         return parent::getAbsolutePath();
     }
 
+    public function setPublicLinkPath($publicLinkPath)
+    {
+        $this->__load();
+        return parent::setPublicLinkPath($publicLinkPath);
+    }
+
+    public function getPublicLinkPath()
+    {
+        $this->__load();
+        return parent::getPublicLinkPath();
+    }
+
     public function setIsPublic($isPublic)
     {
         $this->__load();
@@ -135,16 +147,28 @@ class File extends \Entities\File implements \Doctrine\ORM\Proxy\Proxy
         return parent::getAccessKey();
     }
 
-    public function setPublicLinkPath($publicLinkPath)
+    public function setSize($size)
     {
         $this->__load();
-        return parent::setPublicLinkPath($publicLinkPath);
+        return parent::setSize($size);
     }
 
-    public function getPublicLinkPath()
+    public function getSize()
     {
         $this->__load();
-        return parent::getPublicLinkPath();
+        return parent::getSize();
+    }
+
+    public function setShare(\Entities\Share $share = NULL)
+    {
+        $this->__load();
+        return parent::setShare($share);
+    }
+
+    public function getShare()
+    {
+        $this->__load();
+        return parent::getShare();
     }
 
     public function addDataHistorie(\Entities\DataHistory $dataHistories)
@@ -192,7 +216,7 @@ class File extends \Entities\File implements \Doctrine\ORM\Proxy\Proxy
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'name', 'creation_date', 'last_update_date', 'relative_path', 'absolute_path', 'is_public', 'access_key', 'public_link_path', 'data_histories', 'user', 'folder');
+        return array('__isInitialized__', 'id', 'name', 'creation_date', 'last_update_date', 'relative_path', 'absolute_path', 'public_link_path', 'is_public', 'access_key', 'size', 'share', 'data_histories', 'user', 'folder');
     }
 
     public function __clone()

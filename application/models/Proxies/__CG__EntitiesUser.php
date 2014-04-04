@@ -99,6 +99,18 @@ class User extends \Entities\User implements \Doctrine\ORM\Proxy\Proxy
         return parent::getUserLocationIp();
     }
 
+    public function setIsAdmin($isAdmin)
+    {
+        $this->__load();
+        return parent::setIsAdmin($isAdmin);
+    }
+
+    public function getIsAdmin()
+    {
+        $this->__load();
+        return parent::getIsAdmin();
+    }
+
     public function addPlanHistory(\Entities\PlanHistory $planHistorys)
     {
         $this->__load();
@@ -153,10 +165,28 @@ class User extends \Entities\User implements \Doctrine\ORM\Proxy\Proxy
         return parent::getFiles();
     }
 
+    public function addShare(\Entities\Share $shares)
+    {
+        $this->__load();
+        return parent::addShare($shares);
+    }
+
+    public function removeShare(\Entities\Share $shares)
+    {
+        $this->__load();
+        return parent::removeShare($shares);
+    }
+
+    public function getShares()
+    {
+        $this->__load();
+        return parent::getShares();
+    }
+
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'email', 'password', 'registration_date', 'user_location_ip', 'plan_historys', 'folders', 'files');
+        return array('__isInitialized__', 'id', 'email', 'password', 'registration_date', 'user_location_ip', 'is_admin', 'plan_historys', 'folders', 'files', 'shares');
     }
 
     public function __clone()
