@@ -58,7 +58,7 @@ class Login extends CI_Controller {
 					->getQuery();
 
 		try {
-		$user = $query->getSingleResult();
+			$user = $query->getSingleResult();
 		} catch (Doctrine\ORM\NoResultException $e) {
 			$this->prevent_messages[] = array('type' => 'danger', 'message' => 'No user exist for the email specified.');
 			return null;

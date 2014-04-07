@@ -1066,6 +1066,20 @@ class REST_Controller extends CI_Controller
 	}
 
 	/**
+	 * Retrieve a value from the POST or GET request arguments.
+	 *
+	 * @param string $key The key for the POST request argument to retrieve
+	 * @param boolean $xss_clean Whether the value should be XSS cleaned or not.
+	 * @return string The POST argument value.
+	 */
+	public function mandatory_value($key = null, $method = null, $xss_clean = TRUE) {
+		if ($this->{$method}($key) === FALSE) {
+			$this->response(array('error' => true, 'error_message' => '`'.$key.'` is required'), 400);
+		}
+		return $this->{$method}($key, $xss_clean);
+	}
+
+	/**
 	 * Retrieve a value from the POST request arguments.
 	 *
 	 * @param string $key The key for the POST request argument to retrieve

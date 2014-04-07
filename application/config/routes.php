@@ -40,7 +40,8 @@
 
 $route['default_controller'] = "home";
 $route['404_override'] = '';
-$route['api/(:any)/format.(:any)'] = "api/$1/format.$3"; // api/{controller}/{method}/{format}
+
+//$route['api/(:any)/format.(:any)'] = "api/$1/format.$3"; // api/{controller}/{method}/{format}
 
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */
