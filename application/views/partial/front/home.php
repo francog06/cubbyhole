@@ -6,9 +6,9 @@
                 <div class="">
                     <h3 class="masthead-brand"><img src="<?=img("logo.png")?>" height="60" alt="logo" /></h3>
                     <ul class="nav nav-pills pull-right" style="margin-top:20px;">
-                        <li class="active"><a href="/Home/index">Accueil</a></li>
-                        <li><a href="/Home/price">Prix</a></li>
-                        <li><a href="/Home/download">Télécharger</a></li>
+                        <li class="active"><a href="/home/index">Accueil</a></li>
+                        <li><a href="/home/price">Prix</a></li>
+                        <li><a href="/home/download">Télécharger</a></li>
                     </ul>
                 </div>
             </div>
@@ -21,10 +21,10 @@
                 <h1 class="cover-heading" style="margin-top:5px;">Vos fichiers, toujours présents.</h1>
                 <p class="lead">Sauvegardez vos données sur le <strong>cloud</strong> <br />et partagez-les avec qui vous voulez, simplement.</p>
                 <p class="lead">
-                    <a href="/Login/register" class="btn btn-lg btn-info">S'inscrire</a>
+                    <a href="/login/register" class="btn btn-lg btn-info">S'inscrire</a>
                 </p>
                 <p class="lead">
-                    ou <a href="/Login" class="btn btn-link">Se connecter</a>
+                    ou <a href="/login" class="btn btn-link">Se connecter</a>
                 </p>
             </div>
 

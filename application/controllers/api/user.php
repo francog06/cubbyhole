@@ -152,4 +152,11 @@ class User extends REST_Controller {
 
 		$this->response(array('error' => false, 'message' => 'User has been removed.'), 200);
 	}
+
+	// @POST send mail
+	public function forget_post() {
+		$user_email = $this->mandatory_value('email', 'post');
+
+		// Send mail with information
+	}
 }

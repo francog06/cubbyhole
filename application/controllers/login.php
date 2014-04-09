@@ -95,7 +95,8 @@ class Login extends CI_Controller {
 			$user->setEmail($user_email)
 				->setPassword($this->encrypt->encode($user_pass))
 				->setRegistrationDate(new DateTime('now'))
-				->setUserLocationIp($this->input->ip_address());
+				->setUserLocationIp($this->input->ip_address())
+				->setIsAdmin(false);
 
 			$this->doctrine->em->persist($user);
 			$this->doctrine->em->flush();
@@ -115,7 +116,7 @@ class Login extends CI_Controller {
 			$this->email->send();
 
 			$this->session->set_flashdata('message', 'Successfull registration.');
-			redirect('/Login', 'location');
+			redirect('/login', 'location');
 		}
 	}
 }
