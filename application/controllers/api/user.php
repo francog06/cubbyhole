@@ -157,6 +157,39 @@ class User extends REST_Controller {
 	public function forget_post() {
 		$user_email = $this->mandatory_value('email', 'post');
 
-		// Send mail with information
+		if (!valid_email($user_email)) {
+			$this->response(array('error' => true, 'message' => 'Invalid email.'), 400);
+		}
+
+		$query = $this->doctrine->em->createQueryBuilder()
+					->add('select', 'u')
+					->add('from', 'Entities\User u')
+					->add('where', 'u.email = :email')
+					->setParameter('email', $user_email)
+					->getQuery();
+
+		try {
+			$user = $query->getSingleResult();
+		} catch (Doctrine\ORM\NoResultException $e) {
+			$this->response(array('error' => true, 'message' => 'No user exist for the email specified.'), 400);
+			return null;
+		} catch (Exception $e) {
+			$this->response(array('error' => true, 'message' => 'An error occured, please contact an administrator: '. $e->getMessage()), 400);
+			return null;
+		}
+
+		$this->email->clear();
+		$this->email->initialize(array(
+			'mailtype' => 'html',
+			'charset'  => 'utf-8',
+			'priority' => '1'
+        ));
+		$this->email->to($user->getEmail());
+		$this->email->from('password@cubbyhole.name');
+		$this->email->subject('Votre mot de passe sur Cubbyhole');
+		$this->email->message($this->load->view('layouts/main', array('user' => $user, 'view' => 'email/forget_password'), TRUE));
+		$this->email->send();
+
+		$this->response(array('error' => false, 'message' => 'Mail sent.'), 200);
 	}
 }

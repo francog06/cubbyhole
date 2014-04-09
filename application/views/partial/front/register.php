@@ -22,7 +22,7 @@
                 		<div class="alert alert-<?=$message['type']?>"><?=$message['message']?></div>
 	                <?php endforeach ?>
                 <?php endif; ?>
-                <?=form_open('/Login/register', ['class' => 'form-signin', 'role' => 'form'])?>
+                <?=form_open('/login/register', ['class' => 'form-signin', 'role' => 'form'])?>
                     <?=form_fieldset( 'Register Form' )?>
                         <p>
                             <?=form_error('user_email');?>

@@ -25,7 +25,7 @@
                 <?php if ( $this->session->flashdata( 'message' ) ) : ?>
                     <div class="alert alert-success"><?=$this->session->flashdata('message')?></div>
                 <?php endif; ?>
-                <?=form_open('Login', ['class' => 'form-signin', 'role' => 'form'])?>
+                <?=form_open('login', ['class' => 'form-signin', 'role' => 'form'])?>
                     <?=form_fieldset( 'Login Form' )?>
                         <p>
                             <?=form_error('user_email');?>

@@ -63,7 +63,7 @@ class Login extends CI_Controller {
 			$this->prevent_messages[] = array('type' => 'danger', 'message' => 'No user exist for the email specified.');
 			return null;
 		} catch (Exception $e) {
-			$this->prevent_messages[] = array('type' => 'danger', 'message' => 'An error occured, please contact administrator: '. $e->getMessage());
+			$this->prevent_messages[] = array('type' => 'danger', 'message' => 'An error occured, please contact an administrator: '. $e->getMessage());
 			return null;
 		}
 
