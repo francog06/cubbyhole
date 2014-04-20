@@ -118,7 +118,14 @@ class User extends REST_Controller {
 			$this->email->message($this->load->view('layouts/main', array('user' => $user, 'view' => 'email/registration'), TRUE));
 			$this->email->send();
 
-			$this->response(array('error' => false, 'message' => 'Successfull registration.', 'user' => $user), 201);
+			$response = [
+				"id" => $user->getId(),
+				"email" => $user->getEmail(),
+				"isAdmin" => $user->getIsAdmin(),
+				"files" => $user->getFiles(),
+				"folders" => $user->getFolders()
+			];
+			$this->response(array('error' => false, 'message' => 'Successfull registration.', 'user' => $response), 201);
 		}
 	}
 
@@ -134,7 +141,7 @@ class User extends REST_Controller {
 		}
 	}
 
-	// @UPDATE update user informations (such as IP, password, admin)
+	// @DELETE delete user
 	public function delete_delete($id = null) {
 		if (is_null($id)) {
 			$this->response(array('error' => true, 'message' => 'id not defined.'), 400);
