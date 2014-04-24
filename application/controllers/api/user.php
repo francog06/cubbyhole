@@ -129,7 +129,7 @@ class User extends REST_Controller {
 		}
 	}
 
-	// @UPDATE update user informations (such as IP, password, admin)
+	// @UPDATE update user informations (such as IP, password, admin): Need to do a request with Content-Type: application/x-www-form-urlencoded
 	public function update_put($id = null) {
 		if (is_null($id)) {
 			$this->response(array('error' => true, 'message' => 'id not defined.'), 400);
