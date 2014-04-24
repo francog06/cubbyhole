@@ -10,10 +10,15 @@ Entities\Share:
     date:
       type: datetime
       nullable: false
-  oneToMany:
+  manyToMany:
     users:
       targetEntity: User
-      mappedBy: share
+      mappedBy: shared_with_me
+      cascade: ["persist", "merge"]
+  manyToOne:
+    owner:
+      inversedBy: shared
+      targetEntity: User
       cascade: ["persist", "merge"]
   oneToOne:
     folder:

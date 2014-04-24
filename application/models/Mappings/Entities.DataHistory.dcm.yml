@@ -19,7 +19,7 @@ Entities\DataHistory:
   manyToOne:
     file:
       targetEntity: File
-      inversedBy: file
+      inversedBy: data_histories
       joinColumn:
         name: file_id
         referencedColumnName: id
