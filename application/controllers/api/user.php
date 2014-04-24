@@ -139,6 +139,26 @@ class User extends REST_Controller {
 		if (is_null($user)) {
 			$this->response(array('error' => true, 'message' => 'user not found.'), 400);
 		}
+
+		if ( ($email = $this->put('email')) !== false ) {
+			$user->setEmail($email);
+		}
+
+		if ( ($password = $this->put('password')) !== false ) {
+			$user->setPassword($this->encrypt->encode($password));
+		}
+
+		if ( ($user_location_ip = $this->put('user_location_ip')) !== false ) {
+			$user->setUserLocationIp($user_location_ip);
+		}
+
+		if ( ($is_admin = $this->put('is_admin')) !== false ) {
+			$user->setIsAdmin( ($is_admin == 1 ? true : false) );
+		}
+
+		$this->doctrine->em->merge($user);
+		$this->doctrine->em->flush();
+		$this->response(array('error' => true, 'message' => 'user updated successfully.'), 200);
 	}
 
 	// @DELETE delete user
