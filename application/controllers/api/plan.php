@@ -11,14 +11,12 @@ class Plan extends REST_Controller {
 	}
 
 	/*
+		/api/plan/ : Requête GET récupération de tous les plans
+		/api/plan/details/{ID} : Requête GET récupération des détails d'un plan
 
-	/api/plan/ : Requête GET récupération de tous les plans
-	/api/plan/details/{ID} : Requête GET récupération des détails d'un plan
-
-	/api/plan/create : Requête POST -> création d'un plan
-	/api/plan/update/{ID} : Requête PUT -> modification d'un plan
-	/api/plan/delete/{ID} : Requête DELETE -> suppression d'un plan
-
+		/api/plan/create : Requête POST -> création d'un plan
+		/api/plan/update/{ID} : Requête PUT -> modification d'un plan
+		/api/plan/delete/{ID} : Requête DELETE -> suppression d'un plan
 	*/
 
 	//GET ALL PLAN

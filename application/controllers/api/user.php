@@ -154,7 +154,7 @@ class User extends REST_Controller {
 
 		$this->doctrine->em->remove($user);
 
-		// Does we will need remove user's files & folders.
+		// will we need remove user's files & folders ?
 		$this->doctrine->em->flush();
 
 		$this->response(array('error' => false, 'message' => 'User has been removed.'), 200);
