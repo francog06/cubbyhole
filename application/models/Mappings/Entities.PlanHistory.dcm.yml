@@ -19,13 +19,13 @@ Entities\PlanHistory:
   manyToOne:
     user:
       targetEntity: User
-      inversedBy: user
+      inversedBy: plan_historys
       joinColumn:
         name: user_id
         referencedColumnName: id
     plan:
       targetEntity: Plan
-      inversedBy: plan
+      inversedBy: plan_historys
       joinColumn:
         name: plan_id
         referencedColumnName: id

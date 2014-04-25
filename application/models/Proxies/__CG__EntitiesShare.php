@@ -87,6 +87,18 @@ class Share extends \Entities\Share implements \Doctrine\ORM\Proxy\Proxy
         return parent::getFile();
     }
 
+    public function setOwner(\Entities\User $owner = NULL)
+    {
+        $this->__load();
+        return parent::setOwner($owner);
+    }
+
+    public function getOwner()
+    {
+        $this->__load();
+        return parent::getOwner();
+    }
+
     public function addUser(\Entities\User $users)
     {
         $this->__load();
@@ -108,7 +120,7 @@ class Share extends \Entities\Share implements \Doctrine\ORM\Proxy\Proxy
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'date', 'folder', 'file', 'users');
+        return array('__isInitialized__', 'id', 'date', 'folder', 'file', 'owner', 'users');
     }
 
     public function __clone()
