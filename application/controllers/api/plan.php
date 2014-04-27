@@ -31,6 +31,43 @@ class Plan extends REST_Controller {
 		$this->response(array('error' => false, 'plans' => $result), 200);
 	}
 
+	public function update_plan($id = null)
+	{
+		if (is_null($id)) {
+			$this->response(array('error' => true, 'message' => 'id not defined.'), 400);
+		}
+
+		$plan = $this->doctrine->em->find('Entities\Plan', (int)$id);
+		if (is_null($plan)) {
+			$this->response(array('error' => true, 'message' => 'plan not found.'), 400);
+		}
+
+		if ( ($name = $this->put('name')) !== false ) {
+			$plan->setName($name);
+		}
+		if ( ($price = $this->put('price')) !== false ) {
+			$plan->setPrice($price);
+		}
+		if ( ($duration = $this->put('duration')) !== false ) {
+			$plan->setDuration($duration);
+		}
+		if ( ($usable_storage_space = $this->put('usable_storage_space')) !== false ) {
+			$plan->setUsableStorageSpace($usable_storage_space);
+		}
+		if ( ($max_bandwidth = $this->put('max_bandwidth')) !== false ) {
+			$plan->setMaxBandwidth($max_bandwidth);
+		}
+		if ( ($daily_data_transfert = $this->put('daily_data_transfert')) !== false ) {
+			$plan->setDailyDataTransfert($daily_data_transfert);
+		}
+
+
+		$this->doctrine->em->merge($plan);
+		$this->doctrine->em->flush();
+		$this->response(array('error' => true, 'message' => 'plan updated successfully.'), 200);
+
+	}
+
 	//GET DETAILS PLAN
 	public function details_get($id = null) 
 	{
