@@ -30,6 +30,11 @@ class Share
     private $file;
 
     /**
+     * @var Entities\User
+     */
+    private $owner;
+
+    /**
      * @var \Doctrine\Common\Collections\ArrayCollection
      */
     private $users;
@@ -113,6 +118,28 @@ class Share
     public function getFile()
     {
         return $this->file;
+    }
+
+    /**
+     * Set owner
+     *
+     * @param Entities\User $owner
+     * @return Share
+     */
+    public function setOwner(\Entities\User $owner = null)
+    {
+        $this->owner = $owner;
+        return $this;
+    }
+
+    /**
+     * Get owner
+     *
+     * @return Entities\User 
+     */
+    public function getOwner()
+    {
+        return $this->owner;
     }
 
     /**

@@ -42,13 +42,13 @@ Entities\File:
   manyToOne:
     user:
       targetEntity: User
-      inversedBy: user
+      inversedBy: files
       joinColumn:
         name: user_id
         referencedColumnName: id
     folder:
       targetEntity: Folder
-      inversedBy: foler
+      inversedBy: files
       joinColumn:
         name: folder_id
         referencedColumnName: id

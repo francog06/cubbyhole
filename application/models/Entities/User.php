@@ -57,14 +57,20 @@ class User
     /**
      * @var \Doctrine\Common\Collections\ArrayCollection
      */
-    private $shares;
+    private $shared;
+
+    /**
+     * @var \Doctrine\Common\Collections\ArrayCollection
+     */
+    private $shared_with_me;
 
     public function __construct()
     {
         $this->plan_historys = new \Doctrine\Common\Collections\ArrayCollection();
         $this->folders = new \Doctrine\Common\Collections\ArrayCollection();
         $this->files = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->shares = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->shared = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->shared_with_me = new \Doctrine\Common\Collections\ArrayCollection();
     }
     
     /**
@@ -284,35 +290,67 @@ class User
     }
 
     /**
-     * Add shares
+     * Add shared
      *
-     * @param Entities\Share $shares
+     * @param Entities\Share $shared
      * @return User
      */
-    public function addShare(\Entities\Share $shares)
+    public function addShared(\Entities\Share $shared)
     {
-        $this->shares[] = $shares;
+        $this->shared[] = $shared;
         return $this;
     }
 
     /**
-     * Remove shares
+     * Remove shared
      *
-     * @param Entities\Share $shares
+     * @param Entities\Share $shared
      */
-    public function removeShare(\Entities\Share $shares)
+    public function removeShared(\Entities\Share $shared)
     {
-        $this->shares->removeElement($shares);
+        $this->shared->removeElement($shared);
     }
 
     /**
-     * Get shares
+     * Get shared
      *
      * @return Doctrine\Common\Collections\Collection 
      */
-    public function getShares()
+    public function getShared()
     {
-        return $this->shares;
+        return $this->shared;
+    }
+
+    /**
+     * Add shared_with_me
+     *
+     * @param Entities\Share $sharedWithMe
+     * @return User
+     */
+    public function addSharedWithMe(\Entities\Share $sharedWithMe)
+    {
+        $this->shared_with_me[] = $sharedWithMe;
+        return $this;
+    }
+
+    /**
+     * Remove shared_with_me
+     *
+     * @param Entities\Share $sharedWithMe
+     */
+    public function removeSharedWithMe(\Entities\Share $sharedWithMe)
+    {
+        $this->shared_with_me->removeElement($sharedWithMe);
+    }
+
+    /**
+     * Get shared_with_me
+     *
+     * @return Doctrine\Common\Collections\Collection 
+     */
+    public function getSharedWithMe()
+    {
+        return $this->shared_with_me;
     }
 
     /**
