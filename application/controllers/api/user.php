@@ -158,7 +158,7 @@ class User extends REST_Controller {
 
 		$this->doctrine->em->merge($user);
 		$this->doctrine->em->flush();
-		$this->response(array('error' => true, 'message' => 'user updated successfully.'), 200);
+		$this->response(array('error' => false, 'message' => 'user updated successfully.'), 200);
 	}
 
 	// @DELETE delete user
