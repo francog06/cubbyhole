@@ -10,7 +10,8 @@
 
     <!-- Bootstrap core CSS -->
     <link href="<?=css("bootstrap.min")?>" rel="stylesheet">
-
+    <!--<script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>-->
+    <script type="text/javascript" src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
     <!-- Custom styles for this template -->
     <link href="<?=css("style")?>" rel="stylesheet">
 

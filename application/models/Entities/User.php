@@ -314,4 +314,22 @@ class User
     {
         return $this->shares;
     }
+
+    /**
+    * Get all users
+    *
+    * @return Doctrine\Common\Collections\Collection
+    */
+    public static function getAllUsers()
+    {
+        $ci =& get_instance();
+         $query = $ci->doctrine->em->createQueryBuilder()
+                    ->add('select', 'u')
+                    ->add('from', 'Entities\User u')
+                    ->getQuery();
+
+        $result = $query->getArrayResult();
+
+        return $result;
+    }
 }
