@@ -173,11 +173,14 @@ class PlanHistory implements \JsonSerializable
                 if (is_object($value) && strstr(get_class($value), 'Doctrine') !== false) {
                     $collectionJson = array();
                     foreach ($value->getKeys() as $collectionKey) {
-                        $collectionJson[] = $value->current()->getId();
+                        if (method_exists($value->current(), 'getId'))
+                            $collectionJson[] = $value->current()->getId();
                         $value->next();
                     }
                     $json[$key] = $collectionJson;
                 }
+                else if ($key == "user")
+                    $json[$key] = $value->getId();
                 else
                     $json[$key] = $value;
             }

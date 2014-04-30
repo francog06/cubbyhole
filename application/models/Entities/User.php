@@ -377,14 +377,14 @@ class User implements \JsonSerializable
      * @return public object
      */
     public function jsonSerialize() {
-        $excludes = ["password"];
+        $excludes = [];
         $json = [];
         foreach ($this as $key => $value) {
             if (!in_array($key, $excludes)) {
                 if (is_object($value) && strstr(get_class($value), 'Doctrine') !== false) {
                     $collectionJson = array();
                     foreach ($value->getKeys() as $collectionKey) {
-                        $collectionJson[] = $value->current()->getId();
+                        $collectionJson[] = $value->current();
                         $value->next();
                     }
                     $json[$key] = $collectionJson;
