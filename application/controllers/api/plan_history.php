@@ -88,7 +88,7 @@ class Plan_history extends REST_Controller {
 		$this->response(array('error' => false, 'message' => 'A new plan history has been added.', 'PlanHistory' => $PlanHistory), 201);
 	}
 
-	// @UPDATE 
+	// @UPDATE
 	public function update_put($id = null) {
 		if (is_null($id)) {
 			$this->response(array('error' => true, 'message' => 'Id not defined.'), 400);
@@ -103,7 +103,7 @@ class Plan_history extends REST_Controller {
 		$this->doctrine->em->merge($PlanHistory);
 		$this->doctrine->em->flush();
 
-		$this->response(array('error' => false, 'message' => 'Successfully updated the plan history.', 'PlanHistory' => $PlanHistory), 201);
+		$this->response(array('error' => false, 'message' => 'Successfully updated the plan history.', 'PlanHistory' => $PlanHistory), 200);
 	}
 
 	// @DELETE delete PlanHistory
@@ -121,5 +121,44 @@ class Plan_history extends REST_Controller {
 		$this->doctrine->em->flush();
 
 		$this->response(array('error' => false, 'message' => 'PlanHistory has been removed.'), 200);
+	}
+
+	// @GET plan
+	public function plan_get($id = null) {
+		if (is_null($id)) {
+			$this->response(array('error' => true, 'message' => 'Id not defined.'), 400);
+		}
+
+		$Plan = $this->doctrine->em->find('Entities\Plan', (int)$id);
+		if (is_null($Plan)) {
+			$this->response(array('error' => true, 'message' => 'Plan not found.'), 400);
+		}
+
+		$query = $this->doctrine->em->createQueryBuilder()
+			->select('count(ph)')
+			->from('Entities\PlanHistory', 'ph')
+			->where('ph.plan = :plan AND ph.is_active = :active')
+			->setParameter('plan', $Plan)
+			->setParameter('active', '1')
+			->getQuery();
+
+		$res = $query->getSingleScalarResult();
+		$this->response(array('error' => false, 'numbers' => $res), 200);
+	}
+
+	// @GET expires
+	public function expires_get() {
+		$expiration = new DateTime('now');
+		$expiration->add(new DateInterval('P7D'));
+		$query = $this->doctrine->em->createQueryBuilder()
+			->select('ph')
+			->from('Entities\PlanHistory', 'ph')
+			->where('ph.expiration_plan_date < :expiration AND ph.is_active = :active')
+			->setParameter('expiration', $expiration)
+			->setParameter('active', '1')
+			->getQuery();
+
+		$res = $query->getArrayResult();
+		$this->response(array('error' => false, 'numbers' => count($res), 'planHistories' => $res), 200);
 	}
 }
