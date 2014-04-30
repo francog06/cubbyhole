@@ -19,12 +19,14 @@ class Plan_history extends REST_Controller {
 			$this->response(array('error' => true, 'message' => 'PlanHistory not found.'), 400);
 		}
 
-		$response = ["id" => $PlanHistory->getId(),
-		"subscriptionPlanDate" => $PlanHistory->getSubscriptionPlanDate(),
-		"expirationPlanDate" => $PlanHistory->getExpirationPlanDate(),
-		"isActive" => $PlanHistory->getIsActive(),
-		"user" => $PlanHistory->getUser(),
-		"plan" => $PlanHistory->getPlan()];
+		$response = [
+			"id" => $PlanHistory->getId(),
+			"subscriptionPlanDate" => $PlanHistory->getSubscriptionPlanDate(),
+			"expirationPlanDate" => $PlanHistory->getExpirationPlanDate(),
+			"isActive" => $PlanHistory->getIsActive(),
+			"user" => $PlanHistory->getUser()->getId(),
+			"plan" => $PlanHistory->getPlan()->getId()
+		];
 		$this->response(array('error' => false, 'PlanHistory' => $response), 200);
 	}
 
@@ -44,12 +46,14 @@ class Plan_history extends REST_Controller {
 		if (isset($planHistorys) && $planHistorys->count() > 0) {
 			foreach ($planHistorys as $planHistory) {
 				if($planHistory->getIsActive() == true) {
-					$response = ["id" => $planHistory->getId(),
-					"subscriptionPlanDate" => $planHistory->getSubscriptionPlanDate(),
-					"expirationPlanDate" => $planHistory->getExpirationPlanDate(),
-					"isActive" => $planHistory->getIsActive(),
-					"user" => $planHistory->getUser(),
-					"plan" => $planHistory->getPlan()];
+					$response = [
+						"id" => $planHistory->getId(),
+						"subscriptionPlanDate" => $planHistory->getSubscriptionPlanDate(),
+						"expirationPlanDate" => $planHistory->getExpirationPlanDate(),
+						"isActive" => $planHistory->getIsActive(),
+						"user" => $planHistory->getUser()->getId(),
+						"plan" => $planHistory->getPlan()->getId()
+					];
 				}
 			}
 			if (isset($response)) {
@@ -77,20 +81,15 @@ class Plan_history extends REST_Controller {
 			$this->response(array('error' => true, 'message' => 'Plan not found.'), 400);
 		}
 
-		$query = $this->doctrine->em->createQueryBuilder()
-					->add('SELECT', 'ph')
-					->add('FROM', 'Entities\PlanHistory ph')
-					->add('WHERE', 'ph.user = :user')
-					->add('AND', 'ph.isActive = TRUE')
-					->setParameter('user', $User)
-					->getQuery();
+		$test = $this->doctrine->em->createQueryBuilder()
+				->update('Entities\PlanHistory', 'ph')
+				->set('ph.is_active', '0')
+				->where('ph.user = :user AND ph.is_active = :active')
+				->setParameter('user', $User)
+				->setParameter('active', '1')
+				->getQuery()
+				->execute();
 
-		$result = $query->getArrayResult();
-		if (!empty($result)) {
-			foreach ($result as $activePlan) {
-				$activePlan->setIsActive(false);
-			}
-		}
 		$PlanHistory = new Entities\PlanHistory;
 
 		$expiration = new DateTime('now');
@@ -105,13 +104,16 @@ class Plan_history extends REST_Controller {
 		$this->doctrine->em->flush();
 
 		$User->addPlanHistory($PlanHistory);
-		$response = ["id" => $planHistory->getId(),
-		"subscriptionPlanDate" => $PlanHistory->getSubscriptionPlanDate(),
-		"expirationPlanDate" => $PlanHistory->getExpirationPlanDate(),
-		"isActive" => $PlanHistory->getIsActive(),
-		"user" => $PlanHistory->getUser(),
-		"plan" => $PlanHistory->getPlan()];
-		$this->response(array('error' => false, 'message' => 'A new plan has been added.', 'PlanHistory' => $response), 201);
+
+		$response = [
+			"id" => $PlanHistory->getId(),
+			"subscriptionPlanDate" => $PlanHistory->getSubscriptionPlanDate(),
+			"expirationPlanDate" => $PlanHistory->getExpirationPlanDate(),
+			"isActive" => $PlanHistory->getIsActive(),
+			"user" => $PlanHistory->getUser()->getId(),
+			"plan" => $PlanHistory->getPlan()->getId()
+		];
+		$this->response(array('error' => false, 'message' => 'A new plan history has been added.', 'PlanHistory' => $response), 201);
 	}
 
 	// @UPDATE 
@@ -124,6 +126,20 @@ class Plan_history extends REST_Controller {
 		if (is_null($PlanHistory)) {
 			$this->response(array('error' => true, 'message' => 'PlanHistory not found.'), 400);
 		}
+
+		$PlanHistory->setIsActive(!$PlanHistory->getIsActive());
+		$this->doctrine->em->merge($PlanHistory);
+		$this->doctrine->em->flush();
+
+		$response = [
+			"id" => $PlanHistory->getId(),
+			"subscriptionPlanDate" => $PlanHistory->getSubscriptionPlanDate(),
+			"expirationPlanDate" => $PlanHistory->getExpirationPlanDate(),
+			"isActive" => $PlanHistory->getIsActive(),
+			"user" => $PlanHistory->getUser()->getId(),
+			"plan" => $PlanHistory->getPlan()->getId()
+		];
+		$this->response(array('error' => false, 'message' => 'Successfully updated the plan history.', 'PlanHistory' => $response), 201);
 	}
 
 	// @DELETE delete PlanHistory
@@ -138,8 +154,6 @@ class Plan_history extends REST_Controller {
 		}
 
 		$this->doctrine->em->remove($PlanHistory);
-
-		// Does we will need remove PlanHistory's files & folders.
 		$this->doctrine->em->flush();
 
 		$this->response(array('error' => false, 'message' => 'PlanHistory has been removed.'), 200);
