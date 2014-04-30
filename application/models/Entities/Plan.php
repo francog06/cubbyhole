@@ -234,7 +234,7 @@ class Plan implements \JsonSerializable
      * @return public object
      */
     public function jsonSerialize() {
-        $excludes = [];
+        $excludes = ["plan_historys", "user"];
         $json = [];
         foreach ($this as $key => $value) {
             if (!in_array($key, $excludes)) {
