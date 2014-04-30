@@ -23,13 +23,10 @@ class User extends REST_Controller {
 
 		// We will put all informations about user (id, email, files, folder...)
 		$response = [
-			"id" => $user->getId(),
-			"email" => $user->getEmail(),
-			"isAdmin" => $user->getIsAdmin(),
-			"files" => $user->getFiles(),
-			"folders" => $user->getFolders()
+			"error" => false,
+			"user" => $user
 		];
-		$this->response($response, 200);
+		$this->response(array('error' => false, 'user' => $user), 200);
 	}
 
 	// @POST login
@@ -62,11 +59,7 @@ class User extends REST_Controller {
 			$this->response(array(
 				'error' => false,
 				'message' => 'Connection successfull',
-				'user' => array(
-					'id' => $user->getId(),
-					'email' => $user->getEmail(),
-					'is_admin' => $user->getIsAdmin()
-				)
+				'user' => $user
 			), 200);
 		} else {
 			$this->response(array('error' => true, 'message' => 'Invalid password'), 400);
@@ -118,14 +111,7 @@ class User extends REST_Controller {
 			$this->email->message($this->load->view('layouts/main', array('user' => $user, 'view' => 'email/registration'), TRUE));
 			$this->email->send();
 
-			$response = [
-				"id" => $user->getId(),
-				"email" => $user->getEmail(),
-				"isAdmin" => $user->getIsAdmin(),
-				"files" => $user->getFiles(),
-				"folders" => $user->getFolders()
-			];
-			$this->response(array('error' => false, 'message' => 'Successfull registration.', 'user' => $response), 201);
+			$this->response(array('error' => false, 'message' => 'Successfull registration.', 'user' => $user), 201);
 		}
 	}
 
@@ -158,7 +144,7 @@ class User extends REST_Controller {
 
 		$this->doctrine->em->merge($user);
 		$this->doctrine->em->flush();
-		$this->response(array('error' => false, 'message' => 'user updated successfully.'), 200);
+		$this->response(array('error' => false, 'message' => 'user updated successfully.', 'user' => $user), 200);
 	}
 
 	// @DELETE delete user
@@ -173,8 +159,6 @@ class User extends REST_Controller {
 		}
 
 		$this->doctrine->em->remove($user);
-
-		// will we need remove user's files & folders ?
 		$this->doctrine->em->flush();
 
 		$this->response(array('error' => false, 'message' => 'User has been removed.'), 200);

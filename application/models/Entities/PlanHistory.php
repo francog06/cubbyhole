@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Entities\PlanHistory
  */
-class PlanHistory
+class PlanHistory implements \JsonSerializable
 {
     /**
      * @var integer $id
@@ -158,5 +158,30 @@ class PlanHistory
     public function getPlan()
     {
         return $this->plan;
+    }
+
+    /**
+     * JSON serialize
+     * 
+     * @return public object
+     */
+    public function jsonSerialize() {
+        $excludes = ["password"];
+        $json = [];
+        foreach ($this as $key => $value) {
+            if (!in_array($key, $excludes)) {
+                if (is_object($value) && strstr(get_class($value), 'Doctrine') !== false) {
+                    $collectionJson = array();
+                    foreach ($value->getKeys() as $collectionKey) {
+                        $collectionJson[] = $value->current()->getId();
+                        $value->next();
+                    }
+                    $json[$key] = $collectionJson;
+                }
+                else
+                    $json[$key] = $value;
+            }
+        }
+        return $json;
     }
 }

@@ -79,19 +79,8 @@ class Plan extends REST_Controller {
 		if (is_null($plan)) {
 			$this->response(array('error' => true, 'message' => 'plan not found.'), 400);
 		}
-		
-		// We will put all informations about plan  (id, name, price, duration, usable_storage_space, ...)
-		$response = [
-			"id" => $plan->getId(),
-			"name" => $plan->getName(),
-			"price" => $plan->getPrice(),
-			"duration" => $plan->getDuration(),
-			"usable_storage_space" => $plan->getUsableStorageSpace(),
-			"max_bandwidth" => $plan->getMaxBandwidth(),
-			"daily_data_transfert" => $plan->getDailyDataTransfert(),
-			"plan_historys" => $plan->getPlanHistorys()
-		];
-		$this->response($response, 200);
+
+		$this->response(array('error' => false, 'plan' => $plan), 200);
 	}
 
 
@@ -130,21 +119,13 @@ class Plan extends REST_Controller {
 			$this->doctrine->em->persist($plan);
 			$this->doctrine->em->flush();
 
-			$response = [
-				'name' => $plan->getName(),
-				'price' => $plan->getPrice(),
-				'duration' => $plan->getDuration(),
-				'usable_storage_space' => $plan->getUsableStorageSpace(),
-				'max_bandwidth' => $plan->getMaxBandwidth(),
-				'daily_data_transfert' => $plan->getDailyDataTransfert()
-			];
-			$this->response(array('error' => false, 'message' => 'Plan successfully created.', 'plan' => $response), 201);
+			$this->response(array('error' => false, 'message' => 'Plan successfully created.', 'plan' => $plan), 201);
 		}
 	 }
 
-	 //@UPDATE PLAN 
+	//@UPDATE PLAN 
 	public function update_put($id = null)
-	 {
+	{
 		if (is_null($id)) {
 			$this->response(array('error' => true, 'message' => 'id not defined.'), 400);
 		}
@@ -153,11 +134,11 @@ class Plan extends REST_Controller {
 		if (is_null($plan)) {
 			$this->response(array('error' => true, 'message' => 'plan not found.'), 400);
 		}
-	 }
+	}
 
-	 //@DELETE PLAN 
+	//@DELETE PLAN 
 	public function delete_delete($id = null)
-	 {
+	{
 		if (is_null($id)) {
 			$this->response(array('error' => true, 'message' => 'id not defined.'), 400);
 		}
@@ -172,5 +153,5 @@ class Plan extends REST_Controller {
 		$this->doctrine->em->flush();
 		$this->response(array('error' => false, 'message' => 'Plan: '. $plan . ' has been removed.'), 200);
 
-	 }
+	}
 }

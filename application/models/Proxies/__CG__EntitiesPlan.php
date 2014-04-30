@@ -141,6 +141,12 @@ class Plan extends \Entities\Plan implements \Doctrine\ORM\Proxy\Proxy
         return parent::getPlanHistorys();
     }
 
+    public function jsonSerialize()
+    {
+        $this->__load();
+        return parent::jsonSerialize();
+    }
+
 
     public function __sleep()
     {
