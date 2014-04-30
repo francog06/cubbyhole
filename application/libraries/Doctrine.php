@@ -43,6 +43,7 @@ class Doctrine
             'dbname' => $CI->db->database
         );
         */
+
         $connectionOptions = array(
             'driver' => 'pdo_mysql',
             'user' => 'dev',
