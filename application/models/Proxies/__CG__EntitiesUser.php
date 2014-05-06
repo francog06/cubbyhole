@@ -201,6 +201,18 @@ class User extends \Entities\User implements \Doctrine\ORM\Proxy\Proxy
         return parent::getSharedWithMe();
     }
 
+    public function getActivePlanHistory()
+    {
+        $this->__load();
+        return parent::getActivePlanHistory();
+    }
+
+    public function getStorageUsed()
+    {
+        $this->__load();
+        return parent::getStorageUsed();
+    }
+
     public function jsonSerialize()
     {
         $this->__load();
