@@ -253,4 +253,16 @@ class Plan implements \JsonSerializable
         }
         return $json;
     }
+
+    public function getAllPlans(){
+        $ci =& get_instance();
+         $query = $ci->doctrine->em->createQueryBuilder()
+                    ->add('select', 'p')
+                    ->add('from', 'Entities\Plan p')
+                    ->getQuery();
+
+        $result = $query->getArrayResult();
+
+        return $result;
+    }
 }

@@ -6,6 +6,7 @@
                 <div class="">
                     <h3 class="masthead-brand"><img src="<?=img("logo.png")?>" height="60" alt="logo" /></h3>
                     <ul class="nav nav-pills pull-right" style="margin-top:20px;">
+                        <li><a href="/">Retour au site</a></li>
                         <li class="active"><a href="/admin/index">Accueil</a></li>
                         <li><a href="/home/price">Users</a></li>
                         <li><a href="/home/download">Plans</a></li>

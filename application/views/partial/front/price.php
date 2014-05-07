@@ -21,82 +21,58 @@
 				<div class="row-fluid">
 					<div class="pricing-table row-fluid text-center">
 						<div class="span4" style="float:left;margin-right:15px;">
-							<div class="plan">
-								<div class="plan-name">
-									<h2>Basic</h2>
-									<p class="muted">Perfect for small budget</p>
-								</div>
-								<div class="plan-price">
-									<b>$19</b> / month
-								</div>
-								<div class="plan-details">
-									<div>
-										<b>Unlimited</b> Download
-									</div>
-									<div>
-										<b>Free</b> Priority Shipping
-									</div>
-									<div>
-										<b>Unlimited</b> Warranty
-									</div>
-								</div>
-								<div class="plan-action">
-									<a href="#" class="btn btn-block btn-large">Choose Plan</a>
-								</div>
-							</div>
-						</div>
-
-						<div class="span4" style="float:left;margin-right:15px;">
 							<div class="plan prefered">
 								<div class="plan-name">
-									<h2>Standard</h2>
-									<p class="muted">Perfect for medium budget</p>
+									<h2>Gratuit</h2>
+									<p class="muted">Inclus dès l'inscription</p>
 								</div>
 								<div class="plan-price">
-									<b>$39</b> / month
+									<b>Gratuit</b> à vie
 								</div>
 								<div class="plan-details">
 									<div>
-										<b>Unlimited</b> Download
+										<b>1 Go</b> d'espace
 									</div>
 									<div>
-										<b>Free</b> Priority Shipping
+										<b>100</b> kB/s réels 
 									</div>
 									<div>
-										<b>Unlimited</b> Warranty
+										<b>100 Mo/jour</b> de partage
 									</div>
 								</div>
 								<div class="plan-action">
-									<a href="#" class="btn btn-success btn-block btn-large">Choose Plan</a>
+									<a href="#" class="btn btn-block btn-large">Choisir ce Plan</a>
 								</div>
 							</div>
 						</div>
-
-						<div class="span4" style="float:left;">
+					<?php foreach($plans as $plan): ?>
+						<div class="span4" style="float:left;margin-right:15px;">
 							<div class="plan">
 								<div class="plan-name">
-									<h2>Advance</h2>
-									<p class="muted">Perfect for large budget</p>
+									<h2><?php echo $plan["name"]; ?></h2>
+									<p class="muted"><?php echo $plan["description"]; ?></p>
 								</div>
 								<div class="plan-price">
-									<b>$59</b> / month
+									<b><?php echo $plan["price"]; ?>€</b> / <?php echo $plan["duration"]==30?"mois":$plan["duration"]." jours"; ?>
 								</div>
 								<div class="plan-details">
 									<div>
-										<b>Unlimited</b> Download
+										<b><?php echo $plan["usable_storage_space"]; ?> Go</b> d'espace 
 									</div>
 									<div>
-										<b>Free</b> Priority Shipping
+										<b><?php echo $plan["max_bandwidth"]; ?></b> kB/s réels 
 									</div>
 									<div>
-										<b>Unlimited</b> Warranty
+										<b><?php echo $plan["daily_data_transfert"]; ?> Mo/jour</b>  de partage
 									</div>
 								</div>
 								<div class="plan-action">
-									<a href="#" class="btn btn-block btn-large">Choose Plan</a>
+									<a href="#" class="btn btn-success btn-block btn-large">Choisir ce Plan</a>
 								</div>
 							</div>
 						</div>
+					<?php endforeach; ?>
+						
 						<div style="clear:both"></div>
 					</div>
 					<p class="muted text-center">Note: You can change or cancel your plan at anytime in your account settings.</p>

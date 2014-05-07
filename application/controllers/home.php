@@ -15,6 +15,7 @@ class Home extends CI_Controller {
 
 	public function price()
 	{
+		$viewModel["plans"] = Entities\Plan::getAllPlans();
 		$viewModel["view"] = "front/price";
 		$this->load->view('layouts/main', $viewModel);
 	}
