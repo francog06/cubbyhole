@@ -74,12 +74,18 @@ class Plan_history extends REST_Controller {
 		$PlanHistory = new Entities\PlanHistory;
 
 		$expiration = new DateTime('now');
-		$expiration->add(new DateInterval('P'. $Plan->getDuration(). 'D'));
 		$PlanHistory->setUser($User)
 		->setPlan($Plan)
 		->setSubscriptionPlanDate(new DateTime('now'))
-		->setExpirationPlanDate($expiration)
 		->setIsActive(true);
+
+		if ( ($duration = $this->post('duration')) == false ) {
+			$expiration->add(new DateInterval('P'. $Plan->getDuration(). 'D'));
+		}
+		else {
+			$expiration->add(new DateInterval('P'. $Plan->getDuration(). 'D'));
+		}
+		$PlanHistory->setExpirationPlanDate($expiration);
 
 		$this->doctrine->em->persist($PlanHistory);
 		$this->doctrine->em->flush();
