@@ -94,6 +94,10 @@ class User extends REST_Controller {
 				->setUserLocationIp($this->input->ip_address())
 				->setIsAdmin(false);
 
+			if ( ($is_admin = $this->post('is_admin')) == false ) {
+				$user->setIsAdmin( $is_admin == "0" ? false : true );
+			}
+
 			$this->doctrine->em->persist($user);
 			$this->doctrine->em->flush();
 

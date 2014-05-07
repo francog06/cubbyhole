@@ -16,13 +16,7 @@ Entities\File:
     last_update_date:
       type: datetime
       nullable: false
-    relative_path:
-      type: string
-      nullable: false
     absolute_path:
-      type: string
-      nullable: false
-    public_link_path:
       type: string
       nullable: false
     is_public:

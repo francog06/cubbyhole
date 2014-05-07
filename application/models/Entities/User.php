@@ -372,6 +372,38 @@ class User implements \JsonSerializable
     }
 
     /**
+    * Get active plan
+    * @return Entities\PlanHistory
+    */
+    public function getActivePlanHistory() {
+        $ci =& get_instance();
+
+        $query = $ci->doctrine->em->createQueryBuilder()
+                ->add('select', 'ph')
+                ->add('from', 'Entities\PlanHistory ph')
+                ->add('where', 'ph.user = :user AND ph.is_active = :active')
+                ->setParameter('user', $this)
+                ->setParameter('active', '1')
+                ->getQuery();
+
+        return $query->getSingleResult();
+    }
+
+    /**
+    * Get space used by User
+    * @return Integer
+    */
+    public function getStorageUsed() {
+        $totalMbUsed = 0;
+
+        foreach ($this->getFiles()->toArray() as $file) {
+            $totalMbUsed += $file->getSize();
+        }
+
+        return $totalMbUsed;
+    }
+
+    /**
      * JSON serialize
      * 
      * @return public object
