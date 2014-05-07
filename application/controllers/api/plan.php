@@ -60,6 +60,9 @@ class Plan extends REST_Controller {
 		if ( ($daily_data_transfert = $this->put('daily_data_transfert')) !== false ) {
 			$plan->setDailyDataTransfert($daily_data_transfert);
 		}
+		if ( ($description = $this->put('description')) !== false ) {
+			$plan->setDescription($description);
+		}
 
 
 		$this->doctrine->em->merge($plan);
@@ -89,6 +92,7 @@ class Plan extends REST_Controller {
 	 {
 	 	// Valid PLAN NAME?
 		$plan_name = $this->mandatory_value('name', 'post');
+		$plan_description = $this->mandatory_value('description', 'post');
 		$plan_price = $this->mandatory_value('price', 'post');
 		$plan_duration = $this->mandatory_value('duration', 'post');
 		$plan_usable_storage_space = $this->mandatory_value('usable_storage_space', 'post');
@@ -114,7 +118,8 @@ class Plan extends REST_Controller {
 				->setDuration($plan_duration)
 				->setUsableStorageSpace($plan_usable_storage_space)
 				->setMaxBandwidth($plan_max_bandwidth)
-				->setDailyDataTransfert($plan_daily_data_transfert);
+				->setDailyDataTransfert($plan_daily_data_transfert)
+				->setDescription($plan_description);
 
 			$this->doctrine->em->persist($plan);
 			$this->doctrine->em->flush();
