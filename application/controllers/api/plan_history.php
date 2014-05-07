@@ -80,10 +80,10 @@ class Plan_history extends REST_Controller {
 		->setIsActive(true);
 
 		if ( ($duration = $this->post('duration')) == false ) {
-			$expiration->add(new DateInterval('P'. $Plan->getDuration(). 'D'));
+			$expiration->add(new DateInterval('P'. $duration . 'D'));
 		}
 		else {
-			$expiration->add(new DateInterval('P'. $Plan->getDuration(). 'D'));
+			$expiration->add(new DateInterval('P'. $Plan->getDuration() . 'D'));
 		}
 		$PlanHistory->setExpirationPlanDate($expiration);
 
