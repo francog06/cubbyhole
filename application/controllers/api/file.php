@@ -142,7 +142,7 @@ class File extends REST_Controller {
 				mkdir($uploadPath, 0777, true);
 			}
 			@rename($file->getAbsolutePath(), $uploadPath . basename($file->getAbsolutePath()));
-			$file->setAbsolutePath($uploadPath . basename($file->getAbsolutePath()));
+			$file->setAbsolutePath(realpath($uploadPath . basename($file->getAbsolutePath())));
 		}
 
 		if ( ($is_public = $this->post('is_public')) !== false ) {
