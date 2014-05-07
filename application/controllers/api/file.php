@@ -136,7 +136,6 @@ class File extends REST_Controller {
 				$this->response(array('error' => true, 'message' => 'user not found.'), 400);
 			}
 			$file->setUser($user);
-			// Lorem ipsum
 
 			$uploadPath = APPPATH . 'uploads/' . $user->getId() . "/";
 			if (!is_dir($uploadPath)) {
