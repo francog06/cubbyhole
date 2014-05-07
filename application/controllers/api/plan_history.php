@@ -49,8 +49,8 @@ class Plan_history extends REST_Controller {
 
 	// @POST create
 	public function create_post() {
-		$PlanHistory_planId = $this->mandatory_value('planId', 'post');
-		$PlanHistory_userId = $this->mandatory_value('userId', 'post');
+		$PlanHistory_planId = $this->mandatory_value('plan_id', 'post');
+		$PlanHistory_userId = $this->mandatory_value('user_id', 'post');
 
 		$User = $this->doctrine->em->find('Entities\User', (int)$PlanHistory_userId);
 		if (is_null($User)) {
@@ -62,14 +62,14 @@ class Plan_history extends REST_Controller {
 			$this->response(array('error' => true, 'message' => 'Plan not found.'), 400);
 		}
 
-		$test = $this->doctrine->em->createQueryBuilder()
-				->update('Entities\PlanHistory', 'ph')
-				->set('ph.is_active', '0')
-				->where('ph.user = :user AND ph.is_active = :active')
-				->setParameter('user', $User)
-				->setParameter('active', '1')
-				->getQuery()
-				->execute();
+		$this->doctrine->em->createQueryBuilder()
+			->update('Entities\PlanHistory', 'ph')
+			->set('ph.is_active', '0')
+			->where('ph.user = :user AND ph.is_active = :active')
+			->setParameter('user', $User)
+			->setParameter('active', '1')
+			->getQuery()
+			->execute();
 
 		$PlanHistory = new Entities\PlanHistory;
 
@@ -79,7 +79,7 @@ class Plan_history extends REST_Controller {
 		->setSubscriptionPlanDate(new DateTime('now'))
 		->setIsActive(true);
 
-		if ( ($duration = $this->post('duration')) == false ) {
+		if ( ($duration = $this->post('duration')) !== false ) {
 			$expiration->add(new DateInterval('P'. $duration . 'D'));
 		}
 		else {
@@ -106,6 +106,18 @@ class Plan_history extends REST_Controller {
 		}
 
 		$PlanHistory->setIsActive(!$PlanHistory->getIsActive());
+
+		if ($PlanHistory->getIsActive()) {
+			$test = $this->doctrine->em->createQueryBuilder()
+				->update('Entities\PlanHistory', 'ph')
+				->set('ph.is_active', '0')
+				->where('ph.user = :user AND ph.is_active = :active')
+				->setParameter('user', $PlanHistory->getUser())
+				->setParameter('active', '1')
+				->getQuery()
+				->execute();
+		}
+
 		$this->doctrine->em->merge($PlanHistory);
 		$this->doctrine->em->flush();
 

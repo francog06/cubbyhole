@@ -30,16 +30,6 @@ class Folder implements \JsonSerializable
     private $last_update_date;
 
     /**
-     * @var string $relative_path
-     */
-    private $relative_path;
-
-    /**
-     * @var string $absolute_path
-     */
-    private $absolute_path;
-
-    /**
      * @var boolean $is_public
      */
     private $is_public;
@@ -143,50 +133,6 @@ class Folder implements \JsonSerializable
     public function getLastUpdateDate()
     {
         return $this->last_update_date;
-    }
-
-    /**
-     * Set relative_path
-     *
-     * @param string $relativePath
-     * @return Folder
-     */
-    public function setRelativePath($relativePath)
-    {
-        $this->relative_path = $relativePath;
-        return $this;
-    }
-
-    /**
-     * Get relative_path
-     *
-     * @return string 
-     */
-    public function getRelativePath()
-    {
-        return $this->relative_path;
-    }
-
-    /**
-     * Set absolute_path
-     *
-     * @param string $absolutePath
-     * @return Folder
-     */
-    public function setAbsolutePath($absolutePath)
-    {
-        $this->absolute_path = $absolutePath;
-        return $this;
-    }
-
-    /**
-     * Get absolute_path
-     *
-     * @return string 
-     */
-    public function getAbsolutePath()
-    {
-        return $this->absolute_path;
     }
 
     /**
@@ -310,59 +256,6 @@ class Folder implements \JsonSerializable
     }
 
     /**
-     * Get childrens
-     * 
-     *  @return array
-     */
-    public function getChildrens() {
-        $ci =& get_instance();
-        $queryFiles = $ci->doctrine->em->createQueryBuilder()
-                    ->add('select', 'f')
-                    ->add('from', 'Entities\File f')
-                    ->add('where', 'folder_id = :folder')
-                    ->setParameter('folder', $this)
-                    ->getQuery();
-
-        $files = $query->getArrayResult();
-
-        $queryFolders = $ci->doctrine->em->createQueryBuilder()
-                    ->add('select', 'f')
-                    ->add('from', 'Entities\Folder f')
-                    ->add('where', 'folder_id = :folder')
-                    ->setParameter('folder', $this)
-                    ->getQuery();
-
-        $folders = $query->getArrayResult();
-
-        return array_merge($files, $folders);
-    }
-
-    /**
-     * JSON serialize
-     * 
-     * @return public object
-     */
-    public function jsonSerialize() {
-        $excludes = ["user"];
-        $json = [];
-        foreach ($this as $key => $value) {
-            if (!in_array($key, $excludes)) {
-                if (is_object($value) && strstr(get_class($value), 'Doctrine') !== false) {
-                    $collectionJson = array();
-                    foreach ($value->getKeys() as $collectionKey) {
-                        $collectionJson[] = $value->current();
-                        $value->next();
-                    }
-                    $json[$key] = $collectionJson;
-                }
-                else
-                    $json[$key] = $value;
-            }
-        }
-        return $json;
-    }
-
-    /**
      * @var \Doctrine\Common\Collections\ArrayCollection
      */
     private $folders;
@@ -425,5 +318,34 @@ class Folder implements \JsonSerializable
     public function getParent()
     {
         return $this->parent;
+    }
+
+    /**
+     * JSON serialize
+     * 
+     * @return public object
+     */
+    public function jsonSerialize() {
+        $excludes = ["user", "parent", "folders"];
+        $json = [];
+        foreach ($this as $key => $value) {
+            if (!in_array($key, $excludes)) {
+                if (is_object($value) && strstr(get_class($value), 'Doctrine') !== false) {
+                    $collectionJson = array();
+                    foreach ($value->getKeys() as $collectionKey) {
+                        $collectionJson[] = $value->current();
+                        $value->next();
+                    }
+                    $json[$key] = $collectionJson;
+                }
+                else
+                    $json[$key] = $value;
+            }
+        }
+        $stats = new \StdClass();
+        $stats->files = count($this->files->toArray());
+        $stats->folders = count($this->folders->toArray());
+        $json['stats'] = $stats;
+        return $json;
     }
 }

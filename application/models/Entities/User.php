@@ -386,14 +386,14 @@ class User implements \JsonSerializable
                 ->setParameter('active', '1')
                 ->getQuery();
 
-        $collection = null;
+        $ph = null;
         try {
-            $collection = $query->getSingleResult();
+            $ph = $query->getSingleResult();
         } catch (\Doctrine\ORM\NoResultException $e) {
         } catch (Exception $e) {
         }
 
-        return $collection;
+        return $ph;
     }
 
     /**
@@ -416,8 +416,17 @@ class User implements \JsonSerializable
      * @return public object
      */
     public function jsonSerialize() {
-        $excludes = [];
+        $excludes = ["plan_historys"];
         $json = [];
+
+        $this->folders = $this->folders->filter(function($_) {
+            return ($_->getParent() == null);
+        });
+
+        $this->files = $this->files->filter(function($_) {
+            return ($_->getFolder() == null);
+        });
+
         foreach ($this as $key => $value) {
             if (!in_array($key, $excludes)) {
                 if (is_object($value) && strstr(get_class($value), 'Doctrine') !== false) {
@@ -432,6 +441,7 @@ class User implements \JsonSerializable
                     $json[$key] = $value;
             }
         }
+        $json['activePlanHistory'] = self::getActivePlanHistory();
         return $json;
     }
 }
