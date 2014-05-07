@@ -92,7 +92,6 @@
         }
         else{
             editencours = true;
-
             var btn = $(this);
             btn.button('loading');
             var userId = $(this).parent().attr('id');
@@ -103,11 +102,10 @@
                     "X-API-KEY":"5422e102a743fd70a22ee4ff7c2ebbe8"
                 },
                 success: function(result) {
-
-                    if(result.id > 0){
-                        $("#user_id").val(result.id);
-                        $("#user_email").val(result.email);
-                        if(result.isAdmin == true){
+                    if(result.user.id > 0){
+                        $("#user_id").val(result.user.id);
+                        $("#user_email").val(result.user.email);
+                        if(result.user.is_admin == true){
                             $("#user_is_admin_yes").prop("checked", true);
                             $("#user_is_admin_no").prop("checked", false);
                         }

@@ -645,6 +645,96 @@ td{
 }
 
 
+
+
+
+table.sortable span.sign {
+    display: block;
+    position: absolute;
+    top: 50%;
+    right: 5px;
+    font-size: 12px;
+    margin-top: -10px;
+    color: #bfbfc1;
+}
+
+table.sortable span.arrow, span.reversed {
+    border-style: solid;
+    border-width: 5px;
+    font-size: 0;
+    border-color: #ccc transparent transparent transparent;
+    line-height: 0;
+    height: 0;
+    width: 0;
+    margin-top: -2px;
+}
+
+    table.sortable span.arrow.up {
+        border-color: transparent transparent #ccc transparent;
+        margin-top: -7px;
+    }
+
+table.sortable span.reversed {
+    border-color: transparent transparent #ccc transparent;
+    margin-top: -7px;
+}
+
+    table.sortable span.reversed.up {
+        border-color: #ccc transparent transparent transparent;
+        margin-top: -2px;
+    }
+
+
+
+table.sortable span.az:before {
+    content: "a .. z";
+}
+
+table.sortable span.az.up:before {
+    content: "z .. a";
+}
+
+table.sortable span.AZ:before {
+    content: "A .. Z";
+}
+
+table.sortable span.AZ.up:before {
+    content: "Z .. A";
+}
+
+table.sortable span._19:before {
+    content: "1 .. 9";
+}
+
+table.sortable span._19.up:before {
+    content: "9 .. 1";
+}
+
+table.sortable span.month:before {
+    content: "jan .. dec";
+}
+
+table.sortable span.month.up:before {
+    content: "dec .. jan";
+}
+
+table.sortable thead th:not([data-defaultsort=disabled]) {
+    cursor: pointer;
+    position: relative;
+    top: 0;
+    left: 0;
+}
+
+table.sortable thead th:hover:not([data-defaultsort=disabled]) {
+    background: #efefef;
+}
+
+table.sortable thead th div.mozilla {
+    position: relative;
+}
+
+
+
 /*
 *
 * SPRITES
@@ -656,23 +746,98 @@ span.sprite {
   background-image: url("/assets/img/Back/sprite.png");
   background-repeat: no-repeat;
   background-position: 0 16px;
+  display: inline-block;
 }
 
 span.dossier{
-  background-position: left -686px;
-  width:32px;
-  height: 32px;
+  background-position: left -2557px;
+  width: 28px;
 }
 
 span.dossierPartage{
-  background-position: left -992px;
-  width:32px;
-  height: 32px;
+  background-position: left -2731px;
+  width: 28px;
 }
 
 span.file{
-  background-position: left -1366px;
-  width:32px;
-  height: 32px;
+  background-position: left -341px;
+  width: 28px;
 }
 
+span.filePartage{
+  background-position: left -125px;
+  width: 28px;
+}
+
+span.newFile{
+  background-position: left -10321px;
+  width: 28px;
+  height: 18px;
+}
+
+
+#dragandrophandler{
+  width: 500px;
+  height: 100px;
+  border: 2px dashed #ccc;
+  border-radius: 5px;
+  margin: 0 auto;
+  padding: 35px 0;
+}
+
+
+.progressBar {
+    width: 200px;
+    height: 22px;
+    border: 1px solid #ddd;
+    border-radius: 5px; 
+    overflow: hidden;
+    display:inline-block;
+    margin:0px 10px 5px 5px;
+    vertical-align:top;
+}
+ 
+.progressBar div {
+    height: 100%;
+    color: #333;
+    text-align: right;
+    width: 0;
+    background-color: #0ba1b5; 
+    border-radius: 3px; 
+}
+.statusbar
+{
+    margin-top: 15px;
+    min-height:45px;
+    padding:10px 10px 0px 10px;
+    vertical-align:top;
+}
+.statusbar:nth-child(odd){
+    background:#f5f5f5;
+}
+.filename
+{
+display:inline-block;
+vertical-align:top;
+width:250px;
+}
+.filesize
+{
+display:inline-block;
+vertical-align:top;
+color:#30693D;
+width:100px;
+margin-left:10px;
+margin-right:5px;
+}
+.abort{
+    background-color:#A8352F;
+    -moz-border-radius:4px;
+    -webkit-border-radius:4px;
+    border-radius:4px;display:inline-block;
+    color:#fff;
+    font-family:arial;font-size:13px;font-weight:normal;
+    padding:4px 15px;
+    cursor:pointer;
+    vertical-align:top
+    }

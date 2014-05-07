@@ -279,5 +279,23 @@ class Plan implements \JsonSerializable
     public function getDescription()
     {
         return $this->description;
+
+    }
+
+    /**
+     * Get all plans
+     * 
+     *  @return Doctrine\Common\Collections\Collection 
+     */
+    public function getAllPlans() {
+        $ci =& get_instance();
+         $query = $ci->doctrine->em->createQueryBuilder()
+                    ->add('select', 'p')
+                    ->add('from', 'Entities\Plan p')
+                    ->getQuery();
+
+        $result = $query->getArrayResult();
+
+        return $result;
     }
 }
