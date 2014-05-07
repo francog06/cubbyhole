@@ -87,18 +87,6 @@ class File extends \Entities\File implements \Doctrine\ORM\Proxy\Proxy
         return parent::getLastUpdateDate();
     }
 
-    public function setRelativePath($relativePath)
-    {
-        $this->__load();
-        return parent::setRelativePath($relativePath);
-    }
-
-    public function getRelativePath()
-    {
-        $this->__load();
-        return parent::getRelativePath();
-    }
-
     public function setAbsolutePath($absolutePath)
     {
         $this->__load();

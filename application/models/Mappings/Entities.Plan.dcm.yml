@@ -28,6 +28,16 @@ Entities\Plan:
     daily_data_transfert:
       type: integer
       nullable: false
+    is_default:
+      type: boolean
+      nullable: false
+      options:
+        default: false
+    is_active:
+      type: boolean
+      nullable: false
+      options:
+        default: false
   oneToMany:
     plan_historys:
       targetEntity: PlanHistory

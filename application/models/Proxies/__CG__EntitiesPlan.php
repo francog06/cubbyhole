@@ -165,10 +165,34 @@ class Plan extends \Entities\Plan implements \Doctrine\ORM\Proxy\Proxy
         return parent::getAllPlans();
     }
 
+    public function setIsDefault($isDefault)
+    {
+        $this->__load();
+        return parent::setIsDefault($isDefault);
+    }
+
+    public function getIsDefault()
+    {
+        $this->__load();
+        return parent::getIsDefault();
+    }
+
+    public function setIsActive($isActive)
+    {
+        $this->__load();
+        return parent::setIsActive($isActive);
+    }
+
+    public function getIsActive()
+    {
+        $this->__load();
+        return parent::getIsActive();
+    }
+
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'name', 'description', 'price', 'duration', 'usable_storage_space', 'max_bandwidth', 'daily_data_transfert', 'plan_historys');
+        return array('__isInitialized__', 'id', 'name', 'description', 'price', 'duration', 'usable_storage_space', 'max_bandwidth', 'daily_data_transfert', 'is_default', 'is_active', 'plan_historys');
     }
 
     public function __clone()

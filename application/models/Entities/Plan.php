@@ -298,4 +298,58 @@ class Plan implements \JsonSerializable
 
         return $result;
     }
+    /**
+     * @var boolean $is_default
+     */
+    private $is_default;
+
+
+    /**
+     * Set is_default
+     *
+     * @param boolean $isDefault
+     * @return Plan
+     */
+    public function setIsDefault($isDefault)
+    {
+        $this->is_default = $isDefault;
+        return $this;
+    }
+
+    /**
+     * Get is_default
+     *
+     * @return boolean 
+     */
+    public function getIsDefault()
+    {
+        return $this->is_default;
+    }
+    /**
+     * @var boolean $is_active
+     */
+    private $is_active;
+
+
+    /**
+     * Set is_active
+     *
+     * @param boolean $isActive
+     * @return Plan
+     */
+    public function setIsActive($isActive)
+    {
+        $this->is_active = $isActive;
+        return $this;
+    }
+
+    /**
+     * Get is_active
+     *
+     * @return boolean 
+     */
+    public function getIsActive()
+    {
+        return $this->is_active;
+    }
 }

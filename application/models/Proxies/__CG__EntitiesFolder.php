@@ -87,30 +87,6 @@ class Folder extends \Entities\Folder implements \Doctrine\ORM\Proxy\Proxy
         return parent::getLastUpdateDate();
     }
 
-    public function setRelativePath($relativePath)
-    {
-        $this->__load();
-        return parent::setRelativePath($relativePath);
-    }
-
-    public function getRelativePath()
-    {
-        $this->__load();
-        return parent::getRelativePath();
-    }
-
-    public function setAbsolutePath($absolutePath)
-    {
-        $this->__load();
-        return parent::setAbsolutePath($absolutePath);
-    }
-
-    public function getAbsolutePath()
-    {
-        $this->__load();
-        return parent::getAbsolutePath();
-    }
-
     public function setIsPublic($isPublic)
     {
         $this->__load();
@@ -177,18 +153,6 @@ class Folder extends \Entities\Folder implements \Doctrine\ORM\Proxy\Proxy
         return parent::getUser();
     }
 
-    public function getChildrens()
-    {
-        $this->__load();
-        return parent::getChildrens();
-    }
-
-    public function jsonSerialize()
-    {
-        $this->__load();
-        return parent::jsonSerialize();
-    }
-
     public function addFolder(\Entities\Folder $folders)
     {
         $this->__load();
@@ -217,6 +181,12 @@ class Folder extends \Entities\Folder implements \Doctrine\ORM\Proxy\Proxy
     {
         $this->__load();
         return parent::getParent();
+    }
+
+    public function jsonSerialize()
+    {
+        $this->__load();
+        return parent::jsonSerialize();
     }
 
 
