@@ -177,16 +177,52 @@ class Folder extends \Entities\Folder implements \Doctrine\ORM\Proxy\Proxy
         return parent::getUser();
     }
 
+    public function getChildrens()
+    {
+        $this->__load();
+        return parent::getChildrens();
+    }
+
     public function jsonSerialize()
     {
         $this->__load();
         return parent::jsonSerialize();
     }
 
+    public function addFolder(\Entities\Folder $folders)
+    {
+        $this->__load();
+        return parent::addFolder($folders);
+    }
+
+    public function removeFolder(\Entities\Folder $folders)
+    {
+        $this->__load();
+        return parent::removeFolder($folders);
+    }
+
+    public function getFolders()
+    {
+        $this->__load();
+        return parent::getFolders();
+    }
+
+    public function setParent(\Entities\Folder $parent = NULL)
+    {
+        $this->__load();
+        return parent::setParent($parent);
+    }
+
+    public function getParent()
+    {
+        $this->__load();
+        return parent::getParent();
+    }
+
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'name', 'creation_date', 'last_update_date', 'relative_path', 'absolute_path', 'is_public', 'access_key', 'share', 'files', 'user');
+        return array('__isInitialized__', 'id', 'name', 'creation_date', 'last_update_date', 'is_public', 'access_key', 'share', 'files', 'folders', 'user', 'parent');
     }
 
     public function __clone()

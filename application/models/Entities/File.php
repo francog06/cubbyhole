@@ -396,7 +396,7 @@ class File implements \JsonSerializable
      * @return public object
      */
     public function jsonSerialize() {
-        $excludes = ["user"];
+        $excludes = ["user", "folder"];
         $json = [];
         foreach ($this as $key => $value) {
             if (!in_array($key, $excludes)) {

@@ -16,12 +16,6 @@ Entities\Folder:
     last_update_date:
       type: datetime
       nullable: false
-    relative_path:
-      type: string
-      nullable: false
-    absolute_path:
-      type: string
-      nullable: false
     is_public:
       type: boolean
       nullable: false
@@ -33,12 +27,22 @@ Entities\Folder:
       targetEntity: File
       mappedBy: folder
       cascade: ["persist", "merge"]
+    folders:
+      targetEntity: Folder
+      mappedBy: parent
+      cascade: ["persist", "merge"]
   manyToOne:
     user:
       targetEntity: User
       inversedBy: folders
       joinColumn:
         name: user_id
+        referencedColumnName: id
+    parent:
+      targetEntity: Folder
+      inversedBy: folders
+      joinColumn:
+        name: folder_id
         referencedColumnName: id
   oneToOne:
     share:

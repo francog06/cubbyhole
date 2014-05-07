@@ -310,6 +310,34 @@ class Folder implements \JsonSerializable
     }
 
     /**
+     * Get childrens
+     * 
+     *  @return array
+     */
+    public function getChildrens() {
+        $ci =& get_instance();
+        $queryFiles = $ci->doctrine->em->createQueryBuilder()
+                    ->add('select', 'f')
+                    ->add('from', 'Entities\File f')
+                    ->add('where', 'folder_id = :folder')
+                    ->setParameter('folder', $this)
+                    ->getQuery();
+
+        $files = $query->getArrayResult();
+
+        $queryFolders = $ci->doctrine->em->createQueryBuilder()
+                    ->add('select', 'f')
+                    ->add('from', 'Entities\Folder f')
+                    ->add('where', 'folder_id = :folder')
+                    ->setParameter('folder', $this)
+                    ->getQuery();
+
+        $folders = $query->getArrayResult();
+
+        return array_merge($files, $folders);
+    }
+
+    /**
      * JSON serialize
      * 
      * @return public object
@@ -332,5 +360,70 @@ class Folder implements \JsonSerializable
             }
         }
         return $json;
+    }
+
+    /**
+     * @var \Doctrine\Common\Collections\ArrayCollection
+     */
+    private $folders;
+
+    /**
+     * @var Entities\Folder
+     */
+    private $parent;
+
+
+    /**
+     * Add folders
+     *
+     * @param Entities\Folder $folders
+     * @return Folder
+     */
+    public function addFolder(\Entities\Folder $folders)
+    {
+        $this->folders[] = $folders;
+        return $this;
+    }
+
+    /**
+     * Remove folders
+     *
+     * @param Entities\Folder $folders
+     */
+    public function removeFolder(\Entities\Folder $folders)
+    {
+        $this->folders->removeElement($folders);
+    }
+
+    /**
+     * Get folders
+     *
+     * @return Doctrine\Common\Collections\Collection 
+     */
+    public function getFolders()
+    {
+        return $this->folders;
+    }
+
+    /**
+     * Set parent
+     *
+     * @param Entities\Folder $parent
+     * @return Folder
+     */
+    public function setParent(\Entities\Folder $parent = null)
+    {
+        $this->parent = $parent;
+        return $this;
+    }
+
+    /**
+     * Get parent
+     *
+     * @return Entities\Folder 
+     */
+    public function getParent()
+    {
+        return $this->parent;
     }
 }
