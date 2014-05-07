@@ -361,7 +361,7 @@ class User implements \JsonSerializable
     public static function getAllUsers()
     {
         $ci =& get_instance();
-         $query = $ci->doctrine->em->createQueryBuilder()
+        $query = $ci->doctrine->em->createQueryBuilder()
                     ->add('select', 'u')
                     ->add('from', 'Entities\User u')
                     ->getQuery();
@@ -386,7 +386,14 @@ class User implements \JsonSerializable
                 ->setParameter('active', '1')
                 ->getQuery();
 
-        return $query->getSingleResult();
+        $collection = null;
+        try {
+            $collection = $query->getSingleResult();
+        } catch (\Doctrine\ORM\NoResultException $e) {
+        } catch (Exception $e) {
+        }
+
+        return $collection;
     }
 
     /**

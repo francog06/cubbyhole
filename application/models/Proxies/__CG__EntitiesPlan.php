@@ -159,6 +159,12 @@ class Plan extends \Entities\Plan implements \Doctrine\ORM\Proxy\Proxy
         return parent::getDescription();
     }
 
+    public function getAllPlans()
+    {
+        $this->__load();
+        return parent::getAllPlans();
+    }
+
 
     public function __sleep()
     {

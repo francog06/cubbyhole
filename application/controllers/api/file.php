@@ -41,7 +41,12 @@ class File extends REST_Controller {
 		    set_time_limit(0);
 
 		    // set the download rate limit (=> 20,5 kb/s)
-			$download_rate = $file->getUser()->getActivePlanHistory()->getPlan()->getMaxBandwith();
+		    $planHistory = $file->getUser()->getActivePlanHistory();
+
+		    if (!is_null($planHistory))
+				$download_rate = $planHistory->getPlan()->getMaxBandwith();
+			else
+				$download_rate = 10;
 
 			$fileLocal = fopen($file->getAbsolutePath(), "r");
 		    while(!feof($fileLocal)) {
@@ -131,6 +136,13 @@ class File extends REST_Controller {
 				$this->response(array('error' => true, 'message' => 'user not found.'), 400);
 			}
 			$file->setUser($user);
+
+			$uploadPath = APPPATH . 'uploads/' . $user->getId() . "/";
+			if (!is_dir($uploadPath)) {
+				mkdir($uploadPath, 0777, true);
+			}
+			@rename($file->getAbsolutePath(), $uploadPath . basename($file->getAbsolutePath()));
+			$file->setAbsolutePath($uploadPath . basename($file->getAbsolutePath()));
 		}
 
 		if ( ($is_public = $this->post('is_public')) !== false ) {
@@ -163,7 +175,7 @@ class File extends REST_Controller {
 		}
 
 		$this->load->library('upload', $this->uploadConfig);
-		if ( $this->upload->do_upload('file')) {
+		if ( $this->upload->do_upload('file') ) {
 			@unlink($file->getAbsolutePath());
 			$fileData = $this->upload->data();
 
