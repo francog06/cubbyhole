@@ -177,6 +177,12 @@ class Folder extends \Entities\Folder implements \Doctrine\ORM\Proxy\Proxy
         return parent::getUser();
     }
 
+    public function jsonSerialize()
+    {
+        $this->__load();
+        return parent::jsonSerialize();
+    }
+
 
     public function __sleep()
     {

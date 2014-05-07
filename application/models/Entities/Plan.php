@@ -253,4 +253,31 @@ class Plan implements \JsonSerializable
         }
         return $json;
     }
+    /**
+     * @var string $description
+     */
+    private $description;
+
+
+    /**
+     * Set description
+     *
+     * @param string $description
+     * @return Plan
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+        return $this;
+    }
+
+    /**
+     * Get description
+     *
+     * @return string 
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
 }

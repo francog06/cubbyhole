@@ -10,6 +10,9 @@ Entities\Plan:
     name:
       type: string
       nullable: false
+    description:
+      type: string
+      nullable: false
     price:
       type: float
       nullable: false

@@ -19,6 +19,43 @@ class File extends REST_Controller {
 		];
 	}
 
+	public function download_get($id = null) {
+		if (is_null($id)) {
+			$this->response(array('error' => true, 'message' => 'id not defined.'), 400);
+		}
+
+		$file = $this->doctrine->em->find('Entities\File', (int)$id);
+		if (is_null($file)) {
+			$this->response(array('error' => true, 'message' => 'file not found.'), 400);
+		}
+
+		if ( file_exists($file->getAbsolutePath()) && is_file($file->getAbsolutePath()) ) {
+		    header('Content-Description: File Transfer');
+		    header('Content-Type: application/octet-stream');
+		    header('Content-Disposition: attachment; filename='.basename($file->getName()));
+		    header('Expires: 0');
+		    header('Cache-Control: must-revalidate');
+		    header('Pragma: public');
+		    header('Content-Length: ' . filesize($file->getAbsolutePath()));
+		    flush();
+		    set_time_limit(0);
+
+		    // set the download rate limit (=> 20,5 kb/s)
+			$download_rate = $file->getUser()->getActivePlanHistory()->getPlan()->getMaxBandwith();
+
+			$fileLocal = fopen($file->getAbsolutePath(), "r");
+		    while(!feof($fileLocal)) {
+		        print fread($fileLocal, round($download_rate * 1024));
+		        flush();
+		        sleep(1);
+		    }  
+		    exit;
+		}
+		else {
+			$this->response(array('error' => true, 'message' => 'file not found.'), 400);
+		}
+	}
+
 	public function details_get($id = null) {
 		if (is_null($id)) {
 			$this->response(array('error' => true, 'message' => 'id not defined.'), 400);

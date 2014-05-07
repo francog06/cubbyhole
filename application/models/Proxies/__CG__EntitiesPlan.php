@@ -147,10 +147,22 @@ class Plan extends \Entities\Plan implements \Doctrine\ORM\Proxy\Proxy
         return parent::jsonSerialize();
     }
 
+    public function setDescription($description)
+    {
+        $this->__load();
+        return parent::setDescription($description);
+    }
+
+    public function getDescription()
+    {
+        $this->__load();
+        return parent::getDescription();
+    }
+
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'name', 'price', 'duration', 'usable_storage_space', 'max_bandwidth', 'daily_data_transfert', 'plan_historys');
+        return array('__isInitialized__', 'id', 'name', 'description', 'price', 'duration', 'usable_storage_space', 'max_bandwidth', 'daily_data_transfert', 'plan_historys');
     }
 
     public function __clone()

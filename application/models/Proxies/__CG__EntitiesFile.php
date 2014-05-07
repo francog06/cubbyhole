@@ -213,10 +213,16 @@ class File extends \Entities\File implements \Doctrine\ORM\Proxy\Proxy
         return parent::getFolder();
     }
 
+    public function jsonSerialize()
+    {
+        $this->__load();
+        return parent::jsonSerialize();
+    }
+
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'name', 'creation_date', 'last_update_date', 'relative_path', 'absolute_path', 'public_link_path', 'is_public', 'access_key', 'size', 'share', 'data_histories', 'user', 'folder');
+        return array('__isInitialized__', 'id', 'name', 'creation_date', 'last_update_date', 'absolute_path', 'is_public', 'access_key', 'size', 'share', 'data_histories', 'user', 'folder');
     }
 
     public function __clone()
