@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Entities\Folder
  */
-class Folder
+class Folder implements \JsonSerializable
 {
     /**
      * @var integer $id
@@ -307,5 +307,30 @@ class Folder
     public function getUser()
     {
         return $this->user;
+    }
+
+    /**
+     * JSON serialize
+     * 
+     * @return public object
+     */
+    public function jsonSerialize() {
+        $excludes = ["user"];
+        $json = [];
+        foreach ($this as $key => $value) {
+            if (!in_array($key, $excludes)) {
+                if (is_object($value) && strstr(get_class($value), 'Doctrine') !== false) {
+                    $collectionJson = array();
+                    foreach ($value->getKeys() as $collectionKey) {
+                        $collectionJson[] = $value->current();
+                        $value->next();
+                    }
+                    $json[$key] = $collectionJson;
+                }
+                else
+                    $json[$key] = $value;
+            }
+        }
+        return $json;
     }
 }
