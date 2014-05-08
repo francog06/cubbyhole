@@ -6,6 +6,9 @@ class Login extends CI_Controller {
 	{
 		parent::__construct();
 
+		if($this->session->userdata('user'))
+			redirect("/user");
+
 		$this->load->library(array("form_validation", "email"));
 		$this->load->helper(array("form"));
 
@@ -70,6 +73,7 @@ class Login extends CI_Controller {
 		if ($this->encrypt->decode($user->getPassword()) == $user_pass) {
 			// Redirect to Dashboard
 			$this->session->set_userdata("user", $user->getId());
+			$this->session->set_userdata("user_is_admin", $user->getIsAdmin());
 			// _p($this->session->userdata('user'));
 
 			redirect('/user/');

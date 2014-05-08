@@ -1,118 +1,95 @@
-<div class="site-wrapper">
-    <div class="">
-        <div class="cover-container">
-            <!-- Menu -->
-            <div class="masthead clearfix">
-                <div class="">
-                    <h3 class="masthead-brand"><img src="<?=img("logo.png")?>" height="60" alt="logo" /></h3>
-                    <ul class="nav nav-pills pull-right" style="margin-top:20px;">
-                        <li class="active"><a href="/user">Accueil</a></li>
-                        <li><a href="">Mon compte</a></li>
-                        <li><a href="/user/deconnexion">Déconnexion</a></li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="inner cover admin">
-               <h1>Mon Cubbyhole - <?= $user->getId(); ?></h1>
-               <script type="text/javascript">
-                    $(document).ready(function(){
-                        $("span.sprite").tooltip();
-                    });
-                    
-               </script>
-                <p style="float:left">
-                    <a id="newFile" data-toggle="modal" data-target="#newFileModal">
-                        <span class="sprite newFile" data-toggle="tooltip" data-placement="top" title="Ajouter un fichier"></span>
-                    </a>
-                </p>
-                <div style="text-align:right;">
-                    <span class="glyphicon glyphicon-hdd" style="color:#39b3d7;top:-2px;margin-right:4px;"></span>
-                    <div class="progress" style="width:200px;display:inline-block;margin:0">
-                      <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
-                        600 Mo libres (60%)
-                      </div>
-                    </div>
-                    &nbsp; 
-                    <a style="vertical-align:top;">Plus d'espace ?</a>
-                </div>
-                     
-               <table class="table table-striped table-hover sortable">
-                <thead>
-                    <tr>
-                        <th>Nom</th>
-                        <th data-defaultsort="asc">Type</th>
-                        <th>Modifié le</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><span class="sprite dossierPartage"></span> Bonjour Supinfo</td>
-                        <td>Dossier partagé</td>
-                        <td>--</td>
-                        <td>Supprimer</td>
-                    </tr>
-                    <tr>
-                        <td><span class="sprite dossierPartage"></span> Cubbyhole Project</td>
-                        <td>Dossier partagé</td>
-                        <td>--</td>
-                        <td>Supprimer</td>
-                    </tr>
-                    <tr>
-                        <td><span class="sprite dossier"></span> Projet perso</td>
-                        <td>Dossier</td>
-                        <td>--</td>
-                        <td>Supprimer</td>
-                    </tr>
-                    <tr>
-                        <td><span class="sprite dossierPartage"></span> Supinfo - Cours - M1</td>
-                        <td>Dossier partagé</td>
-                        <td>--</td>
-                        <td>Supprimer</td>
-                    </tr>
-                    <tr>
-                        <td><span class="sprite file"></span> Fichier 1</td>
-                        <td>Fichier</td>
-                        <td>28/04/2014 16:45</td>
-                        <td>Supprimer</td>
-                    </tr>
-                    <tr>
-                        <td><span class="sprite file"></span> Fichier 2</td>
-                        <td>Fichier</td>
-                        <td>28/04/2014 16:45</td>
-                        <td>Supprimer</td>
-                    </tr>
-                    <tr>
-                        <td><span class="sprite file"></span> Fichier 3</td>
-                        <td>Fichier</td>
-                        <td>28/04/2014 16:45</td>
-                        <td>Supprimer</td>
-                    </tr>
-                    <tr>
-                        <td><span class="sprite filePartage"></span> Fichier 4</td>
-                        <td>Fichier Partagé</td>
-                        <td>28/04/2014 16:45</td>
-                        <td>Supprimer</td>
-                    </tr>
-                    <tr>
-                        <td><span class="sprite file"></span> Fichier 5</td>
-                        <td>Fichier</td>
-                        <td>28/04/2014 16:45</td>
-                        <td>Supprimer</td>
-                    </tr>
-                </tbody>
-               </table>
-            </div>
-
-            <div class="mastfoot">
-                <div class="inner">
-                    <p>Cubbyhole powered baby !</p>
-                </div>
-            </div>
+<div class="inner cover admin">
+   <h1>Mon Cubbyhole</h1>
+   <script type="text/javascript">
+        $(document).ready(function(){
+            $("span.sprite").tooltip();
+        });
+        
+   </script>
+    <p style="float:left">
+        <a id="newFile" data-toggle="modal" data-target="#newFileModal">
+            <span class="sprite newFile" data-toggle="tooltip" data-placement="top" title="Ajouter un fichier"></span>
+        </a>
+    </p>
+    <div style="text-align:right;">
+        <span class="glyphicon glyphicon-hdd" style="color:#39b3d7;top:-2px;margin-right:4px;"></span>
+        <div class="progress" style="width:200px;display:inline-block;margin:0">
+          <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
+            600 Mo libres (60%)
+          </div>
         </div>
+        &nbsp; 
+        <a style="vertical-align:top;">Plus d'espace ?</a>
     </div>
+         
+   <table class="table table-striped table-hover sortable">
+    <thead>
+        <tr>
+            <th>Nom</th>
+            <th data-defaultsort="asc">Type</th>
+            <th>Modifié le</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="sprite dossierPartage"></span> Bonjour Supinfo</td>
+            <td>Dossier partagé</td>
+            <td>--</td>
+            <td>Supprimer</td>
+        </tr>
+        <tr>
+            <td><span class="sprite dossierPartage"></span> Cubbyhole Project</td>
+            <td>Dossier partagé</td>
+            <td>--</td>
+            <td>Supprimer</td>
+        </tr>
+        <tr>
+            <td><span class="sprite dossier"></span> Projet perso</td>
+            <td>Dossier</td>
+            <td>--</td>
+            <td>Supprimer</td>
+        </tr>
+        <tr>
+            <td><span class="sprite dossierPartage"></span> Supinfo - Cours - M1</td>
+            <td>Dossier partagé</td>
+            <td>--</td>
+            <td>Supprimer</td>
+        </tr>
+        <tr>
+            <td><span class="sprite file"></span> Fichier 1</td>
+            <td>Fichier</td>
+            <td>28/04/2014 16:45</td>
+            <td>Supprimer</td>
+        </tr>
+        <tr>
+            <td><span class="sprite file"></span> Fichier 2</td>
+            <td>Fichier</td>
+            <td>28/04/2014 16:45</td>
+            <td>Supprimer</td>
+        </tr>
+        <tr>
+            <td><span class="sprite file"></span> Fichier 3</td>
+            <td>Fichier</td>
+            <td>28/04/2014 16:45</td>
+            <td>Supprimer</td>
+        </tr>
+        <tr>
+            <td><span class="sprite filePartage"></span> Fichier 4</td>
+            <td>Fichier Partagé</td>
+            <td>28/04/2014 16:45</td>
+            <td>Supprimer</td>
+        </tr>
+        <tr>
+            <td><span class="sprite file"></span> Fichier 5</td>
+            <td>Fichier</td>
+            <td>28/04/2014 16:45</td>
+            <td>Supprimer</td>
+        </tr>
+    </tbody>
+   </table>
 </div>
+
 <script type="text/javascript">
     $.bootstrapSortable();
 </script>

@@ -18,10 +18,18 @@ class User extends CI_Controller {
 		$this->load->view('layouts/main', $viewModel);
 	}
 
-	public function deconnexion(){
+	public function logout(){
 		$this->session->unset_userdata("user");
+		$this->session->unset_userdata("user_is_admin");
 		$this->session->set_flashdata('message', 'Vous êtes maintenant déconnecté.');
 		redirect("/login");
+	}
+
+	public function upgrade(){
+		$viewModel["plans"] = Entities\Plan::getAllPlans();
+		$viewModel["user"] = Entities\User::getUserById($this->session->userdata('user'));
+		$viewModel["view"] = "front/price";
+		$this->load->view('layouts/main', $viewModel);
 	}
 
 }

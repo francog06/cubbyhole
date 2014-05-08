@@ -1,18 +1,3 @@
-<div class="site-wrapper">
-    <div class="">
-        <div class="cover-container">
-            <!-- Menu -->
-            <div class="masthead clearfix">
-                <div class="">
-                    <h3 class="masthead-brand"><img src="<?=img("logo.png")?>" height="60" alt="logo" /></h3>
-                    <ul class="nav nav-pills pull-right" style="margin-top:20px;">
-                        <li><a href="/">Retour au site</a></li>
-                        <li class="active"><a href="/admin/index">Accueil</a></li>
-                        <li><a href="/home/price">Users</a></li>
-                        <li><a href="/home/download">Plans</a></li>
-                    </ul>
-                </div>
-            </div>
 
             <div class="inner cover admin">
                <h1>Actions rapides</h1>
@@ -179,12 +164,3 @@
     
                </script>
             </div>
-
-            <div class="mastfoot">
-                <div class="inner">
-                    <p>Cubbyhole powered baby !</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
