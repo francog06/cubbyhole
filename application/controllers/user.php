@@ -15,6 +15,7 @@ class User extends CI_Controller {
 	{
 		$viewModel["user"] = Entities\User::getUserById($this->session->userdata('user'));
 		$viewModel["view"] = "back/home";
+		$viewModel["menu_active"] = "accueil";
 		$this->load->view('layouts/main', $viewModel);
 	}
 
@@ -29,6 +30,7 @@ class User extends CI_Controller {
 		$viewModel["plans"] = Entities\Plan::getAllPlans();
 		$viewModel["user"] = Entities\User::getUserById($this->session->userdata('user'));
 		$viewModel["view"] = "front/price";
+		$viewModel["menu_active"] = "upgrade";
 		$this->load->view('layouts/main', $viewModel);
 	}
 

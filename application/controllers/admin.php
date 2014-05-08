@@ -14,11 +14,13 @@ class Admin extends CI_Controller {
 	public function index()
 	{
 		$viewModel["view"] = "admin/home";
+		$viewModel["menu_active"] = "admin";
 		$this->load->view('layouts/main', $viewModel);
 	}
 
 	public function users()
 	{
+		$viewModel["menu_active"] = "admin";
 		$users = Entities\User::getAllUsers();
 		$viewModel["view"] = "admin/users";
 		$viewModel["users"] = $users;
