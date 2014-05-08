@@ -1,9 +1,8 @@
-<IfModule mod_rewrite.c>
- 
+<IfModule mod_rewrite.c> 
     RewriteEngine On
+    RewriteBase /
     RewriteCond $1 !^(index\.php|assets|images|robots\.txt)
     RewriteRule ^(.*)$ /index.php/$1 [L]
- 
 </IfModule>
  
 <IfModule !mod_rewrite.c>
@@ -12,3 +11,4 @@
     ErrorDocument 404 /index.php
  
 </IfModule>
+

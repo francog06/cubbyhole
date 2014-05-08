@@ -372,6 +372,22 @@ class User implements \JsonSerializable
     }
 
     /**
+    * Get single user by id
+    *
+    * @return Entities\User
+    */
+    public static function getUserById($id=null)
+    {
+        if($id == null)
+            return null;
+
+        $ci =& get_instance();
+        $result = $ci->doctrine->em->find('Entities\User', $id);
+
+        return $result;
+    }
+
+    /**
     * Get active plan
     * @return Entities\PlanHistory
     */

@@ -69,7 +69,10 @@ class Login extends CI_Controller {
 
 		if ($this->encrypt->decode($user->getPassword()) == $user_pass) {
 			// Redirect to Dashboard
-			_p("ok");
+			$this->session->set_userdata("user", $user->getId());
+			// _p($this->session->userdata('user'));
+
+			redirect('/user/');
 		} else {
 			$this->prevent_messages[] = array('type' => 'danger', 'message' => 'Invalid password.');
 		}

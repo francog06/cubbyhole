@@ -292,6 +292,7 @@ class Plan implements \JsonSerializable
          $query = $ci->doctrine->em->createQueryBuilder()
                     ->add('select', 'p')
                     ->add('from', 'Entities\Plan p')
+                    ->where("p.is_active = 1")
                     ->getQuery();
 
         $result = $query->getArrayResult();

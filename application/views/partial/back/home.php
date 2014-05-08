@@ -8,13 +8,13 @@
                     <ul class="nav nav-pills pull-right" style="margin-top:20px;">
                         <li class="active"><a href="/user">Accueil</a></li>
                         <li><a href="">Mon compte</a></li>
-                        <li><a href="">Déconnexion</a></li>
+                        <li><a href="/user/deconnexion">Déconnexion</a></li>
                     </ul>
                 </div>
             </div>
 
             <div class="inner cover admin">
-               <h1>Mon Cubbyhole</h1>
+               <h1>Mon Cubbyhole - <?= $user->getId(); ?></h1>
                <script type="text/javascript">
                     $(document).ready(function(){
                         $("span.sprite").tooltip();
