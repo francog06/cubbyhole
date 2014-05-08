@@ -104,6 +104,19 @@ class Login extends CI_Controller {
 			$this->doctrine->em->persist($user);
 			$this->doctrine->em->flush();
 
+			$plan_history = new Entities\PlanHistory;
+			$plan = Entities\Plan::getDefaultPlan();
+
+			$expiration = new DateTime('now');
+			$plan_history->setUser($user)
+				->setPlan($plan)
+				->setSubscriptionPlanDate(new DateTime('now'))
+				->setIsActive(true);
+			$expiration->add(new DateInterval('P'. $plan->getDuration() . 'D'));
+			$plan_history->setExpirationPlanDate($expiration);
+			$this->doctrine->em->persist($plan_history);
+			$this->doctrine->em->flush();
+
 			// Send user email
 
 			$this->email->clear();

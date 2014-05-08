@@ -10,28 +10,17 @@ class Plan extends REST_Controller {
 		parent::__construct();
 	}
 
-	/*
-		/api/plan/ : Requête GET récupération de tous les plans
-		/api/plan/details/{ID} : Requête GET récupération des détails d'un plan
-
-		/api/plan/create : Requête POST -> création d'un plan
-		/api/plan/update/{ID} : Requête PUT -> modification d'un plan
-		/api/plan/delete/{ID} : Requête DELETE -> suppression d'un plan
-	*/
-
-	//GET ALL PLAN
 	public function index_get() 
 	{
 		$query = $this->doctrine->em->createQueryBuilder()
 					->add('select', 'p')
 					->add('from', 'Entities\Plan p')
-					//->add('where', 'u.name = :name')
 					->getQuery();
 		$result = $query->getArrayResult();
 		$this->response(array('error' => false, 'plans' => $result), 200);
 	}
 
-	public function update_plan($id = null)
+	public function update_put($id = null)
 	{
 		if (is_null($id)) {
 			$this->response(array('error' => true, 'message' => 'id not defined.'), 400);
@@ -63,15 +52,31 @@ class Plan extends REST_Controller {
 		if ( ($description = $this->put('description')) !== false ) {
 			$plan->setDescription($description);
 		}
+		if ( ($is_active = $this->put('is_active')) !== false ) {
+			$plan->setIsActive( ($is_active == "0") ? false : true );
+		}
+		if ( ($is_default = $this->put('is_default')) !== false ) {
+			$plan->setIsDefault( ($is_default == "0") ? false : true );
 
+			if ($plan->getIsDefault()) {
+				$this->doctrine->em->createQueryBuilder()
+					->update('Entities\Plan', 'p')
+					->set('p.is_default', '0')
+					->where('p.is_default = :default')
+					->setParameter('default', '1')
+					->getQuery()
+					->execute();
+
+				$plan->setIsActive(true);
+			}
+		}
 
 		$this->doctrine->em->merge($plan);
 		$this->doctrine->em->flush();
-		$this->response(array('error' => true, 'message' => 'plan updated successfully.'), 200);
+		$this->response(array('error' => true, 'message' => 'plan updated successfully.', 'plan' => $plan), 200);
 
 	}
 
-	//GET DETAILS PLAN
 	public function details_get($id = null) 
 	{
 		if (is_null($id)) {
@@ -86,11 +91,8 @@ class Plan extends REST_Controller {
 		$this->response(array('error' => false, 'plan' => $plan), 200);
 	}
 
-
-	 //@CREATE PLAN 
 	 public function create_post()
 	 {
-	 	// Valid PLAN NAME?
 		$plan_name = $this->mandatory_value('name', 'post');
 		$plan_description = $this->mandatory_value('description', 'post');
 		$plan_price = $this->mandatory_value('price', 'post');
@@ -99,7 +101,6 @@ class Plan extends REST_Controller {
 		$plan_max_bandwidth = $this->mandatory_value('max_bandwidth', 'post');
 		$plan_daily_data_transfert = $this->mandatory_value('daily_data_transfert', 'post');
 
-		//VERIF PLAN ALREADY EXIST ??!
 		$query = $this->doctrine->em->createQueryBuilder()
 					->add('select', 'p')
 					->add('from', 'Entities\Plan p')
@@ -128,20 +129,6 @@ class Plan extends REST_Controller {
 		}
 	 }
 
-	//@UPDATE PLAN 
-	public function update_put($id = null)
-	{
-		if (is_null($id)) {
-			$this->response(array('error' => true, 'message' => 'id not defined.'), 400);
-		}
-
-		$plan = $this->doctrine->em->find('Entities\Plan', (int)$id);
-		if (is_null($plan)) {
-			$this->response(array('error' => true, 'message' => 'plan not found.'), 400);
-		}
-	}
-
-	//@DELETE PLAN 
 	public function delete_delete($id = null)
 	{
 		if (is_null($id)) {
@@ -153,7 +140,6 @@ class Plan extends REST_Controller {
 			$this->response(array('error' => true, 'message' => 'plan not found.'), 400);
 		}	 	
 
-		//removing plan
 		$this->doctrine->em->remove($plan);
 		$this->doctrine->em->flush();
 		$this->response(array('error' => false, 'message' => 'Plan: '. $plan . ' has been removed.'), 200);

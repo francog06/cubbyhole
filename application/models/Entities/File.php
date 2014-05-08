@@ -30,11 +30,6 @@ class File implements \JsonSerializable
     private $last_update_date;
 
     /**
-     * @var string $relative_path
-     */
-    private $relative_path;
-
-    /**
      * @var string $absolute_path
      */
     private $absolute_path;
@@ -158,28 +153,6 @@ class File implements \JsonSerializable
     public function getLastUpdateDate()
     {
         return $this->last_update_date;
-    }
-
-    /**
-     * Set relative_path
-     *
-     * @param string $relativePath
-     * @return File
-     */
-    public function setRelativePath($relativePath)
-    {
-        $this->relative_path = $relativePath;
-        return $this;
-    }
-
-    /**
-     * Get relative_path
-     *
-     * @return string 
-     */
-    public function getRelativePath()
-    {
-        return $this->relative_path;
     }
 
     /**
@@ -396,7 +369,7 @@ class File implements \JsonSerializable
      * @return public object
      */
     public function jsonSerialize() {
-        $excludes = ["user", "folder"];
+        $excludes = ["user", "folder", "data_histories"];
         $json = [];
         foreach ($this as $key => $value) {
             if (!in_array($key, $excludes)) {

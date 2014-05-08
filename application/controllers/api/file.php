@@ -7,9 +7,6 @@ class File extends REST_Controller {
 	{
 		parent::__construct();
 
-		$this->load->library(array('email'));
-		$this->load->helper('email');
-
 		$this->uploadConfig = [
 			'allowed_types' => '*',
 			'max_size'	=> '0',
@@ -49,7 +46,7 @@ class File extends REST_Controller {
 				$download_rate = 10;
 
 			$fileLocal = fopen($file->getAbsolutePath(), "r");
-		    while(!feof($fileLocal)) {
+		    while (!feof($fileLocal)) {
 		        print fread($fileLocal, round($download_rate * 1024));
 		        flush();
 		        sleep(1);

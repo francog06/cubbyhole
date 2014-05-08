@@ -234,7 +234,7 @@ class Plan implements \JsonSerializable
      * @return public object
      */
     public function jsonSerialize() {
-        $excludes = [];
+        $excludes = ["plan_historys"];
         $json = [];
         foreach ($this as $key => $value) {
             if (!in_array($key, $excludes)) {
@@ -283,13 +283,36 @@ class Plan implements \JsonSerializable
     }
 
     /**
+     * Get default plan
+     *
+     * @return Entities\Plan
+     */
+    public static function getDefaultPlan() {
+        $ci =& get_instance();
+        $query = $ci->doctrine->em->createQueryBuilder()
+                    ->add('select', 'p')
+                    ->add('from', 'Entities\Plan p')
+                    ->where('p.is_default = 1')
+                    ->getQuery();
+
+        $plan = null;
+        try {
+            $plan = $query->getSingleResult();
+        } catch (\Doctrine\ORM\NoResultException $e) {
+        } catch (Exception $e) {
+        }
+
+        return $plan;
+    }
+
+    /**
      * Get all plans
      * 
      *  @return Doctrine\Common\Collections\Collection 
      */
     public function getAllPlans() {
         $ci =& get_instance();
-         $query = $ci->doctrine->em->createQueryBuilder()
+        $query = $ci->doctrine->em->createQueryBuilder()
                     ->add('select', 'p')
                     ->add('from', 'Entities\Plan p')
                     ->where("p.is_active = 1")

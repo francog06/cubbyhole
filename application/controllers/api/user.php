@@ -21,7 +21,6 @@ class User extends REST_Controller {
 			$this->response(array('error' => true, 'message' => 'user not found.'), 400);
 		}
 
-		// We will put all informations about user (id, email, files, folder...)
 		$response = [
 			"error" => false,
 			"user" => $user
@@ -29,7 +28,6 @@ class User extends REST_Controller {
 		$this->response(array('error' => false, 'user' => $user), 200);
 	}
 
-	// @POST login
 	public function login_post() {
 		$user_email = $this->mandatory_value('email', 'post');
 		$user_pass = $this->mandatory_value('password', 'post');
@@ -56,6 +54,9 @@ class User extends REST_Controller {
 		}
 
 		if ($this->encrypt->decode($user->getPassword()) == $user_pass) {
+
+			unset($user->plan_historys);
+
 			$this->response(array(
 				'error' => false,
 				'message' => 'Connection successfull',
@@ -66,7 +67,6 @@ class User extends REST_Controller {
 		}
 	}
 
-	// @POST register
 	public function register_post() {
 		$user_email = $this->mandatory_value('email', 'post');
 		$user_pass = $this->mandatory_value('password', 'post');
@@ -94,11 +94,24 @@ class User extends REST_Controller {
 				->setUserLocationIp($this->input->ip_address())
 				->setIsAdmin(false);
 
-			if ( ($is_admin = $this->post('is_admin')) == false ) {
+			if ( ($is_admin = $this->post('is_admin')) !== false ) {
 				$user->setIsAdmin( $is_admin == "0" ? false : true );
 			}
 
 			$this->doctrine->em->persist($user);
+			$this->doctrine->em->flush();
+
+			$plan_history = new Entities\PlanHistory;
+			$plan = Entities\Plan::getDefaultPlan();
+
+			$expiration = new DateTime('now');
+			$plan_history->setUser($user)
+				->setPlan($plan)
+				->setSubscriptionPlanDate(new DateTime('now'))
+				->setIsActive(true);
+			$expiration->add(new DateInterval('P'. $plan->getDuration() . 'D'));
+			$plan_history->setExpirationPlanDate($expiration);
+			$this->doctrine->em->persist($plan_history);
 			$this->doctrine->em->flush();
 
 			// Send user email
@@ -119,7 +132,6 @@ class User extends REST_Controller {
 		}
 	}
 
-	// @UPDATE update user informations (such as IP, password, admin): Need to do a request with Content-Type: application/x-www-form-urlencoded
 	public function update_put($id = null) {
 		if (is_null($id)) {
 			$this->response(array('error' => true, 'message' => 'id not defined.'), 400);
@@ -151,7 +163,6 @@ class User extends REST_Controller {
 		$this->response(array('error' => false, 'message' => 'user updated successfully.', 'user' => $user), 200);
 	}
 
-	// @DELETE delete user
 	public function delete_delete($id = null) {
 		if (is_null($id)) {
 			$this->response(array('error' => true, 'message' => 'id not defined.'), 400);
@@ -168,7 +179,6 @@ class User extends REST_Controller {
 		$this->response(array('error' => false, 'message' => 'User has been removed.'), 200);
 	}
 
-	// @POST send mail
 	public function forget_post() {
 		$user_email = $this->mandatory_value('email', 'post');
 
