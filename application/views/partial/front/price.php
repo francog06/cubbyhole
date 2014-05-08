@@ -36,59 +36,28 @@
 						</div>
 					</div>
 					<div class="plan-action">
-						<?php  if ($plan["is_default"]==false): 
-
-						if( isset($user) ) {
-							$ph = $user->getPlanHistorys();
-							foreach ($ph as $p) {
-								if($p->getIsActive()){
-									$cuurent_plan = $p->getPlan();
-									if ($cuurent_plan->getId() == $plan["id"]) {
-										echo'<a class="btn btn-block btn-large">Votre forfait actuel</a>';
-									}
-									else
-									{ ?>
-										<form method="post" action="/user/checkout/">
-											<input type="hidden" name="plan_id" value="<?php echo $plan['id']; ?>" />
-											<select name="duration" class="form-control">
-												<option value="<?php echo $plan["duration"]; ?>">
-													<?php echo $plan["duration"]==30?"1 mois":$plan["duration"]." jours"; ?> - 
-													<?php echo $plan["price"]."€"; ?>
-												</option>
-												<option value="<?php echo $plan["duration"]*3; ?>">
-													<?php echo $plan["duration"]==30?"3 mois":($plan["duration"]*3)." jours"; ?> - 
-													<?php echo ($plan["price"]*3)."€"; ?>
-												</option>
-												<option value="<?php echo $plan["duration"]*12; ?>">
-													<?php echo $plan["duration"]==30?"12 mois":($plan["duration"]*12)." jours"; ?> - 
-													<?php echo ($plan["price"]*12)."€"; ?>
-												</option>
-											</select>
-											<br />
-											<button class="btn btn-success btn-block btn-large">Choisir ce Plan</button>
-										</form>
-						<?php 		}
-								}
-							}
-						}
-						?>
-							
-							
+						<?php  if ($plan["is_default"]==false): ?>
+							<form method="post" action="/user/checkout/">
+							<input type="hidden" name="plan_id" value="<?php echo $plan['id']; ?>" />
+							<select name="duration" class="form-control">
+								<option value="<?php echo $plan["duration"]; ?>">
+									<?php echo $plan["duration"]==30?"1 mois":$plan["duration"]." jours"; ?> - 
+									<?php echo $plan["price"]."€"; ?>
+								</option>
+								<option value="<?php echo $plan["duration"]*3; ?>">
+									<?php echo $plan["duration"]==30?"3 mois":($plan["duration"]*3)." jours"; ?> - 
+									<?php echo ($plan["price"]*3)."€"; ?>
+								</option>
+								<option value="<?php echo $plan["duration"]*12; ?>">
+									<?php echo $plan["duration"]==30?"12 mois":($plan["duration"]*12)." jours"; ?> - 
+									<?php echo ($plan["price"]*12)."€"; ?>
+								</option>
+							</select>
+							<br />
+							<button class="btn <?php echo $plan["duration"]!=0?"btn-success":""; ?> btn-block btn-large">Choisir ce Plan</button>
+							</form>
 						<?php else: ?>
-							<?php 
-							if( isset($user) ) {
-								$ph = $user->getPlanHistorys();
-								foreach ($ph as $p) {
-									if($p->getIsActive()){
-										$cuurent_plan = $p->getPlan();
-										if ($cuurent_plan->getId() == $plan["id"]) 
-											echo'<a class="btn btn-block btn-large">Votre forfait actuel</a>';
-										else
-											echo '<a href="/login/register" class="btn btn-block btn-large">S\'inscrire Gratuitement</a>';
-									}
-								}
-							}
-							?>
+							<a href="/login/register" class="btn btn-block btn-large">S'inscrire Gratuitement</a>
 						<?php endif; ?>
 						
 					</div>

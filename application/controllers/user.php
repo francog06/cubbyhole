@@ -29,7 +29,7 @@ class User extends CI_Controller {
 	public function upgrade(){
 		$viewModel["plans"] = Entities\Plan::getAllPlans();
 		$viewModel["user"] = Entities\User::getUserById($this->session->userdata('user'));
-		$viewModel["view"] = "front/price";
+		$viewModel["view"] = "back/upgrade";
 		$viewModel["menu_active"] = "upgrade";
 		$this->load->view('layouts/main', $viewModel);
 	}
