@@ -342,10 +342,6 @@ class Folder implements \JsonSerializable
                     $json[$key] = $value;
             }
         }
-        $stats = new \StdClass();
-        $stats->files = count($this->files->toArray());
-        $stats->folders = count($this->folders->toArray());
-        $json['stats'] = $stats;
         return $json;
     }
 }

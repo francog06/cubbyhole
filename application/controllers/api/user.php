@@ -54,9 +54,6 @@ class User extends REST_Controller {
 		}
 
 		if ($this->encrypt->decode($user->getPassword()) == $user_pass) {
-
-			unset($user->plan_historys);
-
 			$this->response(array(
 				'error' => false,
 				'message' => 'Connection successfull',
