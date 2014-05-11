@@ -18,6 +18,7 @@ class Login extends CI_Controller {
 	public function index()
 	{
 		$viewModel["menu_active"] = "";
+		$viewModel["layout"] = "yes";
 		$this->form_validation->set_rules( 'user_email', 'username', 'required|valid_email' );
 		$this->form_validation->set_rules( 'user_pass', 'password', 'required' );
 		$this->form_validation->set_error_delimiters( '<em>','</em>' );
@@ -36,6 +37,7 @@ class Login extends CI_Controller {
 	public function register()
 	{
 		$viewModel["menu_active"] = "";
+		$viewModel["layout"] = "yes";
 		$this->form_validation->set_rules( 'user_email', 'username', 'required|valid_email' );
 		$this->form_validation->set_rules( 'user_pass', 'password', 'required' );
 		$this->form_validation->set_error_delimiters( '<em>','</em>' );

@@ -73,7 +73,7 @@ class Plan extends REST_Controller {
 
 		$this->doctrine->em->merge($plan);
 		$this->doctrine->em->flush();
-		$this->response(array('error' => true, 'message' => 'plan updated successfully.', 'plan' => $plan), 200);
+		$this->response(array('error' => false, 'message' => 'plan updated successfully.', 'plan' => $plan), 200);
 
 	}
 
@@ -100,6 +100,8 @@ class Plan extends REST_Controller {
 		$plan_usable_storage_space = $this->mandatory_value('usable_storage_space', 'post');
 		$plan_max_bandwidth = $this->mandatory_value('max_bandwidth', 'post');
 		$plan_daily_data_transfert = $this->mandatory_value('daily_data_transfert', 'post');
+		$plan_is_default = $this->mandatory_value('is_default', 'post');
+		$plan_is_active = $this->mandatory_value('is_active', 'post');
 
 		$query = $this->doctrine->em->createQueryBuilder()
 					->add('select', 'p')
@@ -120,7 +122,9 @@ class Plan extends REST_Controller {
 				->setUsableStorageSpace($plan_usable_storage_space)
 				->setMaxBandwidth($plan_max_bandwidth)
 				->setDailyDataTransfert($plan_daily_data_transfert)
-				->setDescription($plan_description);
+				->setDescription($plan_description)
+				->setIsDefault($plan_is_default)
+				->setIsActive($plan_is_active);
 
 			$this->doctrine->em->persist($plan);
 			$this->doctrine->em->flush();
@@ -142,7 +146,7 @@ class Plan extends REST_Controller {
 
 		$this->doctrine->em->remove($plan);
 		$this->doctrine->em->flush();
-		$this->response(array('error' => false, 'message' => 'Plan: '. $plan . ' has been removed.'), 200);
+		$this->response(array('error' => false, 'message' => 'Plan: '. $plan->getName() . ' has been removed.'), 200);
 
 	}
 }

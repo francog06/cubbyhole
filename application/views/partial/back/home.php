@@ -3,6 +3,7 @@
    <script type="text/javascript">
         $(document).ready(function(){
             $("span.sprite").tooltip();
+            $("div.space").tooltip();
         });
         
    </script>
@@ -11,17 +12,54 @@
             <span class="sprite newFile" data-toggle="tooltip" data-placement="top" title="Ajouter un fichier"></span>
         </a>
     </p>
+    <?php 
+        // en GO dans la base
+        $total_storage = $user->getActivePlanHistory()->getPlan()->getUsableStorageSpace()*1000;
+        //en MB dans la base
+        $space_used = $user->getStorageUsed()*100;
+        // en %, libre
+        $percent_free = 100*(($total_storage-$space_used)/$total_storage); 
+        $percent_used = 100*(($space_used)/$total_storage);
+    ?>
+    <style type="text/css">
+    /*.progress span {
+        font-size: 12px;
+        line-height: 20px;
+        text-align: center;
+        position: absolute;
+        width: 100%;
+        left: 0;
+    }*/
+    </style>
     <div style="text-align:right;">
         <span class="glyphicon glyphicon-hdd" style="color:#39b3d7;top:-2px;margin-right:4px;"></span>
-        <div class="progress" style="width:200px;display:inline-block;margin:0">
-          <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
-            600 Mo libres (60%)
+        <div class="progress space" style="width:200px;display:inline-block;margin:0;position:relative"  data-toggle="tooltip" data-placement="top" title="Espace : <?= $space_used; ?> / <?= $total_storage; ?> Mo utilisés (<?= intval($percent_free); ?>% libres)">
+          <div class="progress-bar" role="progressbar" aria-valuenow="<?= intval($space_used); ?>" aria-valuemin="0" aria-valuemax="100" style="width: <?= intval($percent_used); ?>%;">
+            <?= $total_storage-$space_used; ?> Mo libres (<?= intval($percent_free); ?>%)
           </div>
         </div>
         &nbsp; 
         <a style="vertical-align:top;">Plus d'espace ?</a>
     </div>
          
+    <script type="text/javascript">
+    $(document).ready(function(){
+        //Chargement fichiers User
+
+
+        // Hover actions tableau
+        $(".table tbody tr").hover(function(){
+            $(this).find('td > div').css("display","inline-block");
+        },function(){
+            $(this).find('td > div').css("display","none");
+        });
+    });
+    </script>
+    <style type="text/css">
+    .table.sortable>tbody>tr>td{
+        height:40px;
+    }
+    </style>
    <table class="table table-striped table-hover sortable">
     <thead>
         <tr>
@@ -36,55 +74,37 @@
             <td><span class="sprite dossierPartage"></span> Bonjour Supinfo</td>
             <td>Dossier partagé</td>
             <td>--</td>
-            <td>Supprimer</td>
-        </tr>
-        <tr>
-            <td><span class="sprite dossierPartage"></span> Cubbyhole Project</td>
-            <td>Dossier partagé</td>
-            <td>--</td>
-            <td>Supprimer</td>
+            <td style="width:175px;"><div style="display:none"><button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..."><span class="glyphicon glyphicon-pencil"></span>&nbsp; Editer</button> 
+                 &nbsp; 
+                <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span>&nbsp; Supprimer</button></div>
+            </td>
         </tr>
         <tr>
             <td><span class="sprite dossier"></span> Projet perso</td>
             <td>Dossier</td>
             <td>--</td>
-            <td>Supprimer</td>
-        </tr>
-        <tr>
-            <td><span class="sprite dossierPartage"></span> Supinfo - Cours - M1</td>
-            <td>Dossier partagé</td>
-            <td>--</td>
-            <td>Supprimer</td>
+            <td><div style="display:none"><button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..."><span class="glyphicon glyphicon-pencil"></span>&nbsp; Editer</button> 
+                 &nbsp; 
+                <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span>&nbsp; Supprimer</button></div>
+            </td>
         </tr>
         <tr>
             <td><span class="sprite file"></span> Fichier 1</td>
             <td>Fichier</td>
             <td>28/04/2014 16:45</td>
-            <td>Supprimer</td>
-        </tr>
-        <tr>
-            <td><span class="sprite file"></span> Fichier 2</td>
-            <td>Fichier</td>
-            <td>28/04/2014 16:45</td>
-            <td>Supprimer</td>
-        </tr>
-        <tr>
-            <td><span class="sprite file"></span> Fichier 3</td>
-            <td>Fichier</td>
-            <td>28/04/2014 16:45</td>
-            <td>Supprimer</td>
+            <td><div style="display:none"><button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..."><span class="glyphicon glyphicon-pencil"></span>&nbsp; Editer</button> 
+                 &nbsp; 
+                <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span>&nbsp; Supprimer</button></div>
+            </td>
         </tr>
         <tr>
             <td><span class="sprite filePartage"></span> Fichier 4</td>
             <td>Fichier Partagé</td>
             <td>28/04/2014 16:45</td>
-            <td>Supprimer</td>
-        </tr>
-        <tr>
-            <td><span class="sprite file"></span> Fichier 5</td>
-            <td>Fichier</td>
-            <td>28/04/2014 16:45</td>
-            <td>Supprimer</td>
+            <td><div style="display:none"><button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..."><span class="glyphicon glyphicon-pencil"></span>&nbsp; Editer</button> 
+                 &nbsp; 
+                <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span>&nbsp; Supprimer</button></div>
+            </td>
         </tr>
     </tbody>
    </table>

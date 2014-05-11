@@ -2,10 +2,9 @@
 <html lang="fr">
 	<!-- Head -->
 	<?php $this->load->view('partial/main/head'); ?>
-
 	<!-- Content -->
 	<div class="site-wrapper">
-    	<div class="site-wrapper-inner">
+    	<div class="site-wrapper-inner" <?php echo isset($layout)?"":'style="vertical-align:top;"'; ?>>
 	        <div class="cover-container">
 	            <!-- Menu -->
 	            <?php $this->session->userdata('user') ? $this->load->view('partial/main/menu_user'):$this->load->view("partial/main/menu"); ?>

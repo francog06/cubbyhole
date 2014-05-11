@@ -165,6 +165,12 @@ class Plan extends \Entities\Plan implements \Doctrine\ORM\Proxy\Proxy
         return parent::getAllPlans();
     }
 
+    public function getAllPlansAdmin()
+    {
+        $this->__load();
+        return parent::getAllPlansAdmin();
+    }
+
     public function setIsDefault($isDefault)
     {
         $this->__load();

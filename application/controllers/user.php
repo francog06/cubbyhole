@@ -19,14 +19,16 @@ class User extends CI_Controller {
 		$this->load->view('layouts/main', $viewModel);
 	}
 
-	public function logout(){
+	public function logout()
+	{
 		$this->session->unset_userdata("user");
 		$this->session->unset_userdata("user_is_admin");
 		$this->session->set_flashdata('message', 'Vous êtes maintenant déconnecté.');
 		redirect("/login");
 	}
 
-	public function upgrade(){
+	public function upgrade()
+	{
 		$viewModel["plans"] = Entities\Plan::getAllPlans();
 		$viewModel["user"] = Entities\User::getUserById($this->session->userdata('user'));
 		$viewModel["view"] = "back/upgrade";
@@ -34,4 +36,23 @@ class User extends CI_Controller {
 		$this->load->view('layouts/main', $viewModel);
 	}
 
+	public function account()
+	{
+		$viewModel["user"] = Entities\User::getUserById($this->session->userdata('user'));
+		$viewModel["user_plan"] = $viewModel["user"]->getActivePlanHistory();
+		$viewModel["view"] = "back/account";
+		$viewModel["menu_active"] = "account";
+		$this->load->view('layouts/main', $viewModel);
+	}
+
+	public function checkout()
+	{	
+		$plan_id = $this->input->post('plan_id');
+        $duration = $this->input->post('duration');
+        $viewModel["plan"] = ["plan_id"=>$plan_id, "duration"=>$duration];
+		$viewModel["user"] = Entities\User::getUserById($this->session->userdata('user'));
+		$viewModel["view"] = "back/checkout";
+		$viewModel["menu_active"] = "upgrade";
+		$this->load->view('layouts/main', $viewModel);
+	}
 }

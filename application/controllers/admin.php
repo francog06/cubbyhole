@@ -27,4 +27,13 @@ class Admin extends CI_Controller {
 		$this->load->view('layouts/main', $viewModel);
 		
 	}
+	public function plans()
+	{
+		$viewModel["menu_active"] = "admin";
+		$plans = Entities\Plan::getAllPlansAdmin();
+		$viewModel["plans"] = $plans;
+		$viewModel["view"] = "admin/plans";
+		$this->load->view('layouts/main', $viewModel);
+		
+	}
 }

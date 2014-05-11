@@ -1,21 +1,8 @@
-<div class="site-wrapper">
-    <div class="">
-        <div class="cover-container">
-            <!-- Menu -->
-            <div class="masthead clearfix">
-                <div class="">
-                    <h3 class="masthead-brand"><img src="<?=img("logo.png")?>" height="60" alt="logo" /></h3>
-                    <ul class="nav nav-pills pull-right" style="margin-top:20px;">
-                        <li class="active"><a href="/admin/index">Accueil</a></li>
-                        <li><a href="/home/price">Users</a></li>
-                        <li><a href="/home/download">Plans</a></li>
-                    </ul>
-                </div>
-            </div>
-
             <div class="inner cover admin">
                <h1>Gestion utilisateurs</h1>
                <div class="result"></div>
+               <button class="btn btn-success create">Créer un user</button>
+               <br><br>
                <table class="table table-striped">
                 <tr>
                     <th>#</th>
@@ -27,16 +14,18 @@
 
                <?php 
                echo empty($users)?"<tr><td colspan='5' style='text-align:center'>Aucun utilisateur en base</td></tr>":"";
-               foreach ($users as $user): ?>
+               foreach ($users as $user): $user2=Entities\User::getUserById($user["id"]); $user_plan = $user2->getActivePlanHistory(); ?>
                 <tr>
                     <td><?php echo $user["id"]; ?></td>
                     <td><?php echo $user["email"]; ?></td>
-                    <td><?php echo "hello" ?></td>
+                    <td><?php echo $user_plan!=null?$user_plan->getPlan()->getName():"--"; ?></td>
                     <td><?php echo $user["is_admin"]==true?"Oui":"Non"; ?></td>
                     <td id="<?php echo $user["id"]; ?>">
                         <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..."><span class="glyphicon glyphicon-pencil"></span>&nbsp; Editer</button> 
                          &nbsp; 
                         <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span>&nbsp; Supprimer</button>
+                         &nbsp; 
+                        <button type="button" class="btn btn-xs btn-warning plan"><span class="glyphicon glyphicon-cloud-upload"></span>&nbsp; Abonnement</button>
                     </td>
                 </tr>
                <?php endforeach; ?>
@@ -45,14 +34,6 @@
                
             </div>
 
-            <div class="mastfoot">
-                <div class="inner">
-                    <p>Cubbyhole powered baby !</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 <script type="text/javascript">
     var deleteencours;
     $("button.supprimer").click(function(){
@@ -85,6 +66,13 @@
             });
         }
     });
+    $("button.create").click(function(){
+        $('.modal-title').html("Create User");
+        $("#user_id").val("");
+        $("#user_email").val("");
+        $("#user_password").val("");
+        $("#editUser").modal("show");
+    });
     var editencours;
     $("button.editer").click(function(){
         if(editencours == true){
@@ -94,6 +82,7 @@
             editencours = true;
             var btn = $(this);
             btn.button('loading');
+            $('.modal-title').html("Edit User");
             var userId = $(this).parent().attr('id');
             $.ajax({
                 url: '/api/user/details/'+userId,
@@ -168,7 +157,11 @@
           </div>
       </form>
       <script type="text/javascript">
+        $('#editUser').on('hidden.bs.modal', function (e) {
+          $("#user_id").val("");
+        })
       $("form").submit(function(e){
+        if($("#user_id").val() != ""){
         e.preventDefault();
         var btn = $("#submitEditUser");
         btn.button('loading');
@@ -200,6 +193,33 @@
               btn.button('reset');
                editencours = false;
             });
+        }else {
+            e.preventDefault();
+            $.ajax({
+                url: '/api/user/create',
+                type: 'POST',
+                headers:{
+                    "X-API-KEY":"5422e102a743fd70a22ee4ff7c2ebbe8"
+                },
+                data:{id:$("#user_id").val(),password:$("#user_password").val(),email:$("#user_email").val(), is_admin:$("input[name=user_is_admin]:checked").val()},
+                success: function(result) {
+                    if(result.error == false){
+                        $("div.result").append('<p class="bg-success" style="padding: 5px 0px;">'+result["message"]+'</p>');
+                    }else{
+                        $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">'+result["message"]+'</p>');
+                    }
+                    $("#editUser").modal("hide");
+                },
+                 error: function(result) {
+                        $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">Erreur lors de l\'ajout.</p>');
+                        $("#editUser").modal("hide");
+                }
+        }).done(function(){
+            setTimeout(function() {
+                location.reload();
+            }, 3000);
+        });
+        }
       });
       </script>
     </div><!-- /.modal-content -->

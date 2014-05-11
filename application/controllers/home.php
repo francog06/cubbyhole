@@ -13,6 +13,7 @@ class Home extends CI_Controller {
 	{
 		$viewModel["view"] = "front/home";
 		$viewModel["menu_active"] = "accueil";
+		$viewModel["layout"] = "yes";
 		$this->load->view('layouts/main', $viewModel);
 	}
 
@@ -21,6 +22,7 @@ class Home extends CI_Controller {
 		$viewModel["plans"] = Entities\Plan::getAllPlans();
 		$viewModel["view"] = "front/price";
 		$viewModel["menu_active"] = "prix";
+		$viewModel["layout"] = "yes";
 		$this->load->view('layouts/main', $viewModel);
 	}
 
@@ -28,6 +30,7 @@ class Home extends CI_Controller {
 	{
 		$viewModel["view"] = "front/download";
 		$viewModel["menu_active"] = "telecharger";
+		$viewModel["layout"] = "yes";
 		$this->load->view('layouts/main', $viewModel);
 	}
 }
