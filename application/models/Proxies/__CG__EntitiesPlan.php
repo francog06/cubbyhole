@@ -195,6 +195,12 @@ class Plan extends \Entities\Plan implements \Doctrine\ORM\Proxy\Proxy
         return parent::getIsActive();
     }
 
+    public function getPlanById($id = NULL)
+    {
+        $this->__load();
+        return parent::getPlanById($id);
+    }
+
 
     public function __sleep()
     {

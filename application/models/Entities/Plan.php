@@ -393,4 +393,19 @@ class Plan implements \JsonSerializable
     {
         return $this->is_active;
     }
+
+    /**
+     * Get plan by id
+     * 
+     *  @return Entities\Plan 
+     */
+    public function getPlanById($id=null) {
+       if($id == null)
+            return null;
+
+        $ci =& get_instance();
+        $plan = $ci->doctrine->em->find("Entities\Plan", $id);
+        return $plan;
+               
+    }
 }

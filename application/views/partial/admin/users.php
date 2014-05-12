@@ -196,7 +196,7 @@
         }else {
             e.preventDefault();
             $.ajax({
-                url: '/api/user/create',
+                url: '/api/user/register',
                 type: 'POST',
                 headers:{
                     "X-API-KEY":"5422e102a743fd70a22ee4ff7c2ebbe8"
