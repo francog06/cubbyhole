@@ -85,13 +85,13 @@ class Data_history extends REST_Controller {
 		}
 
 		if ( ($ip = $this->put('ip')) !== false ) {
-			$DataHistory->setName($ip);
+			$DataHistory->setIp($ip);
 		}
 		if ( ($country = $this->put('country')) !== false ) {
-			$DataHistory->setName($country);
+			$DataHistory->setCountry($country);
 		}
 		if ( ($file = $this->put('file')) !== false ) {
-			$DataHistory->setName($file);
+			$DataHistory->setFile($file);
 		}
 
 		if ( ($is_default = $this->put('is_default')) !== false ) {
