@@ -26,6 +26,8 @@
 
         <?php echo form_fieldset_close(); ?>
     <?php echo form_close(); ?>
+    <br />
+    <a class="btn btn-default" href="/login/register">Je n'ai pas de compte</a>
 </div>
 
            

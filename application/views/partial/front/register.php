@@ -23,6 +23,8 @@
 
         <?php echo form_fieldset_close(); ?>
     <?php echo form_close(); ?>
+    <br />
+    <a class="btn btn-default" href="/login">J'ai déjà un compte</a>
 </div>
 
             

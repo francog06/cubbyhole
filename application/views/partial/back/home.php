@@ -125,9 +125,9 @@
         <input type="hidden" id="user_id" name="user_id" value="" />
           <div class="modal-body">
               <div class="form-group">
-                <label for="user_email" class="col-sm-2 control-label">Nom du fichier</label>
-                <div class="col-sm-10">
-                  <input type="text" class="form-control" id="file_name" placeholder="mon_fichier.txt" name='file_name' />
+                <label for="user_email" class="col-sm-5 control-label">Sélectionner le fichier</label>
+                <div class="col-sm-4">
+                  <input type="file" class="form-control" id="file_name" name='file_name' />
                 </div>
                 <br />
                 <h2>Ou</h2>
@@ -146,6 +146,7 @@
 
 <script type="text/javascript">
     var obj = $("#dragandrophandler");
+    var user_id = <?= $user->getId(); ?>;
     obj.on('dragenter', function (e) 
     {
         e.stopPropagation();
@@ -174,6 +175,7 @@
        {
             var fd = new FormData();
             fd.append('file', files[i]);
+            fd.append('user_id', user_id);
      
             var status = new createStatusbar(obj); //Using this we can set progress.
             status.setFileNameSize(files[i].name,files[i].size);
@@ -234,8 +236,8 @@
 
     function sendFileToServer(formData,status)
     {
-        var uploadURL ="http://hayageek.com/examples/jquery/drag-drop-file-upload/upload.php"; //Upload URL
         var extraData ={}; //Extra Data.
+        console.log(formData);
         var jqXHR=$.ajax({
                 xhr: function() {
                 var xhrobj = $.ajaxSettings.xhr();
@@ -253,12 +255,15 @@
                     }
                 return xhrobj;
             },
-            url: uploadURL,
+            url: "/api/file/add",
             type: "POST",
             contentType:false,
             processData: false,
             cache: false,
             data: formData,
+            headers:{
+                "X-API-KEY":"5422e102a743fd70a22ee4ff7c2ebbe8"
+            },
             success: function(data){
                 status.setProgress(100);
      

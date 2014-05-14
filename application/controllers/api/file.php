@@ -210,9 +210,10 @@ class File extends REST_Controller {
 		if (isset($_FILES['file'])) {
 			$fileName = $_FILES['file']['name'];
 			$fileSize = $_FILES['file']['size'] / (1024 * 1024);
-
-			if ($fileSize > $plan->getUsableStorageSpace() ||
-				($fileSize + $user->getStorageUsed()) > $plan->getUsableStorageSpace())
+			_p($_FILES['file']);
+			_p($plan->getUsableStorageSpace());
+			if ($fileSize > $plan->getUsableStorageSpace()*(1024*1024*1024) ||
+				($fileSize + $user->getStorageUsed()) > $plan->getUsableStorageSpace()*(1024*1024*1024))
 				$this->response(array('error' => true, 'message' => 'Not enough space.'), 400);
 		}
 		else
