@@ -37,9 +37,12 @@ define('FOPEN_WRITE_CREATE_STRICT',				'xb');
 define('FOPEN_READ_WRITE_CREATE_STRICT',		'x+b');
 
 define('KB', 1024);
-define('MB', 1048576);
-define('GB', 1073741824);
-define('TB', 1099511627776);
+define('MB', KB * 1024);
+define('GB', MB * 1024);
+define('TB', GB * 1024);
+
+define('USER_KEY_LEVEL', 0);
+define('ADMIN_KEY_LEVEL', 1);
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

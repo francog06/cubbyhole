@@ -9,6 +9,10 @@ class User extends REST_Controller {
 
 		$this->load->library('email');
 		$this->load->helper('email');
+
+		$this->methods['login_post']['key'] = FALSE;
+		$this->methods['register_post']['key'] = FALSE;
+		$this->methods['forget_post']['key'] = FALSE;
 	}
 
 	public function details_get($id = null) {
@@ -20,6 +24,9 @@ class User extends REST_Controller {
 		if (is_null($user)) {
 			$this->response(array('error' => true, 'message' => 'user not found.'), 400);
 		}
+
+		if ($user != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL)
+			$this->response(array('error' => true, 'message' => "You can't view that user"), 401);
 
 		$response = [
 			"error" => false,
@@ -54,10 +61,13 @@ class User extends REST_Controller {
 		}
 
 		if ($this->encrypt->decode($user->getPassword()) == $user_pass) {
+			$q = $this->db->get_where('keys', array('user_id' => $user->getId()))->row();
+
 			$this->response(array(
 				'error' => false,
 				'message' => 'Connection successfull',
-				'user' => $user
+				'user' => $user,
+				'token' => $q->key
 			), 200);
 		} else {
 			$this->response(array('error' => true, 'message' => 'Invalid password'), 400);
@@ -111,6 +121,8 @@ class User extends REST_Controller {
 			$this->doctrine->em->persist($plan_history);
 			$this->doctrine->em->flush();
 
+			$user->createKey();
+
 			// Send user email
 
 			$this->email->clear();
@@ -139,6 +151,9 @@ class User extends REST_Controller {
 			$this->response(array('error' => true, 'message' => 'user not found.'), 400);
 		}
 
+		if ($user != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL)
+			$this->response(array('error' => true, 'message' => "You can't modify that user"), 401);
+
 		if ( ($email = $this->put('email')) !== false ) {
 			$user->setEmail($email);
 		}
@@ -157,6 +172,8 @@ class User extends REST_Controller {
 
 		$this->doctrine->em->merge($user);
 		$this->doctrine->em->flush();
+
+		$user->updateKey();
 		$this->response(array('error' => false, 'message' => 'user updated successfully.', 'user' => $user), 200);
 	}
 
@@ -169,6 +186,9 @@ class User extends REST_Controller {
 		if (is_null($user)) {
 			$this->response(array('error' => true, 'message' => 'user not found.'), 400);
 		}
+
+		if ($user != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL)
+			$this->response(array('error' => true, 'message' => "You can't modify that user"), 401);
 
 		$this->doctrine->em->remove($user);
 		$this->doctrine->em->flush();

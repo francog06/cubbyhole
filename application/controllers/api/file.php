@@ -14,6 +14,8 @@ class File extends REST_Controller {
 			'encrypt_name' => FALSE,
 			'file_name' => substr(md5(time()), 15)
 		];
+
+		$this->methods['download_get']['key'] = FALSE;
 	}
 
 	public function download_get($id = null) {
@@ -25,6 +27,10 @@ class File extends REST_Controller {
 		if (is_null($file)) {
 			$this->response(array('error' => true, 'message' => 'file not found.'), 400);
 		}
+
+		/**
+		 * TODO: Verify access_key / share / is_public
+		 */
 
 		if ( file_exists($file->getAbsolutePath()) && is_file($file->getAbsolutePath()) ) {
 		    header('Content-Description: File Transfer');
@@ -68,6 +74,9 @@ class File extends REST_Controller {
 			$this->response(array('error' => true, 'message' => 'file not found.'), 400);
 		}
 
+		if ($file->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL)
+			$this->response(array('error' => true, 'message' => "You are not allowed to do this."), 401);
+
 		$this->response(array('error' => false, 'file' => $file), 200);
 	}
 
@@ -81,24 +90,14 @@ class File extends REST_Controller {
 			$this->response(array('error' => true, 'message' => 'file not found.'), 400);
 		}
 
+		if ($file->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL)
+			$this->response(array('error' => true, 'message' => "You are not allowed to do this."), 401);
+
 		@unlink($file->getAbsolutePath());
 		$this->doctrine->em->remove($file);
 		$this->doctrine->em->flush();
 
 		$this->response(array('error' => false, 'message' => 'File has been removed.'), 200);
-	}
-
-	public function user_get($id = null) {
-		if (is_null($id)) {
-			$this->response(array('error' => true, 'message' => 'id not defined.'), 400);
-		}
-
-		$user = $this->doctrine->em->find('Entities\User', (int)$id);
-		if (is_null($user)) {
-			$this->response(array('error' => true, 'message' => 'user not found.'), 400);
-		}
-
-		$this->response(array('error' => false, 'files' => $user->getFiles()->toArray()), 200);
 	}
 
 	public function update_post($id = null) {
@@ -110,6 +109,9 @@ class File extends REST_Controller {
 		if (is_null($file)) {
 			$this->response(array('error' => true, 'message' => 'file not found.'), 400);
 		}
+
+		if ($file->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL)
+			$this->response(array('error' => true, 'message' => "You are not allowed to do this."), 401);
 
 		if ( ($folder_id = $this->post('folder_id')) !== false ) {
 			$folder = $this->doctrine->em->find('Entities\Folder', (int)$folder_id);
@@ -127,7 +129,7 @@ class File extends REST_Controller {
 			$file->setShare($share);
 		}
 
-		if ( ($user_id = $this->post('user_id')) !== false ) {
+		if ( ($user_id = $this->post('user_id')) !== false && $this->rest->level == ADMIN_KEY_LEVEL) {
 			$user = $this->doctrine->em->find('Entities\User', (int)$user_id);
 			if (is_null($user)) {
 				$this->response(array('error' => true, 'message' => 'user not found.'), 400);
@@ -184,15 +186,13 @@ class File extends REST_Controller {
 		$file->setLastUpdateDate(new DateTime('now', new DateTimeZone('Europe/Berlin')));
 		$this->doctrine->em->merge($file);
 		$this->doctrine->em->flush($file);
-		$this->response(array('error' => false, 'file' => $file), 200);
+		$this->response(array('error' => false, 'message' => 'Fichier mis à jour.', 'file' => $file), 200);
 	}
 
 	public function add_post() {
-		$user_id = $this->mandatory_value('user_id', 'post');
-
 		$this->uploadConfig['upload_path'] = APPPATH . 'uploads/' . $user_id . "/";
 
-		$user = $this->doctrine->em->find('Entities\User', (int)$user_id);
+		$user = $this->rest->user;
 		if (is_null($user)) {
 			$this->response(array('error' => true, 'message' => 'user not found.'), 400);
 		}
@@ -243,7 +243,7 @@ class File extends REST_Controller {
 
 			$this->doctrine->em->persist($file);
 			$this->doctrine->em->flush();
-			$this->response(array('error' => false, 'file' => $file), 200);
+			$this->response(array('error' => false, 'message' => 'Fichier créé.', 'file' => $file), 200);
 		}
 	}
 }

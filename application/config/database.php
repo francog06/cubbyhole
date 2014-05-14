@@ -79,6 +79,8 @@ $db['development']['swap_pre'] = '';
 $db['development']['autoinit'] = TRUE;
 $db['development']['stricton'] = FALSE;
 
+$db['default'] = $db[$active_group];
+
 
 /* End of file database.php */
 /* Location: ./application/config/database.php */

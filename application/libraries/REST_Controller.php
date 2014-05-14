@@ -324,8 +324,6 @@ class REST_Controller extends CI_Controller
 		{
 			$this->_log_access_time();
 		}
-		
-		
 	}
 
 	/**
@@ -358,7 +356,7 @@ class REST_Controller extends CI_Controller
 		$log_method = !(isset($this->methods[$controller_method]['log']) AND $this->methods[$controller_method]['log'] == FALSE);
 
 		// Use keys for this method?
-		$use_key = ! (isset($this->methods[$controller_method]['key']) AND $this->methods[$controller_method]['key'] == FALSE);
+		$use_key = !(isset($this->methods[$controller_method]['key']) AND $this->methods[$controller_method]['key'] == FALSE);
 
 		// Get that useless shitty key out of here
 		if (config_item('rest_enable_keys') AND $use_key AND $this->_allow === FALSE)
@@ -412,6 +410,14 @@ class REST_Controller extends CI_Controller
 		else if (config_item('rest_enable_logging') AND $log_method)
 		{
 			$this->_log_request($authorized = TRUE);
+		}
+
+		if ($use_key) {
+			$user = $this->doctrine->em->find('Entities\User', (int)$this->rest->user_id);
+			if (is_null($user)) {
+				$this->response(array('error' => true, 'message' => 'user not found.'), 400);
+			}
+			$this->rest->user = $user;
 		}
 
 		// And...... GO!
@@ -700,7 +706,7 @@ class REST_Controller extends CI_Controller
 			isset($row->ignore_limits) AND $this->rest->ignore_limits = $row->ignore_limits;
 
 			$this->_apiuser =  $row;
-			
+
 			/*
 			 * If "is private key" is enabled, compare the ip address with the list
 			 * of valid ip addresses stored in the database.
@@ -1547,7 +1553,7 @@ class REST_Controller extends CI_Controller
 		$query = $this->rest->db->get(config_item('rest_access_table'));
 
 		if ($query->num_rows > 0) 
-		{	
+		{
 			return TRUE;
 		}
 
