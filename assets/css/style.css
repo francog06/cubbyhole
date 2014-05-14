@@ -779,6 +779,16 @@ span.newFolder{
   width: 28px;
   height: 18px;
 }
+span.refresh{
+  background-position: left -3705px;
+  width: 28px;
+  height: 18px;
+}
+span.parentFolder{
+  background-position: left -6705px;
+  width: 28px;
+  height: 18px;
+}
 
 #dragandrophandler{
   width: 500px;
@@ -845,3 +855,11 @@ margin-right:5px;
     cursor:pointer;
     vertical-align:top
     }
+
+tr.file, tr.folder{
+  cursor: pointer;
+}
+tr.folder.drop-target{
+  background: #D7E8FC;
+  transition: all 1s ease;
+}
