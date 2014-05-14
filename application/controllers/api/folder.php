@@ -70,7 +70,7 @@ class Folder extends REST_Controller {
 
 		$this->doctrine->em->persist($folder);
 		$this->doctrine->em->flush();
-		$this->response(array('error' => false, 'message' => 'Dossier créé.' 'folder' => $folder), 200);
+		$this->response(array('error' => false, 'message' => 'Dossier créé.', 'folder' => $folder), 200);
 	}
 
 	public function update_put($id = null) {
@@ -128,7 +128,7 @@ class Folder extends REST_Controller {
 			$this->response(array('error' => true, 'message' => "You're not allowed to do that."), 401);
 		}
 
-		if ( !is_null($user_id) && $this->rest->user->getId() != $user_id && $this->rest->level == ADMIN_KEY_LEVEL) {
+		if ( !is_null($user_id) && $this->rest->user->getId() != $user_id && $this->rest->level == ADMIN_KEY_LEVEL) 
 			$user = $this->doctrine->em->find('Entities\User', (int)$user_id);
 		if (is_null($user)) {
 			$this->response(array('error' => true, 'message' => 'user not found.'), 400);
