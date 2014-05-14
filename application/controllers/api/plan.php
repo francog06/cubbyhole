@@ -8,6 +8,9 @@ class Plan extends REST_Controller {
 	function __construct()
 	{
 		parent::__construct();
+
+		$this->methods['index_get']['key'] = FALSE;
+		$this->methods['details_get']['key'] = FALSE;
 	}
 
 	public function index_get() 
@@ -22,6 +25,9 @@ class Plan extends REST_Controller {
 
 	public function update_put($id = null)
 	{
+		if ($this->rest->level != ADMIN_KEY_LEVEL)
+			$this->response(array('error' => true, 'message' => "You can't update a plan"), 401);
+
 		if (is_null($id)) {
 			$this->response(array('error' => true, 'message' => 'id not defined.'), 400);
 		}
@@ -93,6 +99,9 @@ class Plan extends REST_Controller {
 
 	 public function create_post()
 	 {
+	 	if ($this->rest->level != ADMIN_KEY_LEVEL)
+			$this->response(array('error' => true, 'message' => "You can't create a plan"), 401);
+
 		$plan_name = $this->mandatory_value('name', 'post');
 		$plan_description = $this->mandatory_value('description', 'post');
 		$plan_price = $this->mandatory_value('price', 'post');
@@ -135,6 +144,9 @@ class Plan extends REST_Controller {
 
 	public function delete_delete($id = null)
 	{
+		if ($this->rest->level != ADMIN_KEY_LEVEL)
+			$this->response(array('error' => true, 'message' => "You can't delete a plan"), 401);
+
 		if (is_null($id)) {
 			$this->response(array('error' => true, 'message' => 'id not defined.'), 400);
 		}

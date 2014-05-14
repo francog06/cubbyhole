@@ -78,6 +78,9 @@ class Login extends CI_Controller {
 			// Redirect to Dashboard
 			$this->session->set_userdata("user", $user->getId());
 			$this->session->set_userdata("user_is_admin", $user->getIsAdmin());
+
+			$q = $this->db->get_where('keys', array('user_id' => $user->getId()))->row();
+			$this->session->set_userdata("user_token", $q->key);
 			// _p($this->session->userdata('user'));
 
 			redirect('/user/');

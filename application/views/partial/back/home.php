@@ -11,12 +11,15 @@
         <a id="newFile" data-toggle="modal" data-target="#newFileModal">
             <span class="sprite newFile" data-toggle="tooltip" data-placement="top" title="Ajouter un fichier"></span>
         </a>
+        <a id="newFolder" data-toggle="modal" data-target="#newFolderModal">
+            <span class="sprite newFolder" data-toggle="tooltip" data-placement="top" title="Ajouter un dossier"></span>
+        </a>
     </p>
     <?php 
         // en GO dans la base
         $total_storage = $user->getActivePlanHistory()->getPlan()->getUsableStorageSpace()*1000;
         //en MB dans la base
-        $space_used = $user->getStorageUsed()*100;
+        $space_used = $user->getStorageUsed();
         // en %, libre
         $percent_free = 100*(($total_storage-$space_used)/$total_storage); 
         $percent_used = 100*(($space_used)/$total_storage);
@@ -41,18 +44,47 @@
         &nbsp; 
         <a style="vertical-align:top;">Plus d'espace ?</a>
     </div>
-         
+    <div class="result"></div>
+    <br />
+    <div style="text-align:left;">Arborescence : <span class="breadcrumb"></span></div>
     <script type="text/javascript">
-    $(document).ready(function(){
-        //Chargement fichiers User
-
-
+    var user_id = <?= $user->getId(); ?>;
+    var sprite,type;
+    $(document).ready(function(){    
+        getRoot();
         // Hover actions tableau
         $(".table tbody tr").hover(function(){
             $(this).find('td > div').css("display","inline-block");
         },function(){
             $(this).find('td > div').css("display","none");
         });
+        $.bootstrapSortable();
+        $("#submitNewFolder").click(function(e){
+            e.preventDefault();
+            $.ajax({
+                url: '/api/folder/add',
+                type: 'POST',
+                headers:{
+                    "X-API-KEY":"5422e102a743fd70a22ee4ff7c2ebbe8"
+                },
+                data:{folder_id:$("#folder_id").val(),user_id:user_id,name:$("#folder_name").val()},
+                success: function(result) {
+                    if(result.error == false){
+                       $('#newFolderModal').modal("toggle");
+                       $("div.result").append('<p class="bg-success" style="padding: 5px 0px;">'+result["message"]+'</p>');
+                    }
+                    else{
+                        $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">'+result["message"]+'</p>');
+                        $('#newFolderModal').modal("toggle");
+                    }
+                },
+                error: function(result) {
+                    $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">Erreur lors de la transaction.</p>');
+                    $('#newFolderModal').modal("toggle");
+                }
+           });
+        });
+        
     });
     </script>
     <style type="text/css">
@@ -60,7 +92,7 @@
         height:40px;
     }
     </style>
-   <table class="table table-striped table-hover sortable">
+   <table id="cubbyhole" class="table table-striped table-hover sortable">
     <thead>
         <tr>
             <th>Nom</th>
@@ -70,50 +102,11 @@
         </tr>
     </thead>
     <tbody>
-        <tr>
-            <td><span class="sprite dossierPartage"></span> Bonjour Supinfo</td>
-            <td>Dossier partagé</td>
-            <td>--</td>
-            <td style="width:175px;"><div style="display:none"><button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..."><span class="glyphicon glyphicon-pencil"></span>&nbsp; Editer</button> 
-                 &nbsp; 
-                <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span>&nbsp; Supprimer</button></div>
-            </td>
-        </tr>
-        <tr>
-            <td><span class="sprite dossier"></span> Projet perso</td>
-            <td>Dossier</td>
-            <td>--</td>
-            <td><div style="display:none"><button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..."><span class="glyphicon glyphicon-pencil"></span>&nbsp; Editer</button> 
-                 &nbsp; 
-                <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span>&nbsp; Supprimer</button></div>
-            </td>
-        </tr>
-        <tr>
-            <td><span class="sprite file"></span> Fichier 1</td>
-            <td>Fichier</td>
-            <td>28/04/2014 16:45</td>
-            <td><div style="display:none"><button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..."><span class="glyphicon glyphicon-pencil"></span>&nbsp; Editer</button> 
-                 &nbsp; 
-                <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span>&nbsp; Supprimer</button></div>
-            </td>
-        </tr>
-        <tr>
-            <td><span class="sprite filePartage"></span> Fichier 4</td>
-            <td>Fichier Partagé</td>
-            <td>28/04/2014 16:45</td>
-            <td><div style="display:none"><button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..."><span class="glyphicon glyphicon-pencil"></span>&nbsp; Editer</button> 
-                 &nbsp; 
-                <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span>&nbsp; Supprimer</button></div>
-            </td>
-        </tr>
     </tbody>
    </table>
 </div>
 
-<script type="text/javascript">
-    $.bootstrapSortable();
-</script>
-<!-- Modal edit user -->
+<!-- Modal file upload -->
 <div class="modal fade" id="newFileModal" tabindex="-1" role="dialog" aria-labelledby="Nouveau fichier" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -123,6 +116,7 @@
       </div>
       <form class="form-horizontal" role="form" method="post" id="formEditUser">
         <input type="hidden" id="user_id" name="user_id" value="" />
+        <input type="hidden" id="folder_id" name="folder_id" value="" />
           <div class="modal-body">
               <div class="form-group">
                 <label for="user_email" class="col-sm-5 control-label">Sélectionner le fichier</label>
@@ -143,6 +137,44 @@
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
+
+<!-- Modal folder upload -->
+<div class="modal fade" id="newFolderModal" tabindex="-1" role="dialog" aria-labelledby="Nouveau dossier" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Nouveau Dossier</h4>
+      </div>
+      <form class="form-horizontal" role="form" method="post" id="formEditUser">
+          <div class="modal-body">
+              <div class="form-group">
+                <label for="user_email" class="col-sm-5 control-label">Nom du dossier </label>
+                <div class="col-sm-4">
+                  <input type="text" class="form-control" id="folder_name" name='folder_name' />
+                </div>
+              </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+            <button type="submit" class="btn btn-primary" id="submitNewFolder" data-loading-text="Loading...">Enregistrer</button>
+          </div>
+      </form>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!-- Chargement modal -->
+<div id="loadingModal" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="loadingModal" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+        <br />
+        <img src='<?= img("ajax-loader.gif"); ?>' alt="loading" /> &nbsp; Veuillez patienter s.v.p.
+        <br />
+        <br />
+    </div>
+  </div>
+</div>
 
 <script type="text/javascript">
     var obj = $("#dragandrophandler");
@@ -176,6 +208,7 @@
             var fd = new FormData();
             fd.append('file', files[i]);
             fd.append('user_id', user_id);
+            fd.append('folder_id', $("#folder_id").val());
      
             var status = new createStatusbar(obj); //Using this we can set progress.
             status.setFileNameSize(files[i].name,files[i].size);
@@ -266,11 +299,170 @@
             },
             success: function(data){
                 status.setProgress(100);
-     
-                //$("#status1").append("File upload Done<br>");           
+                $("#status1").append("File upload Done<br>");           
             }
         }); 
      
         status.setAbort(jqXHR);
+}
+
+function getRoot(){
+    $('#folder_id').val("");
+    $('#loadingModal').modal("toggle");
+    $.ajax({
+            url: '/api/folder/user/'+user_id+'/root',
+            type: 'GET',
+            headers:{
+                "X-API-KEY":"5422e102a743fd70a22ee4ff7c2ebbe8"
+            },
+            success: function(result) {
+                $("#cubbyhole tbody").html("");
+                if(result.error == false){
+                    $(".breadcrumb").html("<a href='javascript:getRoot()'><span class='glyphicon glyphicon-home'></span></a>");
+                    for(var loop_folder in result.folders){
+                        if(result.folders.hasOwnProperty(loop_folder)){
+                            if(result.folders[loop_folder].share == null){
+                                sprite = "dossier";
+                                type = "Dossier";
+                            }
+                            else{
+                                sprite = "dossierPartage";
+                                type = "Dossier Partagé";
+                            }
+                            $("#cubbyhole tbody").append('\
+                                <tr>\
+                                    <td><a href="javascript:getFolder('+result.folders[loop_folder].id+')"><span class="sprite '+sprite+'"></span>'+result.folders[loop_folder].name+'</a></td>\
+                                    <td>'+type+'</td>\
+                                    <td>'+result.folders[loop_folder].last_update_date.date+'</td>\
+                                    <td style="width:175px;"><div style="display:none">\
+                                        <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..."><span class="glyphicon glyphicon-pencil"></span>&nbsp; Editer</button> \
+                                         &nbsp; \
+                                        <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span>&nbsp; Supprimer</button></div>\
+                                    </td>\
+                                </tr>\
+                            ').fadeIn();
+                        }
+                    }
+                    for(var loop_file in result.files){
+                        if(result.files[loop_file].share == null){
+                                sprite = "file";
+                                type = "Fichier";
+                        }
+                        else{
+                            sprite = "filePartage";
+                            type = "Fichier Partagé";
+                        }
+                        if(result.files.hasOwnProperty(loop_file)){
+                            $("#cubbyhole tbody").append('\
+                                <tr>\
+                                    <td><span class="sprite '+sprite+'"></span>'+result.files[loop_file].name+'</td>\
+                                    <td>'+type+'</td>\
+                                    <td>'+result.files[loop_file].last_update_date.date+'</td>\
+                                    <td style="width:175px;"><div style="display:none">\
+                                        <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..."><span class="glyphicon glyphicon-pencil"></span>&nbsp; Editer</button> \
+                                         &nbsp; \
+                                        <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span>&nbsp; Supprimer</button></div>\
+                                    </td>\
+                                </tr>\
+                            ').fadeIn();
+                        }
+                    }
+                    $('#loadingModal').modal("toggle");
+                    $.bootstrapSortable();
+                }
+                else{
+                    $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">'+result["message"]+'</p>');
+                    $('#loadingModal').modal("toggle");
+                }
+            },
+            error: function(result) {
+                $(".panel").fadeOut();
+                $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">Erreur lors de la transaction.</p>');
+                $('#loadingModal').modal("toggle");
+            }
+       });
+}
+
+function getFolder(id){
+    $('#folder_id').val(id);
+    $('#loadingModal').modal("toggle");
+    $.ajax({
+            url: '/api/folder/details/'+id,
+            type: 'GET',
+            headers:{
+                "X-API-KEY":"5422e102a743fd70a22ee4ff7c2ebbe8"
+            },
+            success: function(result) {
+                $("#cubbyhole tbody").html("");
+                if(result.error == false){
+                    if($(".breadcrumb a[data-id='"+id+"']").length == 0){
+                        $(".breadcrumb").append("<a data-id='"+result.folder.id+"' href='javascript:getFolder("+result.folder.id+")'> / "+result.folder.name+"</a>");
+                    }
+                    else{
+                        var pos = $(".breadcrumb a").index($(".breadcrumb a[data-id='"+id+"']")); 
+                        $(".breadcrumb a").slice(pos+1).remove();
+                    }
+                    for(var loop_folder in result.folder.folders){
+                        if(result.folder.folders.hasOwnProperty(loop_folder)){
+                            if(result.folder.folders[loop_folder].share == null){
+                                sprite = "dossier";
+                                type = "Dossier";
+                            }
+                            else{
+                                sprite = "dossierPartage";
+                                type = "Dossier Partagé";
+                            }
+                            $("#cubbyhole tbody").append('\
+                                <tr>\
+                                    <td><a href="javascript:getFolder('+result.folder.folders[loop_folder].id+')"><span class="sprite '+sprite+'"></span>'+result.folder.folders[loop_folder].name+'</a></td>\
+                                    <td>'+type+'</td>\
+                                    <td>'+result.folder.folders[loop_folder].last_update_date.date+'</td>\
+                                    <td style="width:175px;"><div style="display:none">\
+                                        <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..."><span class="glyphicon glyphicon-pencil"></span>&nbsp; Editer</button> \
+                                         &nbsp; \
+                                        <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span>&nbsp; Supprimer</button></div>\
+                                    </td>\
+                                </tr>\
+                            ').fadeIn();
+                        }
+                    }
+                    for(var loop_file in result.folder.files){
+                        if(result.folder.files[loop_file].share == null){
+                                sprite = "file";
+                                type = "Fichier";
+                        }
+                        else{
+                            sprite = "filePartage";
+                            type = "Fichier Partagé";
+                        }
+                        if(result.folder.files.hasOwnProperty(loop_file)){
+                            $("#cubbyhole tbody").append('\
+                                <tr>\
+                                    <td><span class="sprite '+sprite+'"></span>'+result.folder.files[loop_file].name+'</td>\
+                                    <td>'+type+'</td>\
+                                    <td>'+result.folder.files[loop_file].last_update_date.date+'</td>\
+                                    <td style="width:175px;"><div style="display:none">\
+                                        <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..."><span class="glyphicon glyphicon-pencil"></span>&nbsp; Editer</button> \
+                                         &nbsp; \
+                                        <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span>&nbsp; Supprimer</button></div>\
+                                    </td>\
+                                </tr>\
+                            ').fadeIn();
+                        }
+                    }
+                    $('#loadingModal').modal("toggle");
+                    $.bootstrapSortable();
+                }
+                else{
+                    $('#loadingModal').modal("toggle");
+                    $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">'+result["message"]+'</p>');
+                }
+            },
+            error: function(result) {
+                $(".panel").fadeOut();
+                $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">Erreur lors de la transaction.</p>');
+                $('#loadingModal').modal("toggle");
+            }
+       });
 }
 </script>
