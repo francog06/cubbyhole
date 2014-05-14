@@ -122,7 +122,13 @@ class Folder extends REST_Controller {
         $files = $user->getFiles()->filter(function($_) {
            	return ($_->getFolder() == null);
         });
-        $this->response(array('error' => false, 'folders' => $folders->toArray(), 'files' => $files->toArray()), 200);
+
+        $filesRet = [];
+        foreach ($files as $file) {
+        	$filesRet[] = $file;
+        }
+
+        $this->response(array('error' => false, 'folders' => $folders->toArray(), 'files' => $filesRet), 200);
 	}
 
 	public function stats_get() {
