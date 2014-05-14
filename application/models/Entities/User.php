@@ -426,6 +426,34 @@ class User implements \JsonSerializable
         return $totalMbUsed;
     }
 
+    /** 
+    * Create key for user
+    *
+    * @return void
+    */
+    public function createKey() {
+        $ci =& get_instance();
+        $data = array(
+           'key' => md5(time()),
+           'level' => $this->getIsAdmin() ? 1 : 0,
+           'ignore_limits' => 0,
+           'date_created' => 0,
+           'user_id' => $this->getId()
+        );
+
+        $ci->db->insert('keys', $data); 
+    }
+
+    /**
+    * Update key
+    *
+    * @return 
+    */
+    public function updateKey() {
+        $ci =& get_instance();
+        $ci->db->update('keys', array('level' => $this->getIsAdmin() ? 1 : 0), array('user_id' => $this->getId()));
+    }
+
     /**
      * JSON serialize
      * 

@@ -213,6 +213,18 @@ class User extends \Entities\User implements \Doctrine\ORM\Proxy\Proxy
         return parent::getStorageUsed();
     }
 
+    public function createKey()
+    {
+        $this->__load();
+        return parent::createKey();
+    }
+
+    public function updateKey()
+    {
+        $this->__load();
+        return parent::updateKey();
+    }
+
     public function jsonSerialize()
     {
         $this->__load();

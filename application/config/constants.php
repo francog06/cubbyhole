@@ -41,5 +41,8 @@ define('MB', KB * 1024);
 define('GB', MB * 1024);
 define('TB', GB * 1024);
 
+define('USER_KEY_LEVEL', 0);
+define('ADMIN_KEY_LEVEL', 1);
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
