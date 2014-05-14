@@ -14,6 +14,9 @@
         <a id="newFolder" data-toggle="modal" data-target="#newFolderModal">
             <span class="sprite newFolder" data-toggle="tooltip" data-placement="top" title="Ajouter un dossier"></span>
         </a>
+        <a id="refresh">
+            <span class="sprite refresh" data-toggle="tooltip" data-placement="top" title="Rafraîchir"></span>
+        </a>
     </p>
     <?php 
         // en GO dans la base
@@ -47,52 +50,12 @@
     <div class="result"></div>
     <br />
     <div style="text-align:left;">Arborescence : <span class="breadcrumb"></span></div>
-    <script type="text/javascript">
-    var user_id = <?= $user->getId(); ?>;
-    var sprite,type;
-    $(document).ready(function(){    
-        getRoot();
-        // Hover actions tableau
-        $(".table tbody tr").hover(function(){
-            $(this).find('td > div').css("display","inline-block");
-        },function(){
-            $(this).find('td > div').css("display","none");
-        });
-        $.bootstrapSortable();
-        $("#submitNewFolder").click(function(e){
-            e.preventDefault();
-            $.ajax({
-                url: '/api/folder/add',
-                type: 'POST',
-                headers:{
-                    "X-API-KEY":"5422e102a743fd70a22ee4ff7c2ebbe8"
-                },
-                data:{folder_id:$("#folder_id").val(),user_id:user_id,name:$("#folder_name").val()},
-                success: function(result) {
-                    if(result.error == false){
-                       $('#newFolderModal').modal("toggle");
-                       $("div.result").append('<p class="bg-success" style="padding: 5px 0px;">'+result["message"]+'</p>');
-                    }
-                    else{
-                        $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">'+result["message"]+'</p>');
-                        $('#newFolderModal').modal("toggle");
-                    }
-                },
-                error: function(result) {
-                    $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">Erreur lors de la transaction.</p>');
-                    $('#newFolderModal').modal("toggle");
-                }
-           });
-        });
-        
-    });
-    </script>
     <style type="text/css">
     .table.sortable>tbody>tr>td{
         height:40px;
     }
     </style>
-   <table id="cubbyhole" class="table table-striped table-hover sortable">
+   <table id="cubbyhole" class="table sortable">
     <thead>
         <tr>
             <th>Nom</th>
@@ -175,10 +138,163 @@
     </div>
   </div>
 </div>
-
+    <script type="text/javascript">
+    var user_id = <?= $user->getId(); ?>;
+    var sprite,type;
+    $(document).ready(function(){    
+        getRoot();
+        // Hover actions tableau
+        $(".table tbody tr").hover(function(){
+            $(this).find('td > div').css("display","inline-block");
+        },function(){
+            $(this).find('td > div').css("display","none");
+        });
+        $.bootstrapSortable();
+        $("#refresh").click(function(){
+            if($(".breadcrumb a:last-child").attr("data-id") == undefined){
+                getRoot();
+            }else{
+                getFolder($(".breadcrumb a:last-child").attr("data-id"));
+            }
+        });
+        $("#submitNewFolder").click(function(e){
+            e.preventDefault();
+            $.ajax({
+                url: '/api/folder/add',
+                type: 'POST',
+                headers:{
+                    "X-API-KEY":"5422e102a743fd70a22ee4ff7c2ebbe8"
+                },
+                data:{folder_id:$("#folder_id").val(),user_id:user_id,name:$("#folder_name").val()},
+                success: function(result) {
+                    if(result.error == false){
+                       $('#newFolderModal').modal("toggle");
+                       $("div.result").append('<p class="bg-success" style="padding: 5px 0px;">'+result["message"]+'</p>');
+                    }
+                    else{
+                        $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">'+result["message"]+'</p>');
+                        $('#newFolderModal').modal("toggle");
+                    }
+                },
+                error: function(result) {
+                    $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">Erreur lors de la transaction.</p>');
+                    $('#newFolderModal').modal("toggle");
+                }
+           });
+        });
+        
+    });
+    </script>
+<script type="text/javascript" src="http://interactjs.io/js/interact.min.js"></script>
 <script type="text/javascript">
     var obj = $("#dragandrophandler");
     var user_id = <?= $user->getId(); ?>;
+
+    interact('.folder')
+    // enable draggables to be dropped into this
+    .dropzone(true)
+    // only accept elements matching this CSS selector
+    .accept('.file')
+    .accept('.folder')
+    // listen for drop related events
+    .on('dragenter', function (event) {
+        var draggableElement = event.relatedTarget,
+            dropzoneElement = event.target;
+
+        // feedback the possibility of a drop
+        dropzoneElement.classList.add('drop-target');
+        //draggableElement.classList.add('can-drop');
+    })
+    .on('dragleave', function (event) {
+        // remove the drop feedback style
+        event.target.classList.remove('drop-target');
+        //event.relatedTarget.classList.remove('can-drop');
+    })
+    .on('drop', function (event) {
+        //event.relatedTarget.textContent = 'Dropped';
+        event.target.classList.remove('drop-target');
+        //alert($(event.relatedTarget).attr("data-id"));
+        if($(event.relatedTarget).attr("class") == "file"){
+            $.ajax({
+                url: '/api/file/update/'+$(event.relatedTarget).attr("data-id"),
+                type: 'POST',
+                headers:{
+                    "X-API-KEY":"5422e102a743fd70a22ee4ff7c2ebbe8"
+                },
+                data:{folder_id:$(event.target).attr("data-id")},
+                success: function(result) {
+                    if(result.error == false){
+                        if($(".breadcrumb a:last-child").attr("data-id") == undefined)
+                            getRoot();
+                        else
+                            getFolder($(".breadcrumb a:last-child").attr("data-id"));
+                            
+                    }
+                },
+                error: function(result) {
+                }
+            });
+        }
+        else if($(event.relatedTarget).attr("class") == "folder"){
+            $.ajax({
+                url: '/api/folder/update/'+$(event.relatedTarget).attr("data-id"),
+                type: 'PUT',
+                headers:{
+                    "X-API-KEY":"5422e102a743fd70a22ee4ff7c2ebbe8"
+                },
+                data:{folder_id:$(event.target).attr("data-id")},
+                success: function(result) {
+                    if(result.error == false){
+                        if($(".breadcrumb a:last-child").attr("data-id") == undefined)
+                            getRoot();
+                        else
+                            getFolder($(".breadcrumb a:last-child").attr("data-id"));
+                            
+                    }
+                },
+                error: function(result) {
+                }
+            });
+        }
+        else alert('error');
+        
+    });
+
+
+    interact('.file')
+    .draggable({
+        onmove: function (event) {
+            var target = event.target;
+            //target.x = (target.x|0) + event.dx;
+            target.y = (target.y|0) + event.dy;
+            target.style.webkitTransform = target.style.transform = 'translate( 0px, ' + target.y + 'px)';
+        },
+        onend  : function (event) {
+            var target = event.target;
+            target.style.webkitTransform = target.style.transform = 'translate( 0px, 0px)';
+        }
+    })
+    .inertia(true)
+    .restrict({ drag: 'parent' });
+
+    interact('.folder')
+    .draggable({
+        onmove: function (event) {
+            var target = event.target;
+            //target.x = (target.x|0) + event.dx;
+            target.y = (target.y|0) + event.dy;
+            target.style.webkitTransform = target.style.transform = 'translate( 0px, ' + target.y + 'px)';
+        },
+        onend  : function (event) {
+            var target = event.target;
+            target.style.webkitTransform = target.style.transform = 'translate( 0px, 0px)';
+        }
+    })
+    .inertia(true)
+    .restrict({ drag: 'parent' });
+
+
+
     obj.on('dragenter', function (e) 
     {
         e.stopPropagation();
@@ -299,7 +415,13 @@
             },
             success: function(data){
                 status.setProgress(100);
-                $("#status1").append("File upload Done<br>");           
+                $("#status1").append("File upload Done<br>");       
+                $("#newFileModal").modal("toggle");
+                 if($(".breadcrumb a:last-child").attr("data-id") == undefined){
+                    getRoot();
+                }else{
+                    getFolder($(".breadcrumb a:last-child").attr("data-id"));
+                }    
             }
         }); 
      
@@ -330,7 +452,7 @@ function getRoot(){
                                 type = "Dossier Partagé";
                             }
                             $("#cubbyhole tbody").append('\
-                                <tr>\
+                                <tr class="folder" data-id="'+result.folders[loop_folder].id+'">\
                                     <td><a href="javascript:getFolder('+result.folders[loop_folder].id+')"><span class="sprite '+sprite+'"></span>'+result.folders[loop_folder].name+'</a></td>\
                                     <td>'+type+'</td>\
                                     <td>'+result.folders[loop_folder].last_update_date.date+'</td>\
@@ -354,7 +476,7 @@ function getRoot(){
                         }
                         if(result.files.hasOwnProperty(loop_file)){
                             $("#cubbyhole tbody").append('\
-                                <tr>\
+                                <tr class="file" data-id="'+result.files[loop_file].id+'">\
                                     <td><span class="sprite '+sprite+'"></span>'+result.files[loop_file].name+'</td>\
                                     <td>'+type+'</td>\
                                     <td>'+result.files[loop_file].last_update_date.date+'</td>\
@@ -402,6 +524,24 @@ function getFolder(id){
                         var pos = $(".breadcrumb a").index($(".breadcrumb a[data-id='"+id+"']")); 
                         $(".breadcrumb a").slice(pos+1).remove();
                     }
+                    var pos = $(".breadcrumb a").index($(".breadcrumb a[data-id='"+id+"']")); 
+                    var parent = $(".breadcrumb a").slice(pos-1);
+                    if($(parent).attr("data-id") == undefined){
+                        funct = "getRoot";
+                        parent_id = '';
+                    }
+                    else{
+                        funct = "getFolder";
+                        parent_id = $(parent).attr("data-id");
+                    }
+                    $("#cubbyhole tbody").append('\
+                        <tr data-id="'+$(parent).attr("data-id")+'">\
+                            <td><a href="javascript:'+funct+'('+parent_id+')"><span class="glyphicon glyphicon-backward"></span> &nbsp; ...</a></td>\
+                            <td data-value="a">Dossier Parent</td>\
+                            <td data-value="0">--</td>\
+                            <td style="width:175px;"></td>\
+                        </tr>\
+                    ').fadeIn();
                     for(var loop_folder in result.folder.folders){
                         if(result.folder.folders.hasOwnProperty(loop_folder)){
                             if(result.folder.folders[loop_folder].share == null){
@@ -413,7 +553,7 @@ function getFolder(id){
                                 type = "Dossier Partagé";
                             }
                             $("#cubbyhole tbody").append('\
-                                <tr>\
+                                <tr class="folder" data-id="'+result.folder.folders[loop_folder].id+'">\
                                     <td><a href="javascript:getFolder('+result.folder.folders[loop_folder].id+')"><span class="sprite '+sprite+'"></span>'+result.folder.folders[loop_folder].name+'</a></td>\
                                     <td>'+type+'</td>\
                                     <td>'+result.folder.folders[loop_folder].last_update_date.date+'</td>\
@@ -437,7 +577,7 @@ function getFolder(id){
                         }
                         if(result.folder.files.hasOwnProperty(loop_file)){
                             $("#cubbyhole tbody").append('\
-                                <tr>\
+                                <tr class="file" data-id="'+result.folder.files[loop_file].id+'">\
                                     <td><span class="sprite '+sprite+'"></span>'+result.folder.files[loop_file].name+'</td>\
                                     <td>'+type+'</td>\
                                     <td>'+result.folder.files[loop_file].last_update_date.date+'</td>\
