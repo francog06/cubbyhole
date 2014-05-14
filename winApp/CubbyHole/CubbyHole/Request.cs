@@ -88,10 +88,10 @@ namespace CubbyHole
             string json = await Tjson;
 
             Debug.WriteLine(json);
-            Error err = JsonConvert.DeserializeObject<Error>(json);
-            if (err.error)
+            Response<User> resp = JsonConvert.DeserializeObject<Response<User>>(json);
+            if (resp.error)
             {
-                Debug.WriteLine(err.ToString());
+                Debug.WriteLine(resp.ToString());
             }
             else
             {

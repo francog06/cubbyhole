@@ -6,15 +6,16 @@ using System.Threading.Tasks;
 
 namespace CubbyHole.ApiClasses
 {
-    class Error
+    class Response<T>
     {
         public bool error {get; set;}
-        public string error_message {get; set;}
         public string message { get; set; }
+
+        public T data { get; set; }
 
         public string ToString()
         {
-            return "Message: " + error_message + " " + message;
+            return "Message: " + message;
         }
     }
 }
