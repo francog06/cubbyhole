@@ -32,7 +32,7 @@ Entities\File:
     data_histories:
       targetEntity: DataHistory
       mappedBy: file
-      cascade: ["persist", "merge"]
+      cascade: ["persist", "merge", "remove"]
   manyToOne:
     user:
       targetEntity: User
