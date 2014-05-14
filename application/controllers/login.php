@@ -17,7 +17,7 @@ class Login extends CI_Controller {
 
 	public function index()
 	{
-		$viewModel["menu_active"] = "";
+		$viewModel["menu_active"] = "register";
 		$viewModel["layout"] = "yes";
 		$this->form_validation->set_rules( 'user_email', 'username', 'required|valid_email' );
 		$this->form_validation->set_rules( 'user_pass', 'password', 'required' );
@@ -36,7 +36,7 @@ class Login extends CI_Controller {
 
 	public function register()
 	{
-		$viewModel["menu_active"] = "";
+		$viewModel["menu_active"] = "login";
 		$viewModel["layout"] = "yes";
 		$this->form_validation->set_rules( 'user_email', 'username', 'required|valid_email' );
 		$this->form_validation->set_rules( 'user_pass', 'password', 'required' );

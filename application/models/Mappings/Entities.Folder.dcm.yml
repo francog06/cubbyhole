@@ -26,11 +26,11 @@ Entities\Folder:
     files:
       targetEntity: File
       mappedBy: folder
-      cascade: ["persist", "merge"]
+      cascade: ["persist", "merge", "remove"]
     folders:
       targetEntity: Folder
       mappedBy: parent
-      cascade: ["persist", "merge"]
+      cascade: ["persist", "merge", "remove"]
   manyToOne:
     user:
       targetEntity: User

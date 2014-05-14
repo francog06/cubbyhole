@@ -36,6 +36,10 @@ define('FOPEN_READ_WRITE_CREATE',				'a+b');
 define('FOPEN_WRITE_CREATE_STRICT',				'xb');
 define('FOPEN_READ_WRITE_CREATE_STRICT',		'x+b');
 
+define('KB', 1024);
+define('MB', KB * 1024);
+define('GB', MB * 1024);
+define('TB', GB * 1024);
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

@@ -37,16 +37,16 @@ Entities\User:
     plan_historys:
       targetEntity: PlanHistory
       mappedBy: user
-      cascade: ["persist", "merge"]
+      cascade: ["persist", "merge", "remove"]
     folders:
       targetEntity: Folder
       mappedBy: user
-      cascade: ["persist", "merge"]
+      cascade: ["persist", "merge", "remove"]
     files:
       targetEntity: File
       mappedBy: user
-      cascade: ["persist", "merge"]
+      cascade: ["persist", "merge", "remove"]
     shared:
       targetEntity: Share
       mappedBy: owner
-      cascade: ["persist", "merge"]
+      cascade: ["persist", "merge", "remove"]

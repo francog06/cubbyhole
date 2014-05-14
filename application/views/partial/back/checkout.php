@@ -60,7 +60,6 @@
                 list($nom, $valeur) = explode("=", $param_paypal);
                 $liste_param_paypal[$nom]=urldecode($valeur); 
             }
-            _p($liste_param_paypal);
             
             // Si la requête a été traitée avec succès
             if ($liste_param_paypal['ACK'] == 'Success')

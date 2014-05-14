@@ -5,6 +5,8 @@
             <li <?= $menu_active=="accueil"?'class="active"':''; ?>><a href="/home/index">Accueil</a></li>
             <li <?= $menu_active=="prix"?'class="active"':''; ?>><a href="/home/price">Prix</a></li>
             <li <?= $menu_active=="telecharger"?'class="active"':''; ?>><a href="/home/download">Télécharger</a></li>
+            <li <?= $menu_active=="register"?'class="active"':''; ?>><a href="/login">Connexion</a></li>
+            <li <?= $menu_active=="login"?'class="active"':''; ?>><a href="/login/register">Inscription</a></li>
         </ul>
     </div>
 </div>
