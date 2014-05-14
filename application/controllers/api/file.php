@@ -47,7 +47,7 @@ class File extends REST_Controller {
 
 			$fileLocal = fopen($file->getAbsolutePath(), "r");
 		    while (!feof($fileLocal)) {
-		        print fread($fileLocal, round($download_rate * 1024));
+		        print fread($fileLocal, round($download_rate * KB));
 		        flush();
 		        sleep(1);
 		    }  
@@ -153,7 +153,7 @@ class File extends REST_Controller {
 
 		// Verify is the file is not too big for the plan
 		if (isset($_FILES['file'])) {
-			$fileSize = $_FILES['file']['size'] / (1024 * 1024);
+			$fileSize = $_FILES['file']['size']; // Valeur octale
 			$fileName = $_FILES['file']['name'];
 
 			$planHistory = $file->getUser()->getActivePlanHistory();
@@ -161,8 +161,8 @@ class File extends REST_Controller {
 				$this->response(array('error' => true, 'message' => 'User has no active plan.'), 400);
 
 			$plan = $planHistory->getPlan();
-			if ($fileSize > $plan->getUsableStorageSpace() ||
-				($fileSize + $file->getUser()->getStorageUsed()) > $plan->getUsableStorageSpace())
+			if ($fileSize > $plan->getUsableStorageSpace() * GB ||
+				($fileSize + ($user->getStorageUsed() * MB) ) > $plan->getUsableStorageSpace() * GB)
 				$this->response(array('error' => true, 'message' => 'Not enough space.'), 400);
 		}
 
@@ -177,7 +177,7 @@ class File extends REST_Controller {
 			$fileData = $this->upload->data();
 
 			$file->setName($fileName);
-			$file->setSize(round($fileData['file_size'] / 1024, 2));
+			$file->setSize(round($fileData['file_size'] / MB, 2));
 			$file->setAbsolutePath($fileData['full_path']);
 		}
 
@@ -209,11 +209,9 @@ class File extends REST_Controller {
 		// Verify is the file is not too big for the plan
 		if (isset($_FILES['file'])) {
 			$fileName = $_FILES['file']['name'];
-			$fileSize = $_FILES['file']['size'] / (1024 * 1024);
-			_p($_FILES['file']);
-			_p($plan->getUsableStorageSpace());
-			if ($fileSize > $plan->getUsableStorageSpace()*(1024*1024*1024) ||
-				($fileSize + $user->getStorageUsed()) > $plan->getUsableStorageSpace()*(1024*1024*1024))
+			$fileSize = $_FILES['file']['size']; // Valeur octale
+			if ($fileSize > $plan->getUsableStorageSpace() * GB ||
+				($fileSize + ($user->getStorageUsed() * MB) ) > $plan->getUsableStorageSpace() * GB)
 				$this->response(array('error' => true, 'message' => 'Not enough space.'), 400);
 		}
 		else
@@ -228,7 +226,7 @@ class File extends REST_Controller {
 
 			$file->setUser($user);
 			$file->setName($fileName);
-			$file->setSize(round($fileData['file_size'] / 1024, 2));
+			$file->setSize(round($fileData['file_size'] / MB, 2));
 			$file->setAbsolutePath($fileData['full_path']);
 			$file->setCreationDate(new DateTime('now', new DateTimeZone('Europe/Berlin')));
 			$file->setLastUpdateDate(new DateTime('now', new DateTimeZone('Europe/Berlin')));
