@@ -12,7 +12,7 @@ namespace CubbyHole.ApiClasses
         public string message { get; set; }
         public T data { get; set; }
 
-        public string ToString()
+        override public string ToString()
         {
             return "Message: " + message;
         }
