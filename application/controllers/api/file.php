@@ -18,6 +18,40 @@ class File extends REST_Controller {
 		$this->methods['download_get']['key'] = FALSE;
 	}
 
+	public function synchronize_get($id = null) {
+		$specialHash = "ab14d0415c485464a187d5a9c97cc27c";
+
+		if ( ($hash = $this->input->get('hash')) === false && $hash != $specialHash )
+			$this->response(array('error' => true, 'message' => "You are not allowed to do this."), 401);
+
+		if (is_null($id)) {
+			$this->response(array('error' => true, 'message' => 'id not defined.'), 400);
+		}
+
+		$file = $this->doctrine->em->find('Entities\File', (int)$id);
+		if (is_null($file)) {
+			$this->response(array('error' => true, 'message' => 'file not found.'), 400);
+		}
+
+		if ( file_exists($file->getAbsolutePath()) && is_file($file->getAbsolutePath()) ) {
+		    header('Content-Description: File Transfer');
+		    header('Content-Type: application/octet-stream');
+		    header('Content-Disposition: attachment; filename='.basename($file->getName()));
+		    header('Expires: 0');
+		    header('Cache-Control: must-revalidate');
+		    header('Pragma: public');
+		    header('Content-Length: ' . filesize($file->getAbsolutePath()));
+		    flush();
+		    set_time_limit(0);
+
+		    readfile($file->getAbsolutePath());
+		    exit;
+		}
+		else {
+			$this->response(array('error' => true, 'message' => 'file not found.'), 400);
+		}
+	}
+
 	public function download_get($id = null) {
 		if (is_null($id)) {
 			$this->response(array('error' => true, 'message' => 'id not defined.'), 400);
@@ -190,12 +224,12 @@ class File extends REST_Controller {
 	}
 
 	public function add_post() {
-		$this->uploadConfig['upload_path'] = APPPATH . 'uploads/' . $user_id . "/";
-
 		$user = $this->rest->user;
 		if (is_null($user)) {
 			$this->response(array('error' => true, 'message' => 'user not found.'), 400);
 		}
+
+		$this->uploadConfig['upload_path'] = APPPATH . 'uploads/' . $user->getId() . "/";
 
 		if (!is_dir($this->uploadConfig['upload_path'])) {
 			mkdir($this->uploadConfig['upload_path'], 0777, true);

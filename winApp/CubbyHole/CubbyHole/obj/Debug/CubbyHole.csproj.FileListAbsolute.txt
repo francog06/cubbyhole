@@ -1,0 +1,17 @@
+K:\Documents\cubbyhole\winApp\CubbyHole\CubbyHole\bin\Debug\CubbyHole.exe.config
+K:\Documents\cubbyhole\winApp\CubbyHole\CubbyHole\obj\Debug\CubbyHole.csprojResolveAssemblyReference.cache
+K:\Documents\cubbyhole\winApp\CubbyHole\CubbyHole\obj\Debug\MainWindow.baml
+K:\Documents\cubbyhole\winApp\CubbyHole\CubbyHole\obj\Debug\MainWindow.g.cs
+K:\Documents\cubbyhole\winApp\CubbyHole\CubbyHole\obj\Debug\App.g.cs
+K:\Documents\cubbyhole\winApp\CubbyHole\CubbyHole\obj\Debug\CubbyHole_MarkupCompile.cache
+K:\Documents\cubbyhole\winApp\CubbyHole\CubbyHole\bin\Debug\CubbyHole.exe
+K:\Documents\cubbyhole\winApp\CubbyHole\CubbyHole\bin\Debug\CubbyHole.pdb
+K:\Documents\cubbyhole\winApp\CubbyHole\CubbyHole\obj\Debug\LoginForm.baml
+K:\Documents\cubbyhole\winApp\CubbyHole\CubbyHole\obj\Debug\LoginForm.g.cs
+K:\Documents\cubbyhole\winApp\CubbyHole\CubbyHole\obj\Debug\CubbyHole.g.resources
+K:\Documents\cubbyhole\winApp\CubbyHole\CubbyHole\obj\Debug\CubbyHole.Properties.Resources.resources
+K:\Documents\cubbyhole\winApp\CubbyHole\CubbyHole\obj\Debug\CubbyHole.csproj.GenerateResource.Cache
+K:\Documents\cubbyhole\winApp\CubbyHole\CubbyHole\obj\Debug\CubbyHole.exe
+K:\Documents\cubbyhole\winApp\CubbyHole\CubbyHole\obj\Debug\CubbyHole.pdb
+K:\Documents\cubbyhole\winApp\CubbyHole\CubbyHole\bin\Debug\Newtonsoft.Json.dll
+K:\Documents\cubbyhole\winApp\CubbyHole\CubbyHole\bin\Debug\Newtonsoft.Json.xml
