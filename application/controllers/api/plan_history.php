@@ -10,46 +10,50 @@ class Plan_history extends REST_Controller {
 
 	// @GET details
 	public function details_get($id = null) {
+		$data = new StdClass();
 		if (is_null($id)) {
-			$this->response(array('error' => true, 'message' => 'Id not defined.'), 400);
+			$this->response(array('error' => true, 'message' => 'Id not defined.', 'data' => $data), 400);
 		}
 
 		$PlanHistory = $this->doctrine->em->find('Entities\PlanHistory', (int)$id);
 		if (is_null($PlanHistory)) {
-			$this->response(array('error' => true, 'message' => 'PlanHistory not found.'), 400);
+			$this->response(array('error' => true, 'message' => 'PlanHistory not found.', 'data' => $data), 400);
 		}
 
 		if ($PlanHistory->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL)
-			$this->response(array('error' => true, 'message' => "You are not allowed to do this."), 401);
+			$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
 
-		$this->response(array('error' => false, 'PlanHistory' => $PlanHistory), 200);
+		$data->plan_history = $data;
+		$this->response(array('error' => false, 'data' => $data), 200);
 	}
 
 	// @GET user
 	public function user_get($id = null) {
+		$data = new StdClass();
 		if (is_null($id)) {
-			$this->response(array('error' => true, 'message' => 'Id not defined.'), 400);
+			$this->response(array('error' => true, 'message' => 'Id not defined.', 'data' => $data), 400);
 		}
 
 		$User = $this->doctrine->em->find('Entities\User', (int)$id);
 		if (is_null($User)) {
-			$this->response(array('error' => true, 'message' => 'User not found.'), 400);
+			$this->response(array('error' => true, 'message' => 'User not found.', 'data' => $data), 400);
 		}
 
 		if ($User != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL)
-			$this->response(array('error' => true, 'message' => "You are not allowed to do this."), 401);
+			$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
 
 		$planHistorys = $User->getPlanHistorys();
 		$response = null;
 		if (isset($planHistorys) && $planHistorys->count() > 0) {
 			foreach ($planHistorys as $planHistory) {
 				if($planHistory->getIsActive() == true) {
-					$this->response(array('error' => false, 'PlanHistory' => $planHistory), 200);
+					$data->plan_history = $planHistory;
+					$this->response(array('error' => false, 'message' => 'Successfully retrieved active plan history', 'data' => $data), 200);
 				}
 			}
-			$this->response(array('error' => true, 'message' => 'No active plan'), 400);
+			$this->response(array('error' => true, 'message' => 'No active plan', 'data' => $data), 400);
 		} else {
-			$this->response(array('error' => true, 'message' => 'This user does not have an active plan yet.'), 400);
+			$this->response(array('error' => true, 'message' => 'This user does not have an active plan yet.', 'data' => $data), 400);
 		}
 	}
 
@@ -58,17 +62,18 @@ class Plan_history extends REST_Controller {
 		$PlanHistory_planId = $this->mandatory_value('plan_id', 'post');
 		$PlanHistory_userId = $this->mandatory_value('user_id', 'post');
 
+		$data = new StdClass();
 		$User = $this->doctrine->em->find('Entities\User', (int)$PlanHistory_userId);
 		if (is_null($User)) {
-			$this->response(array('error' => true, 'message' => 'User not found.'), 400);
+			$this->response(array('error' => true, 'message' => 'User not found.', 'data' => $data), 400);
 		}
 
 		if ($User != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL)
-			$this->response(array('error' => true, 'message' => "You are not allowed to do this."), 401);
+			$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
 
 		$Plan = $this->doctrine->em->find('Entities\Plan', (int)$PlanHistory_planId);
 		if (is_null($Plan)) {
-			$this->response(array('error' => true, 'message' => 'Plan not found.'), 400);
+			$this->response(array('error' => true, 'message' => 'Plan not found.', 'data' => $data), 400);
 		}
 
 		$this->doctrine->em->createQueryBuilder()
@@ -100,22 +105,24 @@ class Plan_history extends REST_Controller {
 		$this->doctrine->em->flush();
 
 		$User->addPlanHistory($PlanHistory);
-		$this->response(array('error' => false, 'message' => 'A new plan history has been added.', 'PlanHistory' => $PlanHistory), 201);
+		$data->plan_history = $PlanHistory;
+		$this->response(array('error' => false, 'message' => 'A new plan history has been added.', 'data' => $data), 201);
 	}
 
 	// @UPDATE
 	public function update_put($id = null) {
+		$data = new StdClass();
 		if (is_null($id)) {
-			$this->response(array('error' => true, 'message' => 'Id not defined.'), 400);
+			$this->response(array('error' => true, 'message' => 'Id not defined.', 'data' => $data), 400);
 		}
 
 		$PlanHistory = $this->doctrine->em->find('Entities\PlanHistory', (int)$id);
 		if (is_null($PlanHistory)) {
-			$this->response(array('error' => true, 'message' => 'PlanHistory not found.'), 400);
+			$this->response(array('error' => true, 'message' => 'PlanHistory not found.', 'data' => $data), 400);
 		}
 
 		if ($PlanHistory->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL)
-			$this->response(array('error' => true, 'message' => "You are not allowed to do this."), 401);
+			$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
 
 		$PlanHistory->setIsActive(!$PlanHistory->getIsActive());
 
@@ -133,41 +140,44 @@ class Plan_history extends REST_Controller {
 		$this->doctrine->em->merge($PlanHistory);
 		$this->doctrine->em->flush();
 
-		$this->response(array('error' => false, 'message' => 'Successfully updated the plan history.', 'PlanHistory' => $PlanHistory), 200);
+		$data->plan_history = $PlanHistory;
+		$this->response(array('error' => false, 'message' => 'Successfully updated the plan history.', 'data' => $data), 200);
 	}
 
 	// @DELETE delete PlanHistory
 	public function delete_delete($id = null) {
+		$data = new StdClass();
 		if (is_null($id)) {
-			$this->response(array('error' => true, 'message' => 'id not defined.'), 400);
+			$this->response(array('error' => true, 'message' => 'id not defined.', 'data' => $data), 400);
 		}
 
 		$PlanHistory = $this->doctrine->em->find('Entities\PlanHistory', (int)$id);
 		if (is_null($PlanHistory)) {
-			$this->response(array('error' => true, 'message' => 'PlanHistory not found.'), 400);
+			$this->response(array('error' => true, 'message' => 'PlanHistory not found.', 'data' => $data), 400);
 		}
 
 		if ($PlanHistory->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL)
-			$this->response(array('error' => true, 'message' => "You are not allowed to do this."), 401);
+			$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
 
 		$this->doctrine->em->remove($PlanHistory);
 		$this->doctrine->em->flush();
 
-		$this->response(array('error' => false, 'message' => 'PlanHistory has been removed.'), 200);
+		$this->response(array('error' => false, 'message' => 'PlanHistory has been removed.', 'data' => $data), 200);
 	}
 
 	// @GET plan
 	public function plan_get($id = null) {
+		$data = new StdClass();
 		if ($this->rest->level != ADMIN_KEY_LEVEL)
-			$this->response(array('error' => true, 'message' => "You are not allowed to do this."), 401);
+			$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
 
 		if (is_null($id)) {
-			$this->response(array('error' => true, 'message' => 'Id not defined.'), 400);
+			$this->response(array('error' => true, 'message' => 'Id not defined.', 'data' => $data), 400);
 		}
 
 		$Plan = $this->doctrine->em->find('Entities\Plan', (int)$id);
 		if (is_null($Plan)) {
-			$this->response(array('error' => true, 'message' => 'Plan not found.'), 400);
+			$this->response(array('error' => true, 'message' => 'Plan not found.', 'data' => $data), 400);
 		}
 
 		$query = $this->doctrine->em->createQueryBuilder()
@@ -179,13 +189,14 @@ class Plan_history extends REST_Controller {
 			->getQuery();
 
 		$res = $query->getSingleScalarResult();
-		$this->response(array('error' => false, 'numbers' => $res), 200);
+		$data->numbers = $res;
+		$this->response(array('error' => false, 'data' => $data), 200);
 	}
 
 	// @GET expires
 	public function expires_get() {
 		if ($this->rest->level != ADMIN_KEY_LEVEL)
-			$this->response(array('error' => true, 'message' => "You are not allowed to do this."), 401);
+			$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data ), 401);
 
 		$expiration = new DateTime('now');
 		$expiration->add(new DateInterval('P7D'));
@@ -198,6 +209,8 @@ class Plan_history extends REST_Controller {
 			->getQuery();
 
 		$res = $query->getArrayResult();
-		$this->response(array('error' => false, 'numbers' => count($res), 'planHistories' => $res), 200);
+		$data->numbers = count(res);
+		$data->plan_histories = $res;
+		$this->response(array('error' => false, 'message' => 'Here subscribe who will expire soon.', 'data' => $data), 200);
 	}
 }

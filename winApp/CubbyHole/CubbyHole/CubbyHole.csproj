@@ -62,6 +62,7 @@
     </ApplicationDefinition>
     <Compile Include="ApiClasses\File.cs" />
     <Compile Include="ApiClasses\Folder.cs" />
+    <Compile Include="ApiClasses\Response.cs" />
     <Compile Include="ApiClasses\User.cs" />
     <Compile Include="Request.cs" />
     <Page Include="LoginForm.xaml">
@@ -111,9 +112,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="ApiClasses\Error.cs" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\logo.png" />

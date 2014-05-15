@@ -10,7 +10,6 @@ namespace CubbyHole.ApiClasses
     {
         public bool error {get; set;}
         public string message { get; set; }
-
         public T data { get; set; }
 
         public string ToString()
