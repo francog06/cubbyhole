@@ -9,47 +9,51 @@ class Folder extends REST_Controller {
 	}
 
 	public function details_get($id = null) {
+		$data = new StdClass();
 		if (is_null($id)) {
-			$this->response(array('error' => true, 'message' => 'id not defined.'), 400);
+			$this->response(array('error' => true, 'message' => 'id not defined.', 'data' => $data), 400);
 		}
 
 		$folder = $this->doctrine->em->find('Entities\Folder', (int)$id);
 		if (is_null($folder)) {
-			$this->response(array('error' => true, 'message' => 'folder not found.'), 400);
+			$this->response(array('error' => true, 'message' => 'folder not found.', 'data' => $data), 400);
 		}
 
 		if ($folder->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL)
-			$this->response(array('error' => true, 'message' => "You are not allowed to do this."), 401);
+			$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
 
-		$this->response(array('error' => false, 'folder' => $folder), 200);
+		$data->folder = $folder;
+		$this->response(array('error' => false, 'message' => 'Successfully retrieved folder details', 'data' => $data), 200);
 	}
 
 	public function remove_delete($id = null) {
+		$data = new StdClass();
 		if (is_null($id)) {
-			$this->response(array('error' => true, 'message' => 'id not defined.'), 400);
+			$this->response(array('error' => true, 'message' => 'id not defined.', 'data' => $data), 400);
 		}
 
 		$folder = $this->doctrine->em->find('Entities\Folder', (int)$id);
 		if (is_null($folder)) {
-			$this->response(array('error' => true, 'message' => 'folder not found.'), 400);
+			$this->response(array('error' => true, 'message' => 'folder not found.', 'data' => $data), 400);
 		}
 
 		if ($folder->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL)
-			$this->response(array('error' => true, 'message' => "You are not allowed to do this."), 401);
+			$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
 
 		$files = $folder->getFiles()->toArray();
 		$this->doctrine->em->remove($folder);
 		$this->doctrine->em->flush();
 
-		$this->response(array('error' => false, 'message' => 'Folder has been removed.'), 200);
+		$this->response(array('error' => false, 'message' => 'Folder has been removed.', 'data' => $data), 200);
 	}
 
 	public function add_post() {
 		$folder_name = $this->mandatory_value('name', 'post');
-
+		$data = new StdClass();
 		$user = $this->rest->user;
+
 		if (is_null($user)) {
-			$this->response(array('error' => true, 'message' => 'user not found.'), 400);
+			$this->response(array('error' => true, 'message' => 'user not found.', 'data' => $data), 400);
 		}
 
 		$folder = new Entities\Folder;
@@ -62,7 +66,7 @@ class Folder extends REST_Controller {
 		if ( ($folder_id = $this->input->post('folder_id')) !== false && !empty($folder_id)) {
 			$parentFolder = $this->doctrine->em->find('Entities\Folder', (int)$folder_id);
 			if (is_null($parentFolder)) {
-				$this->response(array('error' => true, 'message' => 'Parent folder not found.'), 400);
+				$this->response(array('error' => true, 'message' => 'Parent folder not found.', 'data' => $data), 400);
 			}
 
 			$folder->setParent($parentFolder);
@@ -70,17 +74,19 @@ class Folder extends REST_Controller {
 
 		$this->doctrine->em->persist($folder);
 		$this->doctrine->em->flush();
-		$this->response(array('error' => false, 'message' => 'Dossier créé.', 'folder' => $folder), 200);
+		$data->folder = $folder;
+		$this->response(array('error' => false, 'message' => 'Dossier créé.', 'data' => $data), 200);
 	}
 
 	public function update_put($id = null) {
+		$data = new StdClass();
 		if (is_null($id)) {
-			$this->response(array('error' => true, 'message' => 'id not defined.'), 400);
+			$this->response(array('error' => true, 'message' => 'id not defined.', 'data' => $data), 400);
 		}
 
 		$folder = $this->doctrine->em->find('Entities\Folder', (int)$id);
 		if (is_null($folder)) {
-			$this->response(array('error' => true, 'message' => 'folder not found.'), 400);
+			$this->response(array('error' => true, 'message' => 'folder not found.', 'data' => $data), 400);
 		}
 
 		if ( ($name = $this->put('name')) !== false )
@@ -88,11 +94,11 @@ class Folder extends REST_Controller {
 
 		if ( ($folder_id = $this->put('folder_id')) !== false) {
 			if ((int)$folder_id == $folder->getId())
-				$this->response(array('error' => true, 'message' => "You can't move a folder into himself"), 400);
+				$this->response(array('error' => true, 'message' => "You can't move a folder into himself", 'data' => $data), 400);
 
 			$parentFolder = $this->doctrine->em->find('Entities\Folder', (int)$folder_id);
 			if (is_null($parentFolder)) {
-				$this->response(array('error' => true, 'message' => 'Parent folder not found.'), 400);
+				$this->response(array('error' => true, 'message' => 'Parent folder not found.', 'data' => $data), 400);
 			}
 
 			$folder->setParent($parentFolder);
@@ -101,7 +107,7 @@ class Folder extends REST_Controller {
 		if ( ($user_id = $this->post('user_id')) !== false && $this->rest->level == ADMIN_KEY_LEVEL) {
 			$user = $this->doctrine->em->find('Entities\User', (int)$user_id);
 			if (is_null($user)) {
-				$this->response(array('error' => true, 'message' => 'user not found.'), 400);
+				$this->response(array('error' => true, 'message' => 'user not found.', 'data' => $data), 400);
 			}
 			$folder->setUser($user);
 		}
@@ -119,19 +125,21 @@ class Folder extends REST_Controller {
 		$this->doctrine->em->merge($folder);
 		$this->doctrine->em->flush();
 
-		$this->response(array('error' => false, 'message' => 'Dossier mis à jour.', 'folder' => $folder), 200);
+		$data->folder = $folder;
+		$this->response(array('error' => false, 'message' => 'Dossier mis à jour.', 'data' => $data), 200);
 	}
 
 	public function user_root_get($user_id = null) {
+		$data = new StdClass();
 		$user = $this->rest->user;
 		if ( !is_null($user_id) && $this->rest->user->getId() != $user_id && $this->rest->level != ADMIN_KEY_LEVEL) {
-			$this->response(array('error' => true, 'message' => "You're not allowed to do that."), 401);
+			$this->response(array('error' => true, 'message' => "You're not allowed to do that.", 'data' => $data), 401);
 		}
 
 		if ( !is_null($user_id) && $this->rest->user->getId() != $user_id && $this->rest->level == ADMIN_KEY_LEVEL) 
 			$user = $this->doctrine->em->find('Entities\User', (int)$user_id);
 		if (is_null($user)) {
-			$this->response(array('error' => true, 'message' => 'user not found.'), 400);
+			$this->response(array('error' => true, 'message' => 'user not found.', 'data' => $data), 400);
 		}
 
 		$folders = $user->getFolders()->filter(function($_) {
@@ -147,6 +155,8 @@ class Folder extends REST_Controller {
         	$filesRet[] = $file;
         }
 
-        $this->response(array('error' => false, 'folders' => $folders->toArray(), 'files' => $filesRet), 200);
+        $data->files = $filesRet;
+        $data->folders = $folders->toArray();
+        $this->response(array('error' => false, 'data' => $data), 200);
 	}
 }

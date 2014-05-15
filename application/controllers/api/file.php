@@ -21,16 +21,17 @@ class File extends REST_Controller {
 	public function synchronize_get($id = null) {
 		$specialHash = "ab14d0415c485464a187d5a9c97cc27c";
 
+		$data = new StdClass();
 		if ( ($hash = $this->input->get('hash')) === false && $hash != $specialHash )
-			$this->response(array('error' => true, 'message' => "You are not allowed to do this."), 401);
+			$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
 
 		if (is_null($id)) {
-			$this->response(array('error' => true, 'message' => 'id not defined.'), 400);
+			$this->response(array('error' => true, 'message' => 'id not defined.', 'data' => $data), 400);
 		}
 
 		$file = $this->doctrine->em->find('Entities\File', (int)$id);
 		if (is_null($file)) {
-			$this->response(array('error' => true, 'message' => 'file not found.'), 400);
+			$this->response(array('error' => true, 'message' => 'file not found.', 'data' => $data), 400);
 		}
 
 		if ( file_exists($file->getAbsolutePath()) && is_file($file->getAbsolutePath()) ) {
@@ -48,18 +49,19 @@ class File extends REST_Controller {
 		    exit;
 		}
 		else {
-			$this->response(array('error' => true, 'message' => 'file not found.'), 400);
+			$this->response(array('error' => true, 'message' => 'file not found.', 'data' => $data), 400);
 		}
 	}
 
 	public function download_get($id = null) {
+		$data = new StdClass();
 		if (is_null($id)) {
-			$this->response(array('error' => true, 'message' => 'id not defined.'), 400);
+			$this->response(array('error' => true, 'message' => 'id not defined.', 'data' => $data), 400);
 		}
 
 		$file = $this->doctrine->em->find('Entities\File', (int)$id);
 		if (is_null($file)) {
-			$this->response(array('error' => true, 'message' => 'file not found.'), 400);
+			$this->response(array('error' => true, 'message' => 'file not found.', 'data' => $data), 400);
 		}
 
 		/**
@@ -94,63 +96,66 @@ class File extends REST_Controller {
 		    exit;
 		}
 		else {
-			$this->response(array('error' => true, 'message' => 'file not found.'), 400);
+			$this->response(array('error' => true, 'message' => 'file not found.', 'data' => $data), 400);
 		}
 	}
 
 	public function details_get($id = null) {
 		if (is_null($id)) {
-			$this->response(array('error' => true, 'message' => 'id not defined.'), 400);
+			$this->response(array('error' => true, 'message' => 'id not defined.', 'data' => $data), 400);
 		}
 
 		$file = $this->doctrine->em->find('Entities\File', (int)$id);
 		if (is_null($file)) {
-			$this->response(array('error' => true, 'message' => 'file not found.'), 400);
+			$this->response(array('error' => true, 'message' => 'file not found.', 'data' => $data), 400);
 		}
 
 		if ($file->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL)
-			$this->response(array('error' => true, 'message' => "You are not allowed to do this."), 401);
+			$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
 
-		$this->response(array('error' => false, 'file' => $file), 200);
+		$data->file = $file;
+		$this->response(array('error' => false, 'message' => 'Successfully retrieved file details.', 'data' => $data), 200);
 	}
 
 	public function remove_delete($id = null) {
+		$data = new StdClass();
 		if (is_null($id)) {
-			$this->response(array('error' => true, 'message' => 'id not defined.'), 400);
+			$this->response(array('error' => true, 'message' => 'id not defined.', 'data' => $data), 400);
 		}
 
 		$file = $this->doctrine->em->find('Entities\File', (int)$id);
 		if (is_null($file)) {
-			$this->response(array('error' => true, 'message' => 'file not found.'), 400);
+			$this->response(array('error' => true, 'message' => 'file not found.', 'data' => $data), 400);
 		}
 
 		if ($file->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL)
-			$this->response(array('error' => true, 'message' => "You are not allowed to do this."), 401);
+			$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
 
 		@unlink($file->getAbsolutePath());
 		$this->doctrine->em->remove($file);
 		$this->doctrine->em->flush();
 
-		$this->response(array('error' => false, 'message' => 'File has been removed.'), 200);
+		$this->response(array('error' => false, 'message' => 'File has been removed.', 'data' => $data), 200);
 	}
 
 	public function update_post($id = null) {
+		$data = new StdClass();
 		if (is_null($id)) {
-			$this->response(array('error' => true, 'message' => 'id not defined.'), 400);
+			$this->response(array('error' => true, 'message' => 'id not defined.', 'data' => $data), 400);
 		}
 
 		$file = $this->doctrine->em->find('Entities\File', (int)$id);
 		if (is_null($file)) {
-			$this->response(array('error' => true, 'message' => 'file not found.'), 400);
+			$this->response(array('error' => true, 'message' => 'file not found.', 'data' => $data), 400);
 		}
 
 		if ($file->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL)
-			$this->response(array('error' => true, 'message' => "You are not allowed to do this."), 401);
+			$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
 
 		if ( ($folder_id = $this->post('folder_id')) !== false ) {
 			$folder = $this->doctrine->em->find('Entities\Folder', (int)$folder_id);
 			if (is_null($folder)) {
-				$this->response(array('error' => true, 'message' => 'Folder not found.'), 400);
+				$this->response(array('error' => true, 'message' => 'Folder not found.', 'data' => $data), 400);
 			}
 			$file->setFolder($folder);
 		}
@@ -158,7 +163,7 @@ class File extends REST_Controller {
 		if ( ($share_id = $this->post('share_id')) !== false ) {
 			$share = $this->doctrine->em->find('Entities\Share', (int)$share_id);
 			if (is_null($share)) {
-				$this->response(array('error' => true, 'message' => 'Share not found.'), 400);
+				$this->response(array('error' => true, 'message' => 'Share not found.', 'data' => $data), 400);
 			}
 			$file->setShare($share);
 		}
@@ -166,7 +171,7 @@ class File extends REST_Controller {
 		if ( ($user_id = $this->post('user_id')) !== false && $this->rest->level == ADMIN_KEY_LEVEL) {
 			$user = $this->doctrine->em->find('Entities\User', (int)$user_id);
 			if (is_null($user)) {
-				$this->response(array('error' => true, 'message' => 'user not found.'), 400);
+				$this->response(array('error' => true, 'message' => 'user not found.', 'data' => $data), 400);
 			}
 			$file->setUser($user);
 
@@ -194,12 +199,12 @@ class File extends REST_Controller {
 
 			$planHistory = $file->getUser()->getActivePlanHistory();
 			if (is_null($planHistory))
-				$this->response(array('error' => true, 'message' => 'User has no active plan.'), 400);
+				$this->response(array('error' => true, 'message' => 'User has no active plan.', 'data' => $data), 400);
 
 			$plan = $planHistory->getPlan();
 			if ($fileSize > $plan->getUsableStorageSpace() * GB ||
 				($fileSize + ($user->getStorageUsed() * MB) ) > $plan->getUsableStorageSpace() * GB)
-				$this->response(array('error' => true, 'message' => 'Not enough space.'), 400);
+				$this->response(array('error' => true, 'message' => 'Not enough space.', 'data' => $data), 400);
 		}
 
 		$this->uploadConfig['upload_path'] = APPPATH . 'uploads/' . $file->getUser()->getId() . "/";
@@ -220,13 +225,15 @@ class File extends REST_Controller {
 		$file->setLastUpdateDate(new DateTime('now', new DateTimeZone('Europe/Berlin')));
 		$this->doctrine->em->merge($file);
 		$this->doctrine->em->flush($file);
-		$this->response(array('error' => false, 'message' => 'Fichier mis à jour.', 'file' => $file), 200);
+		$data->file = $file;
+		$this->response(array('error' => false, 'message' => 'Fichier mis à jour.', 'data' => $data), 200);
 	}
 
 	public function add_post() {
+		$data = new StdClass();
 		$user = $this->rest->user;
 		if (is_null($user)) {
-			$this->response(array('error' => true, 'message' => 'user not found.'), 400);
+			$this->response(array('error' => true, 'message' => 'user not found.', 'data' => $data), 400);
 		}
 
 		$this->uploadConfig['upload_path'] = APPPATH . 'uploads/' . $user->getId() . "/";
@@ -237,7 +244,7 @@ class File extends REST_Controller {
 
 		$planHistory = $user->getActivePlanHistory();
 		if (is_null($planHistory))
-			$this->response(array('error' => true, 'message' => 'User has no active plan.'), 400);
+			$this->response(array('error' => true, 'message' => 'User has no active plan.', 'data' => $data), 400);
 		$plan = $planHistory->getPlan();
 
 		// Verify is the file is not too big for the plan
@@ -246,14 +253,14 @@ class File extends REST_Controller {
 			$fileSize = $_FILES['file']['size']; // Valeur octale
 			if ($fileSize > $plan->getUsableStorageSpace() * GB ||
 				($fileSize + ($user->getStorageUsed() * MB) ) > $plan->getUsableStorageSpace() * GB)
-				$this->response(array('error' => true, 'message' => 'Not enough space.'), 400);
+				$this->response(array('error' => true, 'message' => 'Not enough space.', 'data' => $data), 400);
 		}
 		else
-			$this->response(array('error' => true, 'message' => 'file not found'), 400);
+			$this->response(array('error' => true, 'message' => 'file not found', 'data' => $data), 400);
 
 		$this->load->library('upload', $this->uploadConfig);
 		if ( ! $this->upload->do_upload('file')) {
-			$this->response(array('error' => true, 'message' => $this->upload->display_errors('', '')), 400);
+			$this->response(array('error' => true, 'message' => $this->upload->display_errors('', ''), 'data' => $data), 400);
 		} else {
 			$fileData = $this->upload->data();
 			$file = new Entities\File();
@@ -269,7 +276,7 @@ class File extends REST_Controller {
 			if ( ($folder_id = $this->input->post('folder_id')) ) {
 				$folder = $this->doctrine->em->find('Entities\Folder', (int)$folder_id);
 				if (is_null($folder)) {
-					$this->response(array('error' => true, 'message' => 'folder not found.'), 400);
+					$this->response(array('error' => true, 'message' => 'folder not found.', 'data' => $data), 400);
 				}
 
 				$file->setFolder($folder);
@@ -277,7 +284,8 @@ class File extends REST_Controller {
 
 			$this->doctrine->em->persist($file);
 			$this->doctrine->em->flush();
-			$this->response(array('error' => false, 'message' => 'Fichier créé.', 'file' => $file), 200);
+			$data->file = $file;
+			$this->response(array('error' => false, 'message' => 'Fichier créé.', 'data' => $data), 200);
 		}
 	}
 }
