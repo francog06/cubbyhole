@@ -123,7 +123,7 @@ class User extends REST_Controller {
 			$this->doctrine->em->persist($plan_history);
 			$this->doctrine->em->flush();
 
-			$user->createKey();
+			$key = $user->createKey();
 
 			// Send user email
 
@@ -140,6 +140,7 @@ class User extends REST_Controller {
 			@$this->email->send();
 
 			$data->user = $user;
+			$data->token = $key;
 			$this->response(array('error' => false, 'message' => 'Successfull registration.', 'data' => $data), 201);
 		}
 	}

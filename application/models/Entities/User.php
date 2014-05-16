@@ -442,6 +442,7 @@ class User implements \JsonSerializable
         );
 
         $ci->db->insert('keys', $data); 
+        return $data['key'];
     }
 
     /**

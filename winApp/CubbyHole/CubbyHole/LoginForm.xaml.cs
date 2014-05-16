@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -22,16 +23,29 @@ namespace CubbyHole
         private string Password { get; set; }
         public LoginForm()
         {
-            InitializeComponent();
+            if (string.IsNullOrEmpty(Properties.Settings.Default.Token))
+            {
+                Debug.WriteLine("Do not show login");
+            }
+            else
+            {
+                InitializeComponent();
+            }
         }
 
-        private void Identification_Click(object sender, RoutedEventArgs e)
+        async private void Identification_Click(object sender, RoutedEventArgs e)
         {
             this.UserName = userName.Text;
             this.Password = password.Password;
 
             // Make request for validation
-            Request.doLogin(UserName, Password);
+            bool response = await Request.doLogin(UserName, Password, Label);
+            if (response)
+            {
+                Debug.WriteLine("Minimize application");
+                this.WindowState = WindowState.Minimized;
+                this.ShowInTaskbar = true;
+            }
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e)

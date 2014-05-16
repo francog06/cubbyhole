@@ -12,6 +12,11 @@ using CubbyHole.ApiClasses;
 using System.Diagnostics;
 using System.Collections.Specialized;
 using System.Collections;
+using CubbyHole.ApiResponse;
+using System.Windows.Controls;
+using System.Windows.Media;
+using Microsoft.Win32;
+using System.Windows.Forms;
 
 namespace CubbyHole
 {
@@ -49,37 +54,26 @@ namespace CubbyHole
             objStream = response.GetResponseStream();
             StreamReader objReader = new StreamReader(objStream);
 
-            string sLine = "";
-            int i = 0;
-
-            string json = "";
-            while (sLine != null)
+            using (var reader = new StreamReader(objStream))
             {
-                i++;
-                sLine = objReader.ReadLine();
-                if (sLine != null)
-                    json += sLine;
+                string json = reader.ReadToEnd();
+                return json;
             }
-
-            return json;
         }
 
-        async public static void doLogin(string username, string password) {
+        async public static Task<bool> doLogin(string username, string password, TextBlock label) {
             WebRequest request;
             request = WebRequest.Create(Properties.Settings.Default.SiteUrl + "api/user/login");
             request.Method = "POST";
             request.ContentType = "application/x-www-form-urlencoded";
 
-            // add sample form data
             ArrayList queryList = new ArrayList();
             queryList.Add(string.Format("{0}={1}", "email", username));
             queryList.Add(string.Format("{0}={1}", "password", password));
 
-            // Set the encoding type
             string Parameters = String.Join("&", (String[])queryList.ToArray(typeof(string)));
             request.ContentLength = Parameters.Length;
 
-            // Write stream
             StreamWriter sw = new StreamWriter(request.GetRequestStream());
             sw.Write(Parameters);
             sw.Close();
@@ -88,15 +82,27 @@ namespace CubbyHole
             string json = await Tjson;
 
             Debug.WriteLine(json);
-            Response<User> resp = JsonConvert.DeserializeObject<Response<User>>(json);
+            Response<LoginResponse> resp = JsonConvert.DeserializeObject<Response<LoginResponse>>(json);
             if (resp.error)
             {
-                Debug.WriteLine(resp.ToString());
+                label.Text = resp.message;
+                label.Foreground = new SolidColorBrush(Colors.Red);
+                return false;
             }
             else
             {
-                User user = JsonConvert.DeserializeObject<User>(json);
-                Debug.Write("Successfully connected");
+                LoginResponse data = resp.data;
+
+                Properties.Settings.Default.Token = data.token;
+                Properties.Settings.Default.Save();
+
+                FolderBrowserDialog dialog = new FolderBrowserDialog();
+                dialog.ShowDialog();
+
+                Properties.Settings.Default.ApplicationFolder = dialog.SelectedPath;
+                Properties.Settings.Default.Save();
+
+                return true;
             }
         }
     }
