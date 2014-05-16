@@ -91,10 +91,10 @@
                     "X-API-KEY":"5422e102a743fd70a22ee4ff7c2ebbe8"
                 },
                 success: function(result) {
-                    if(result.user.id > 0){
-                        $("#user_id").val(result.user.id);
-                        $("#user_email").val(result.user.email);
-                        if(result.user.is_admin == true){
+                    if(result.data.user.id > 0){
+                        $("#user_id").val(result.data.user.id);
+                        $("#user_email").val(result.data.user.email);
+                        if(result.data.user.is_admin == true){
                             $("#user_is_admin_yes").prop("checked", true);
                             $("#user_is_admin_no").prop("checked", false);
                         }

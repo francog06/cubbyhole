@@ -91,16 +91,16 @@
                     "X-API-KEY":"5422e102a743fd70a22ee4ff7c2ebbe8"
                 },
                 success: function(result) {
-                    if(result.plan.id > 0){
-                        $("#plan_id").val(result.plan.id);
-                        $("#plan_name").val(result.plan.name);
-                        $("#plan_price").val(result.plan.price);
-                        $("#plan_duration").val(result.plan.duration);
-                        $("#plan_description").val(result.plan.description);
-                        $("#plan_bandwidth").val(result.plan.max_bandwidth);
-                        $("#plan_storage").val(result.plan.usable_storage_space);
-                        $("#plan_daily").val(result.plan.daily_data_transfert);
-                        if(result.plan.is_active == true){
+                    if(result.data.plan.id > 0){
+                        $("#plan_id").val(result.data.plan.id);
+                        $("#plan_name").val(result.data.plan.name);
+                        $("#plan_price").val(result.data.plan.price);
+                        $("#plan_duration").val(result.data.plan.duration);
+                        $("#plan_description").val(result.data.plan.description);
+                        $("#plan_bandwidth").val(result.data.plan.max_bandwidth);
+                        $("#plan_storage").val(result.data.plan.usable_storage_space);
+                        $("#plan_daily").val(result.data.plan.daily_data_transfert);
+                        if(result.data.plan.is_active == true){
                             $("#plan_is_active_yes").prop("checked", true);
                             $("#plan_is_active_no").prop("checked", false);
                         }
@@ -108,7 +108,7 @@
                             $("#plan_is_active_yes").prop("checked", false);
                             $("#plan_is_active_no").prop("checked", true);
                         }
-                       if(result.plan.is_default == true){
+                       if(result.data.plan.is_default == true){
                             $("#plan_is_default_yes").prop("checked", true);
                             $("#plan_is_default_no").prop("checked", false);
                         }
