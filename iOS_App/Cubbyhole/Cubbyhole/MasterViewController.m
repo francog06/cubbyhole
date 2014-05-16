@@ -113,6 +113,12 @@
                 NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
                 [self.tableView insertRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
             }
+
+            NSString *folderName = (NSString *)[self.current_folder objectForKey:@"name"];
+            if (folderName == nil || [folderName isEqual:[NSNull null]])
+                self.title = @"Root folder";
+            else
+                self.title = folderName;
             [SVProgressHUD dismiss];
         } else {
             [SVProgressHUD dismiss];

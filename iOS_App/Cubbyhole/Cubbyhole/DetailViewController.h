@@ -7,13 +7,17 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "SBJsonParser.h";
+#import "SBJsonParser.h"
 #import "SVProgressHUD.h"
 
 @interface DetailViewController : UIViewController <UISplitViewControllerDelegate>
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *trashButton;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *actionButton;
 @property (weak, nonatomic) IBOutlet UIImageView *imagePreview;
+@property (weak, nonatomic) IBOutlet UISwitch *publicButton;
+- (IBAction)publicChanged:(id)sender;
+
+@property NSMutableArray *photos;
 
 - (IBAction)actionButtonClicked:(id)sender;
 - (IBAction)deleteButtonClicked:(id)sender;

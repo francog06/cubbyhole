@@ -15,6 +15,8 @@ class File extends REST_Controller {
 			'file_name' => substr(md5(time()), 15)
 		];
 
+		$this->load->helper(['file', 'download']);
+
 		$this->methods['download_get']['key'] = FALSE;
 	}
 
@@ -31,7 +33,7 @@ class File extends REST_Controller {
 
 		$file = $this->doctrine->em->find('Entities\File', (int)$id);
 		if (is_null($file)) {
-			$this->response(array('error' => true, 'message' => 'file not found (database).', 'data' => $data), 400);
+			show_404();
 		}
 
 		if ( file_exists($file->getAbsolutePath()) && is_file($file->getAbsolutePath()) ) {
@@ -53,7 +55,7 @@ class File extends REST_Controller {
 				$this->response(array('error' => true, 'message' => 'No preview available.', 'data' => $data), 400);
 		}
 		else {
-			$this->response(array('error' => true, 'message' => 'file not found (hard drive).', 'data' => $data), 400);
+			show_404();
 		}
 	}
 
@@ -70,25 +72,15 @@ class File extends REST_Controller {
 
 		$file = $this->doctrine->em->find('Entities\File', (int)$id);
 		if (is_null($file)) {
-			$this->response(array('error' => true, 'message' => 'file not found.', 'data' => $data), 400);
+			show_404();
 		}
 
 		if ( file_exists($file->getAbsolutePath()) && is_file($file->getAbsolutePath()) ) {
-		    header('Content-Description: File Transfer');
-		    header('Content-Type: application/octet-stream');
-		    header('Content-Disposition: attachment; filename='.basename($file->getName()));
-		    header('Expires: 0');
-		    header('Cache-Control: must-revalidate');
-		    header('Pragma: public');
-		    header('Content-Length: ' . filesize($file->getAbsolutePath()));
-		    flush();
-		    set_time_limit(0);
-
-		    readfile($file->getAbsolutePath());
-		    exit;
+		    $data = file_get_contents($file->getAbsolutePath());
+		    force_download($file->getName(), $data);
 		}
 		else {
-			$this->response(array('error' => true, 'message' => 'file not found.', 'data' => $data), 400);
+			show_404();
 		}
 	}
 
@@ -100,46 +92,36 @@ class File extends REST_Controller {
 
 		$file = $this->doctrine->em->find('Entities\File', (int)$id);
 		if (is_null($file)) {
-			$this->response(array('error' => true, 'message' => 'file not found.', 'data' => $data), 400);
+			show_404();
+		}
+
+		if (!$file->getIsPublic()) {
+			$this->response(array('error' => true, 'message' => 'This file is not public.', 'data' => $data), 400);
+		}
+
+		if ( ($access_key = $this->input->get('accessKey')) !== false ) {
+			if ($access_key != $file->getAccessKey())
+				$this->response(array('error' => true, 'message' => 'Invalid access key.', 'data' => $data), 400);
+		}
+		else {
+			$this->response(array('error' => true, 'message' => 'No access key.', 'data' => $data), 400);
 		}
 
 		/**
-		 * TODO: Verify access_key / share / is_public
-		 */
-
+		 * TODO: share
+		*/
 		if ( file_exists($file->getAbsolutePath()) && is_file($file->getAbsolutePath()) ) {
-		    header('Content-Description: File Transfer');
-		    header('Content-Type: application/octet-stream');
-		    header('Content-Disposition: attachment; filename='.basename($file->getName()));
-		    header('Expires: 0');
-		    header('Cache-Control: must-revalidate');
-		    header('Pragma: public');
-		    header('Content-Length: ' . filesize($file->getAbsolutePath()));
-		    flush();
-		    set_time_limit(0);
-
-		    // set the download rate limit (=> 20,5 kb/s)
-		    $planHistory = $file->getUser()->getActivePlanHistory();
-
-		    if (!is_null($planHistory))
-				$download_rate = $planHistory->getPlan()->getMaxBandwith();
-			else
-				$download_rate = 10;
-
-			$fileLocal = fopen($file->getAbsolutePath(), "r");
-		    while (!feof($fileLocal)) {
-		        print fread($fileLocal, round($download_rate * KB));
-		        flush();
-		        sleep(1);
-		    }  
+		    $data = file_get_contents($file->getAbsolutePath());
+		    force_download($file->getName(), $data);
 		    exit;
 		}
 		else {
-			$this->response(array('error' => true, 'message' => 'file not found.', 'data' => $data), 400);
+			show_404();
 		}
 	}
 
 	public function details_get($id = null) {
+		$data = new StdClass();
 		if (is_null($id)) {
 			$this->response(array('error' => true, 'message' => 'id not defined.', 'data' => $data), 400);
 		}

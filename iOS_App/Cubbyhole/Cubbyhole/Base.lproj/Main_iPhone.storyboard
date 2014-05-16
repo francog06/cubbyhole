@@ -4,11 +4,11 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3733"/>
     </dependencies>
     <scenes>
-        <!--Login View Controller-->
+        <!--Login View Controller - Log in-->
         <scene sceneID="bfy-Ca-814">
             <objects>
                 <viewController id="GsV-dn-r9L" customClass="LoginViewController" sceneMemberID="viewController">
-                    <navigationItem key="navigationItem" id="WSu-58-Tyi"/>
+                    <navigationItem key="navigationItem" title="Log in" id="WSu-58-Tyi"/>
                     <connections>
                         <segue destination="pGg-6v-bdr" kind="push" identifier="AfterLogin" id="lrK-Z0-4UJ"/>
                     </connections>
@@ -95,6 +95,16 @@
                                             <action selector="actionButtonClicked:" destination="Ah7-4n-0Wa" id="9kg-F4-EfD"/>
                                         </connections>
                                     </barButtonItem>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="0kB-Me-gRA"/>
+                                    <barButtonItem style="plain" id="pe8-c4-NzQ">
+                                        <switch key="customView" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" id="7NH-zs-wUY">
+                                            <rect key="frame" x="134" y="7" width="51" height="31"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <connections>
+                                                <action selector="publicChanged:" destination="Ah7-4n-0Wa" eventType="valueChanged" id="bsL-Mo-XJr"/>
+                                            </connections>
+                                        </switch>
+                                    </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="se2-4G-Yj6"/>
                                     <barButtonItem systemItem="trash" id="XZr-yK-9xQ">
                                         <connections>
@@ -106,6 +116,7 @@
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="g9t-mY-S8M">
                                 <rect key="frame" x="6" y="72" width="309" height="444"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <gestureRecognizers/>
                             </imageView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
@@ -120,6 +131,7 @@
                         <outlet property="actionButton" destination="9X5-8i-8E7" id="Bbs-aL-OEk"/>
                         <outlet property="detailDescriptionLabel" destination="Lei-5M-9Gs" id="sCT-F7-F6f"/>
                         <outlet property="imagePreview" destination="g9t-mY-S8M" id="zVC-09-zB6"/>
+                        <outlet property="publicButton" destination="7NH-zs-wUY" id="r5k-as-WbC"/>
                         <outlet property="trashButton" destination="XZr-yK-9xQ" id="HOW-Kq-U3h"/>
                     </connections>
                 </viewController>
