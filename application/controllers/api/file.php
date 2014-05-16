@@ -18,6 +18,45 @@ class File extends REST_Controller {
 		$this->methods['download_get']['key'] = FALSE;
 	}
 
+	public function preview_get($id = null) {
+		$specialHash = "ab14d0415c485464a187d5a9c97cc27c";
+
+		$data = new StdClass();
+		if ( ($hash = $this->input->get('hash')) === false && $hash != $specialHash )
+			$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
+
+		if (is_null($id)) {
+			$this->response(array('error' => true, 'message' => 'id not defined.', 'data' => $data), 400);
+		}
+
+		$file = $this->doctrine->em->find('Entities\File', (int)$id);
+		if (is_null($file)) {
+			$this->response(array('error' => true, 'message' => 'file not found (database).', 'data' => $data), 400);
+		}
+
+		if ( file_exists($file->getAbsolutePath()) && is_file($file->getAbsolutePath()) ) {
+			$fileMime = getimagesize($file->getAbsolutePath());
+
+			if ($fileMime !== false) {
+			    header('Content-Type: ' . $fileMime['mime']);
+			    header('Expires: 0');
+			    header('Cache-Control: must-revalidate');
+			    header('Pragma: public');
+			    header('Content-Length: ' . filesize($file->getAbsolutePath()));
+			    flush();
+			    set_time_limit(0);
+
+			    readfile($file->getAbsolutePath());
+			    exit;
+			}
+			else
+				$this->response(array('error' => true, 'message' => 'No preview available.', 'data' => $data), 400);
+		}
+		else {
+			$this->response(array('error' => true, 'message' => 'file not found (hard drive).', 'data' => $data), 400);
+		}
+	}
+
 	public function synchronize_get($id = null) {
 		$specialHash = "ab14d0415c485464a187d5a9c97cc27c";
 
