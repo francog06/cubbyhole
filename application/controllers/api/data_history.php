@@ -48,7 +48,7 @@ class Data_history extends REST_Controller {
 					->add('select', 'p')
 					->add('from', 'Entities\File p')
 					->add('where', 'p.file = :file')
-					->setParameter('ip', $DataHistory_file)
+					->setParameter('file', $DataHistory_file)
 					->getQuery();
 
 		$resultFile = $queryFile->getArrayResult();
@@ -147,5 +147,68 @@ class Data_history extends REST_Controller {
 
 		$this->response(array('error' => false, 'DataHistory' => $DataHistory), 200);
 	}
+
+
+
+	//RETRIEVE ALL IP WHOM DOWNLOADED A SPECIFIC FILE
+	public function  stat_ip($StatIpFile)
+	{
+		$query = $this->doctrine->em->createQueryBuilder()
+					->add('select', 'p.ip')
+					->add('from', 'Entities\DataHistory p')
+					->add('where', 'p.file = :file')
+					->setParameter('file', $StatIpFile)
+					->getQuery();
+
+		$result = $query->getArrayResult();
+		$data = new StdClass();
+		$data->ip = $result;
+		if (empty($result)) 
+			$this->response(array('error' => true, 'data' => $data), 400);
+		else 
+			$this->response(array('error' => false, 'data ' => $data), 200);
+	}
+
+	//RETRIEVE ALL FILES DOWNLOADED BEETWEEN TWO DATES
+	public function  stat_file($dateOne, $dateTwo)
+	{
+		$query = $this->doctrine->em->createQueryBuilder()
+					->add('select', 'p.file')
+					->add('from', 'Entities\DataHistory p')
+					->add('where', 'p.date = :date')
+					>where('p.date BETWEEN :dateOne AND :dateTwo')
+				   ->setParameter('dateOne', new DateTime($dateOne, new DateTimeZone('Europe/Berlin')))
+				   ->setParameter('dateTwo', new DateTime($dateTwo, new DateTimeZone('Europe/Berlin')))
+					->getQuery();
+
+		$result = $query->getArrayResult();
+		$data = new StdClass();
+		$data->file = $result;
+		if (empty($result)) 
+			$this->response(array('error' => true, 'data' => $data), 400);
+		else 
+			$this->response(array('error' => false, 'data ' => $data), 200);
+	}
+
+	//RETRIEVE ALL DATA HISTORY BY COUNTRY CODE
+	public function stat_DataHistory($countryCode)
+	{
+
+	$query = $this->doctrine->em->createQueryBuilder()
+					->add('select', 'p')
+					->add('from', 'Entities\DataHistory p')
+					->add('where', 'p.country = :country')
+					->setParameter('country', $countryCode)
+					->getQuery();
+	$result = $query->getArrayResult();
+	$data = new StdClass();
+	$data->DataHistory = $result;
+	if (empty($result)) 
+		$this->response(array('error' => true, 'data' => $data), 400);
+	else 
+		$this->response(array('error' => false, 'data ' => $data), 200);
+
+	}
+
 
 }
