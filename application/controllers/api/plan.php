@@ -98,8 +98,8 @@ class Plan extends REST_Controller {
 		if (is_null($plan)) {
 			$this->response(array('error' => true, 'message' => 'plan not found.', 'data' => $data), 400);
 		}
-
-		$this->response(array('error' => false 'message' => 'Plan successfully retrieved', 'data' => $data), 200);
+		$data->plan = $plan;
+		$this->response(array('error' => false, 'message' => 'Plan successfully retrieved', 'data' => $data), 200);
 	}
 
 	 public function create_post()

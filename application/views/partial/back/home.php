@@ -168,17 +168,17 @@
                 data:{folder_id:$("#folder_id").val(),user_id:user_id,name:$("#folder_name").val()},
                 success: function(result) {
                     if(result.error == false){
-                       $('#newFolderModal').modal("toggle");
+                       $('#newFolderModal').modal("hide");
                        $("div.result").append('<p class="bg-success" style="padding: 5px 0px;">'+result["message"]+'</p>');
                     }
                     else{
                         $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">'+result["message"]+'</p>');
-                        $('#newFolderModal').modal("toggle");
+                        $('#newFolderModal').modal("hide");
                     }
                 },
                 error: function(result) {
                     $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">Erreur lors de la transaction.</p>');
-                    $('#newFolderModal').modal("toggle");
+                    $('#newFolderModal').modal("hide");
                 }
            });
         });
@@ -194,8 +194,76 @@
     // enable draggables to be dropped into this
     .dropzone(true)
     // only accept elements matching this CSS selector
-    .accept('.file')
-    .accept('.folder')
+    .accept('.file, .folder')
+    // listen for drop related events
+    .on('dragenter', function (event) {
+        var draggableElement = event.relatedTarget,
+            dropzoneElement = event.target;
+
+        // feedback the possibility of a drop
+        dropzoneElement.classList.add('drop-target');
+        //draggableElement.classList.add('can-drop');
+    })
+    .on('dragleave', function (event) {
+        // remove the drop feedback style
+        event.target.classList.remove('drop-target');
+        //event.relatedTarget.classList.remove('can-drop');
+    })
+    .on('drop', function (event) {
+        //event.relatedTarget.textContent = 'Dropped';
+        event.target.classList.remove('drop-target');
+        //alert($(event.relatedTarget).attr("data-id"));
+        if($(event.relatedTarget).attr("class") == "file"){
+            $.ajax({
+                url: '/api/file/update/'+$(event.relatedTarget).attr("data-id"),
+                type: 'POST',
+                headers:{
+                    "X-API-KEY":"5422e102a743fd70a22ee4ff7c2ebbe8"
+                },
+                data:{folder_id:$(event.target).attr("data-id")},
+                success: function(result) {
+                    if(result.error == false){
+                        if($(".breadcrumb a:last-child").attr("data-id") == undefined)
+                            getRoot();
+                        else
+                            getFolder($(".breadcrumb a:last-child").attr("data-id"));
+                            
+                    }
+                },
+                error: function(result) {
+                }
+            });
+        }
+        else if($(event.relatedTarget).attr("class") == "folder"){
+            $.ajax({
+                url: '/api/folder/update/'+$(event.relatedTarget).attr("data-id"),
+                type: 'PUT',
+                headers:{
+                    "X-API-KEY":"5422e102a743fd70a22ee4ff7c2ebbe8"
+                },
+                data:{folder_id:$(event.target).attr("data-id")},
+                success: function(result) {
+                    if(result.error == false){
+                        if($(".breadcrumb a:last-child").attr("data-id") == undefined)
+                            getRoot();
+                        else
+                            getFolder($(".breadcrumb a:last-child").attr("data-id"));
+                            
+                    }
+                },
+                error: function(result) {
+                }
+            });
+        }
+        else alert('error');
+        
+    });
+
+interact('.parentFolder')
+    // enable draggables to be dropped into this
+    .dropzone(true)
+    // only accept elements matching this CSS selector
+    .accept('.file, .folder')
     // listen for drop related events
     .on('dragenter', function (event) {
         var draggableElement = event.relatedTarget,
@@ -416,7 +484,7 @@
             success: function(data){
                 status.setProgress(100);
                 $("#status1").append("File upload Done<br>");       
-                $("#newFileModal").modal("toggle");
+                $("#newFileModal").modal("hide");
                  if($(".breadcrumb a:last-child").attr("data-id") == undefined){
                     getRoot();
                 }else{
@@ -430,7 +498,7 @@
 
 function getRoot(){
     $('#folder_id').val("");
-    $('#loadingModal').modal("toggle");
+    $('#loadingModal').modal("show");
     $.ajax({
             url: '/api/folder/user/'+user_id+'/root',
             type: 'GET',
@@ -441,9 +509,9 @@ function getRoot(){
                 $("#cubbyhole tbody").html("");
                 if(result.error == false){
                     $(".breadcrumb").html("<a href='javascript:getRoot()'><span class='glyphicon glyphicon-home'></span></a>");
-                    for(var loop_folder in result.folders){
-                        if(result.folders.hasOwnProperty(loop_folder)){
-                            if(result.folders[loop_folder].share == null){
+                    for(var loop_folder in result.data.folders){
+                        if(result.data.folders.hasOwnProperty(loop_folder)){
+                            if(result.data.folders[loop_folder].share == null){
                                 sprite = "dossier";
                                 type = "Dossier";
                             }
@@ -452,10 +520,10 @@ function getRoot(){
                                 type = "Dossier Partagé";
                             }
                             $("#cubbyhole tbody").append('\
-                                <tr class="folder" data-id="'+result.folders[loop_folder].id+'">\
-                                    <td><a href="javascript:getFolder('+result.folders[loop_folder].id+')"><span class="sprite '+sprite+'"></span>'+result.folders[loop_folder].name+'</a></td>\
+                                <tr class="folder" data-id="'+result.data.folders[loop_folder].id+'">\
+                                    <td><a href="javascript:getFolder('+result.data.folders[loop_folder].id+')"><span class="sprite '+sprite+'"></span>'+result.data.folders[loop_folder].name+'</a></td>\
                                     <td>'+type+'</td>\
-                                    <td>'+result.folders[loop_folder].last_update_date.date+'</td>\
+                                    <td>'+result.data.folders[loop_folder].last_update_date.date+'</td>\
                                     <td style="width:175px;"><div style="display:none">\
                                         <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..."><span class="glyphicon glyphicon-pencil"></span>&nbsp; Editer</button> \
                                          &nbsp; \
@@ -465,8 +533,8 @@ function getRoot(){
                             ').fadeIn();
                         }
                     }
-                    for(var loop_file in result.files){
-                        if(result.files[loop_file].share == null){
+                    for(var loop_file in result.data.files){
+                        if(result.data.files[loop_file].share == null){
                                 sprite = "file";
                                 type = "Fichier";
                         }
@@ -474,12 +542,12 @@ function getRoot(){
                             sprite = "filePartage";
                             type = "Fichier Partagé";
                         }
-                        if(result.files.hasOwnProperty(loop_file)){
+                        if(result.data.files.hasOwnProperty(loop_file)){
                             $("#cubbyhole tbody").append('\
-                                <tr class="file" data-id="'+result.files[loop_file].id+'">\
-                                    <td><span class="sprite '+sprite+'"></span>'+result.files[loop_file].name+'</td>\
+                                <tr class="file" data-id="'+result.data.files[loop_file].id+'">\
+                                    <td><span class="sprite '+sprite+'"></span>'+result.data.files[loop_file].name+'</td>\
                                     <td>'+type+'</td>\
-                                    <td>'+result.files[loop_file].last_update_date.date+'</td>\
+                                    <td>'+result.data.files[loop_file].last_update_date.date+'</td>\
                                     <td style="width:175px;"><div style="display:none">\
                                         <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..."><span class="glyphicon glyphicon-pencil"></span>&nbsp; Editer</button> \
                                          &nbsp; \
@@ -489,25 +557,25 @@ function getRoot(){
                             ').fadeIn();
                         }
                     }
-                    $('#loadingModal').modal("toggle");
+                    $('#loadingModal').modal("hide");
                     $.bootstrapSortable();
                 }
                 else{
                     $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">'+result["message"]+'</p>');
-                    $('#loadingModal').modal("toggle");
+                    $('#loadingModal').modal("hide");
                 }
             },
             error: function(result) {
                 $(".panel").fadeOut();
                 $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">Erreur lors de la transaction.</p>');
-                $('#loadingModal').modal("toggle");
+                $('#loadingModal').modal("hide");
             }
        });
 }
 
 function getFolder(id){
     $('#folder_id').val(id);
-    $('#loadingModal').modal("toggle");
+    $('#loadingModal').modal("show");
     $.ajax({
             url: '/api/folder/details/'+id,
             type: 'GET',
@@ -518,7 +586,7 @@ function getFolder(id){
                 $("#cubbyhole tbody").html("");
                 if(result.error == false){
                     if($(".breadcrumb a[data-id='"+id+"']").length == 0){
-                        $(".breadcrumb").append("<a data-id='"+result.folder.id+"' href='javascript:getFolder("+result.folder.id+")'> / "+result.folder.name+"</a>");
+                        $(".breadcrumb").append("<a data-id='"+result.data.folder.id+"' href='javascript:getFolder("+result.data.folder.id+")'> / "+result.data.folder.name+"</a>");
                     }
                     else{
                         var pos = $(".breadcrumb a").index($(".breadcrumb a[data-id='"+id+"']")); 
@@ -535,16 +603,16 @@ function getFolder(id){
                         parent_id = $(parent).attr("data-id");
                     }
                     $("#cubbyhole tbody").append('\
-                        <tr data-id="'+$(parent).attr("data-id")+'">\
+                        <tr class="parentFolder" data-id="'+$(parent).attr("data-id")+'">\
                             <td><a href="javascript:'+funct+'('+parent_id+')"><span class="glyphicon glyphicon-backward"></span> &nbsp; ...</a></td>\
                             <td data-value="a">Dossier Parent</td>\
                             <td data-value="0">--</td>\
                             <td style="width:175px;"></td>\
                         </tr>\
                     ').fadeIn();
-                    for(var loop_folder in result.folder.folders){
-                        if(result.folder.folders.hasOwnProperty(loop_folder)){
-                            if(result.folder.folders[loop_folder].share == null){
+                    for(var loop_folder in result.data.folder.folders){
+                        if(result.data.folder.folders.hasOwnProperty(loop_folder)){
+                            if(result.data.folder.folders[loop_folder].share == null){
                                 sprite = "dossier";
                                 type = "Dossier";
                             }
@@ -553,10 +621,10 @@ function getFolder(id){
                                 type = "Dossier Partagé";
                             }
                             $("#cubbyhole tbody").append('\
-                                <tr class="folder" data-id="'+result.folder.folders[loop_folder].id+'">\
-                                    <td><a href="javascript:getFolder('+result.folder.folders[loop_folder].id+')"><span class="sprite '+sprite+'"></span>'+result.folder.folders[loop_folder].name+'</a></td>\
+                                <tr class="folder" data-id="'+result.data.folder.folders[loop_folder].id+'">\
+                                    <td><a href="javascript:getFolder('+result.data.folder.folders[loop_folder].id+')"><span class="sprite '+sprite+'"></span>'+result.data.folder.folders[loop_folder].name+'</a></td>\
                                     <td>'+type+'</td>\
-                                    <td>'+result.folder.folders[loop_folder].last_update_date.date+'</td>\
+                                    <td>'+result.data.folder.folders[loop_folder].last_update_date.date+'</td>\
                                     <td style="width:175px;"><div style="display:none">\
                                         <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..."><span class="glyphicon glyphicon-pencil"></span>&nbsp; Editer</button> \
                                          &nbsp; \
@@ -566,8 +634,8 @@ function getFolder(id){
                             ').fadeIn();
                         }
                     }
-                    for(var loop_file in result.folder.files){
-                        if(result.folder.files[loop_file].share == null){
+                    for(var loop_file in result.data.folder.files){
+                        if(result.data.folder.files[loop_file].share == null){
                                 sprite = "file";
                                 type = "Fichier";
                         }
@@ -575,12 +643,12 @@ function getFolder(id){
                             sprite = "filePartage";
                             type = "Fichier Partagé";
                         }
-                        if(result.folder.files.hasOwnProperty(loop_file)){
+                        if(result.data.folder.files.hasOwnProperty(loop_file)){
                             $("#cubbyhole tbody").append('\
-                                <tr class="file" data-id="'+result.folder.files[loop_file].id+'">\
-                                    <td><span class="sprite '+sprite+'"></span>'+result.folder.files[loop_file].name+'</td>\
+                                <tr class="file" data-id="'+result.data.folder.files[loop_file].id+'">\
+                                    <td><span class="sprite '+sprite+'"></span>'+result.data.folder.files[loop_file].name+'</td>\
                                     <td>'+type+'</td>\
-                                    <td>'+result.folder.files[loop_file].last_update_date.date+'</td>\
+                                    <td>'+result.data.folder.files[loop_file].last_update_date.date+'</td>\
                                     <td style="width:175px;"><div style="display:none">\
                                         <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..."><span class="glyphicon glyphicon-pencil"></span>&nbsp; Editer</button> \
                                          &nbsp; \
@@ -590,18 +658,18 @@ function getFolder(id){
                             ').fadeIn();
                         }
                     }
-                    $('#loadingModal').modal("toggle");
+                    $('#loadingModal').modal("hide");
                     $.bootstrapSortable();
                 }
                 else{
-                    $('#loadingModal').modal("toggle");
+                    $('#loadingModal').modal("hide");
                     $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">'+result["message"]+'</p>');
                 }
             },
             error: function(result) {
                 $(".panel").fadeOut();
                 $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">Erreur lors de la transaction.</p>');
-                $('#loadingModal').modal("toggle");
+                $('#loadingModal').modal("hide");
             }
        });
 }

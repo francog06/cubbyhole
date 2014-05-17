@@ -859,7 +859,7 @@ margin-right:5px;
 tr.file, tr.folder{
   cursor: pointer;
 }
-tr.folder.drop-target{
+tr.folder.drop-target,tr.parentFolder.drop-target{
   background: #D7E8FC;
   transition: all 1s ease;
 }
