@@ -749,6 +749,15 @@ span.sprite {
   display: inline-block;
 }
 
+span.fileSprite {
+  width: 16px;
+  height: 16px;
+  background-image: url("/assets/img/Back/sprite_file.png");
+  background-repeat: no-repeat;
+  background-position: 0 16px;
+  display: inline-block;
+}
+
 span.dossier{
   background-position: left -2557px;
   width: 28px;
@@ -786,6 +795,48 @@ span.refresh{
 }
 span.parentFolder{
   background-position: left -6705px;
+  width: 28px;
+  height: 18px;
+}
+
+span.file{
+  background-position: left -38px;
+  width: 28px;
+  height: 18px;
+}
+
+span.word{
+  background-position: left 2px;
+  width: 28px;
+  height: 18px;
+}
+
+span.excel{
+  background-position: left -18px;
+  width: 28px;
+  height: 18px;
+}
+
+span.picture{
+  background-position: left -58px;
+  width: 28px;
+  height: 18px;
+}
+
+span.pdf{
+  background-position: left -78px;
+  width: 28px;
+  height: 18px;
+}
+
+span.powerpoint{
+  background-position: left -98px;
+  width: 28px;
+  height: 18px;
+}
+
+span.zip{
+  background-position: left -118px;
   width: 28px;
   height: 18px;
 }

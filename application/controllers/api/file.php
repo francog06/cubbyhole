@@ -101,6 +101,7 @@ class File extends REST_Controller {
 	}
 
 	public function details_get($id = null) {
+		$data = new StdClass();
 		if (is_null($id)) {
 			$this->response(array('error' => true, 'message' => 'id not defined.', 'data' => $data), 400);
 		}
