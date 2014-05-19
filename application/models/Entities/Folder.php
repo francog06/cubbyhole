@@ -353,6 +353,7 @@ class Folder implements \JsonSerializable
                 }
             }
         }
+        $json["parent"] = (!is_null($this->parent) ? $this->parent->getId() : null);
         return $json;
     }
 }

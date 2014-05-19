@@ -1,0 +1,684 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		6600905B19269E8A00A964F9 /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6600905A19269E8A00A964F9 /* ImageIO.framework */; };
+		6600905D19269E9000A964F9 /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6600905C19269E9000A964F9 /* MessageUI.framework */; };
+		6600905F19269E9700A964F9 /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6600905E19269E9700A964F9 /* AssetsLibrary.framework */; };
+		66EE615D1925276500022D18 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66EE615C1925276500022D18 /* Foundation.framework */; };
+		66EE615F1925276500022D18 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66EE615E1925276500022D18 /* CoreGraphics.framework */; };
+		66EE61611925276500022D18 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66EE61601925276500022D18 /* UIKit.framework */; };
+		66EE61671925276500022D18 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 66EE61651925276500022D18 /* InfoPlist.strings */; };
+		66EE61691925276500022D18 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 66EE61681925276500022D18 /* main.m */; };
+		66EE616D1925276500022D18 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 66EE616C1925276500022D18 /* AppDelegate.m */; };
+		66EE61701925276500022D18 /* Main_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 66EE616E1925276500022D18 /* Main_iPhone.storyboard */; };
+		66EE61761925276500022D18 /* MasterViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 66EE61751925276500022D18 /* MasterViewController.m */; };
+		66EE61791925276500022D18 /* DetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 66EE61781925276500022D18 /* DetailViewController.m */; };
+		66EE617B1925276500022D18 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 66EE617A1925276500022D18 /* Images.xcassets */; };
+		66EE61821925276600022D18 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66EE61811925276600022D18 /* XCTest.framework */; };
+		66EE61831925276600022D18 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66EE615C1925276500022D18 /* Foundation.framework */; };
+		66EE61841925276600022D18 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66EE61601925276500022D18 /* UIKit.framework */; };
+		66EE618C1925276600022D18 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 66EE618A1925276600022D18 /* InfoPlist.strings */; };
+		66EE618E1925276600022D18 /* CubbyholeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 66EE618D1925276600022D18 /* CubbyholeTests.m */; };
+		66EE6198192527DD00022D18 /* logo.png in Resources */ = {isa = PBXBuildFile; fileRef = 66EE6197192527DD00022D18 /* logo.png */; };
+		66EE61A119252BE800022D18 /* logo.png in Resources */ = {isa = PBXBuildFile; fileRef = 66EE61A019252BE800022D18 /* logo.png */; };
+		66EE61AA19252D8000022D18 /* LoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 66EE61A819252D8000022D18 /* LoginViewController.m */; };
+		66EE61AB19252D8000022D18 /* LoginViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 66EE61A919252D8000022D18 /* LoginViewController.xib */; };
+		66EE61C61925313500022D18 /* NSObject+SBJson.m in Sources */ = {isa = PBXBuildFile; fileRef = 66EE61AE1925313500022D18 /* NSObject+SBJson.m */; };
+		66EE61C71925313500022D18 /* SBJsonParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 66EE61B11925313500022D18 /* SBJsonParser.m */; };
+		66EE61C81925313500022D18 /* SBJsonStreamParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 66EE61B31925313500022D18 /* SBJsonStreamParser.m */; };
+		66EE61C91925313500022D18 /* SBJsonStreamParserAccumulator.m in Sources */ = {isa = PBXBuildFile; fileRef = 66EE61B51925313500022D18 /* SBJsonStreamParserAccumulator.m */; };
+		66EE61CA1925313500022D18 /* SBJsonStreamParserAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = 66EE61B71925313500022D18 /* SBJsonStreamParserAdapter.m */; };
+		66EE61CB1925313500022D18 /* SBJsonStreamParserState.m in Sources */ = {isa = PBXBuildFile; fileRef = 66EE61B91925313500022D18 /* SBJsonStreamParserState.m */; };
+		66EE61CC1925313500022D18 /* SBJsonStreamWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 66EE61BB1925313500022D18 /* SBJsonStreamWriter.m */; };
+		66EE61CD1925313500022D18 /* SBJsonStreamWriterAccumulator.m in Sources */ = {isa = PBXBuildFile; fileRef = 66EE61BD1925313500022D18 /* SBJsonStreamWriterAccumulator.m */; };
+		66EE61CE1925313500022D18 /* SBJsonStreamWriterState.m in Sources */ = {isa = PBXBuildFile; fileRef = 66EE61BF1925313500022D18 /* SBJsonStreamWriterState.m */; };
+		66EE61CF1925313500022D18 /* SBJsonTokeniser.m in Sources */ = {isa = PBXBuildFile; fileRef = 66EE61C11925313500022D18 /* SBJsonTokeniser.m */; };
+		66EE61D01925313500022D18 /* SBJsonUTF8Stream.m in Sources */ = {isa = PBXBuildFile; fileRef = 66EE61C31925313500022D18 /* SBJsonUTF8Stream.m */; };
+		66EE61D11925313500022D18 /* SBJsonWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 66EE61C51925313500022D18 /* SBJsonWriter.m */; };
+		66EE61D519253F0D00022D18 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66EE61D419253F0D00022D18 /* QuartzCore.framework */; };
+		66EE61DC1925418D00022D18 /* SVProgressHUD.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 66EE61D91925418D00022D18 /* SVProgressHUD.bundle */; };
+		66EE61DD1925418D00022D18 /* SVProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 66EE61DB1925418D00022D18 /* SVProgressHUD.m */; };
+		66EE61ED19264F8700022D18 /* delete.png in Resources */ = {isa = PBXBuildFile; fileRef = 66EE61E719264F8700022D18 /* delete.png */; };
+		66EE61EE19264F8700022D18 /* download.png in Resources */ = {isa = PBXBuildFile; fileRef = 66EE61E819264F8700022D18 /* download.png */; };
+		66EE61EF19264F8700022D18 /* file.png in Resources */ = {isa = PBXBuildFile; fileRef = 66EE61E919264F8700022D18 /* file.png */; };
+		66EE61F019264F8700022D18 /* folder.png in Resources */ = {isa = PBXBuildFile; fileRef = 66EE61EA19264F8700022D18 /* folder.png */; };
+		66EE61F219264F8700022D18 /* preview.png in Resources */ = {isa = PBXBuildFile; fileRef = 66EE61EC19264F8700022D18 /* preview.png */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		66EE61851925276600022D18 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 66EE61511925276500022D18 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 66EE61581925276500022D18;
+			remoteInfo = Cubbyhole;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		6600905A19269E8A00A964F9 /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = System/Library/Frameworks/ImageIO.framework; sourceTree = SDKROOT; };
+		6600905C19269E9000A964F9 /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
+		6600905E19269E9700A964F9 /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
+		66EE61591925276500022D18 /* Cubbyhole.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cubbyhole.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		66EE615C1925276500022D18 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		66EE615E1925276500022D18 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		66EE61601925276500022D18 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		66EE61641925276500022D18 /* Cubbyhole-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Cubbyhole-Info.plist"; sourceTree = "<group>"; };
+		66EE61661925276500022D18 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		66EE61681925276500022D18 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		66EE616A1925276500022D18 /* Cubbyhole-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Cubbyhole-Prefix.pch"; sourceTree = "<group>"; };
+		66EE616B1925276500022D18 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		66EE616C1925276500022D18 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		66EE616F1925276500022D18 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main_iPhone.storyboard; sourceTree = "<group>"; };
+		66EE61741925276500022D18 /* MasterViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MasterViewController.h; sourceTree = "<group>"; };
+		66EE61751925276500022D18 /* MasterViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MasterViewController.m; sourceTree = "<group>"; };
+		66EE61771925276500022D18 /* DetailViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DetailViewController.h; sourceTree = "<group>"; };
+		66EE61781925276500022D18 /* DetailViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DetailViewController.m; sourceTree = "<group>"; };
+		66EE617A1925276500022D18 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		66EE61801925276600022D18 /* CubbyholeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CubbyholeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		66EE61811925276600022D18 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		66EE61891925276600022D18 /* CubbyholeTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "CubbyholeTests-Info.plist"; sourceTree = "<group>"; };
+		66EE618B1925276600022D18 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		66EE618D1925276600022D18 /* CubbyholeTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CubbyholeTests.m; sourceTree = "<group>"; };
+		66EE6197192527DD00022D18 /* logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = logo.png; sourceTree = "<group>"; };
+		66EE61A019252BE800022D18 /* logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = logo.png; sourceTree = "<group>"; };
+		66EE61A719252D8000022D18 /* LoginViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoginViewController.h; sourceTree = "<group>"; };
+		66EE61A819252D8000022D18 /* LoginViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LoginViewController.m; sourceTree = "<group>"; };
+		66EE61A919252D8000022D18 /* LoginViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LoginViewController.xib; sourceTree = "<group>"; };
+		66EE61AD1925313500022D18 /* NSObject+SBJson.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+SBJson.h"; sourceTree = "<group>"; };
+		66EE61AE1925313500022D18 /* NSObject+SBJson.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+SBJson.m"; sourceTree = "<group>"; };
+		66EE61AF1925313500022D18 /* SBJson.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJson.h; sourceTree = "<group>"; };
+		66EE61B01925313500022D18 /* SBJsonParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonParser.h; sourceTree = "<group>"; };
+		66EE61B11925313500022D18 /* SBJsonParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonParser.m; sourceTree = "<group>"; };
+		66EE61B21925313500022D18 /* SBJsonStreamParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonStreamParser.h; sourceTree = "<group>"; };
+		66EE61B31925313500022D18 /* SBJsonStreamParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonStreamParser.m; sourceTree = "<group>"; };
+		66EE61B41925313500022D18 /* SBJsonStreamParserAccumulator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonStreamParserAccumulator.h; sourceTree = "<group>"; };
+		66EE61B51925313500022D18 /* SBJsonStreamParserAccumulator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonStreamParserAccumulator.m; sourceTree = "<group>"; };
+		66EE61B61925313500022D18 /* SBJsonStreamParserAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonStreamParserAdapter.h; sourceTree = "<group>"; };
+		66EE61B71925313500022D18 /* SBJsonStreamParserAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonStreamParserAdapter.m; sourceTree = "<group>"; };
+		66EE61B81925313500022D18 /* SBJsonStreamParserState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonStreamParserState.h; sourceTree = "<group>"; };
+		66EE61B91925313500022D18 /* SBJsonStreamParserState.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonStreamParserState.m; sourceTree = "<group>"; };
+		66EE61BA1925313500022D18 /* SBJsonStreamWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonStreamWriter.h; sourceTree = "<group>"; };
+		66EE61BB1925313500022D18 /* SBJsonStreamWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonStreamWriter.m; sourceTree = "<group>"; };
+		66EE61BC1925313500022D18 /* SBJsonStreamWriterAccumulator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonStreamWriterAccumulator.h; sourceTree = "<group>"; };
+		66EE61BD1925313500022D18 /* SBJsonStreamWriterAccumulator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonStreamWriterAccumulator.m; sourceTree = "<group>"; };
+		66EE61BE1925313500022D18 /* SBJsonStreamWriterState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonStreamWriterState.h; sourceTree = "<group>"; };
+		66EE61BF1925313500022D18 /* SBJsonStreamWriterState.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonStreamWriterState.m; sourceTree = "<group>"; };
+		66EE61C01925313500022D18 /* SBJsonTokeniser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonTokeniser.h; sourceTree = "<group>"; };
+		66EE61C11925313500022D18 /* SBJsonTokeniser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonTokeniser.m; sourceTree = "<group>"; };
+		66EE61C21925313500022D18 /* SBJsonUTF8Stream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonUTF8Stream.h; sourceTree = "<group>"; };
+		66EE61C31925313500022D18 /* SBJsonUTF8Stream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonUTF8Stream.m; sourceTree = "<group>"; };
+		66EE61C41925313500022D18 /* SBJsonWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonWriter.h; sourceTree = "<group>"; };
+		66EE61C51925313500022D18 /* SBJsonWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonWriter.m; sourceTree = "<group>"; };
+		66EE61D419253F0D00022D18 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		66EE61D81925418D00022D18 /* SVProgressHUD-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SVProgressHUD-Prefix.pch"; sourceTree = "<group>"; };
+		66EE61D91925418D00022D18 /* SVProgressHUD.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = SVProgressHUD.bundle; sourceTree = "<group>"; };
+		66EE61DA1925418D00022D18 /* SVProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVProgressHUD.h; sourceTree = "<group>"; };
+		66EE61DB1925418D00022D18 /* SVProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SVProgressHUD.m; sourceTree = "<group>"; };
+		66EE61E719264F8700022D18 /* delete.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = delete.png; path = icons/delete.png; sourceTree = "<group>"; };
+		66EE61E819264F8700022D18 /* download.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = download.png; path = icons/download.png; sourceTree = "<group>"; };
+		66EE61E919264F8700022D18 /* file.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = file.png; path = icons/file.png; sourceTree = "<group>"; };
+		66EE61EA19264F8700022D18 /* folder.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = folder.png; path = icons/folder.png; sourceTree = "<group>"; };
+		66EE61EC19264F8700022D18 /* preview.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = preview.png; path = icons/preview.png; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		66EE61561925276500022D18 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6600905F19269E9700A964F9 /* AssetsLibrary.framework in Frameworks */,
+				6600905D19269E9000A964F9 /* MessageUI.framework in Frameworks */,
+				6600905B19269E8A00A964F9 /* ImageIO.framework in Frameworks */,
+				66EE61D519253F0D00022D18 /* QuartzCore.framework in Frameworks */,
+				66EE615F1925276500022D18 /* CoreGraphics.framework in Frameworks */,
+				66EE61611925276500022D18 /* UIKit.framework in Frameworks */,
+				66EE615D1925276500022D18 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		66EE617D1925276600022D18 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				66EE61821925276600022D18 /* XCTest.framework in Frameworks */,
+				66EE61841925276600022D18 /* UIKit.framework in Frameworks */,
+				66EE61831925276600022D18 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		66EE61501925276500022D18 = {
+			isa = PBXGroup;
+			children = (
+				66EE6197192527DD00022D18 /* logo.png */,
+				66EE61621925276500022D18 /* Cubbyhole */,
+				66EE61871925276600022D18 /* CubbyholeTests */,
+				66EE615B1925276500022D18 /* Frameworks */,
+				66EE615A1925276500022D18 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		66EE615A1925276500022D18 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				66EE61591925276500022D18 /* Cubbyhole.app */,
+				66EE61801925276600022D18 /* CubbyholeTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		66EE615B1925276500022D18 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				6600905E19269E9700A964F9 /* AssetsLibrary.framework */,
+				6600905C19269E9000A964F9 /* MessageUI.framework */,
+				6600905A19269E8A00A964F9 /* ImageIO.framework */,
+				66EE61D419253F0D00022D18 /* QuartzCore.framework */,
+				66EE615C1925276500022D18 /* Foundation.framework */,
+				66EE615E1925276500022D18 /* CoreGraphics.framework */,
+				66EE61601925276500022D18 /* UIKit.framework */,
+				66EE61811925276600022D18 /* XCTest.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		66EE61621925276500022D18 /* Cubbyhole */ = {
+			isa = PBXGroup;
+			children = (
+				66EE61E619263C5200022D18 /* Resources */,
+				66EE61AC1925310700022D18 /* SBJson */,
+				66EE61DE1925419100022D18 /* SVProgress */,
+				66EE61A519252D0200022D18 /* Login */,
+				66EE61E11925460C00022D18 /* Delegate */,
+				66EE61DF192545FE00022D18 /* Master */,
+				66EE61E01925460400022D18 /* Detail */,
+				66EE616E1925276500022D18 /* Main_iPhone.storyboard */,
+				66EE617A1925276500022D18 /* Images.xcassets */,
+				66EE61631925276500022D18 /* Supporting Files */,
+			);
+			path = Cubbyhole;
+			sourceTree = "<group>";
+		};
+		66EE61631925276500022D18 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				66EE61641925276500022D18 /* Cubbyhole-Info.plist */,
+				66EE61651925276500022D18 /* InfoPlist.strings */,
+				66EE61681925276500022D18 /* main.m */,
+				66EE616A1925276500022D18 /* Cubbyhole-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		66EE61871925276600022D18 /* CubbyholeTests */ = {
+			isa = PBXGroup;
+			children = (
+				66EE618D1925276600022D18 /* CubbyholeTests.m */,
+				66EE61881925276600022D18 /* Supporting Files */,
+			);
+			path = CubbyholeTests;
+			sourceTree = "<group>";
+		};
+		66EE61881925276600022D18 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				66EE61891925276600022D18 /* CubbyholeTests-Info.plist */,
+				66EE618A1925276600022D18 /* InfoPlist.strings */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		66EE61A519252D0200022D18 /* Login */ = {
+			isa = PBXGroup;
+			children = (
+				66EE61A719252D8000022D18 /* LoginViewController.h */,
+				66EE61A819252D8000022D18 /* LoginViewController.m */,
+				66EE61A919252D8000022D18 /* LoginViewController.xib */,
+			);
+			name = Login;
+			sourceTree = "<group>";
+		};
+		66EE61AC1925310700022D18 /* SBJson */ = {
+			isa = PBXGroup;
+			children = (
+				66EE61AD1925313500022D18 /* NSObject+SBJson.h */,
+				66EE61AE1925313500022D18 /* NSObject+SBJson.m */,
+				66EE61AF1925313500022D18 /* SBJson.h */,
+				66EE61B01925313500022D18 /* SBJsonParser.h */,
+				66EE61B11925313500022D18 /* SBJsonParser.m */,
+				66EE61B21925313500022D18 /* SBJsonStreamParser.h */,
+				66EE61B31925313500022D18 /* SBJsonStreamParser.m */,
+				66EE61B41925313500022D18 /* SBJsonStreamParserAccumulator.h */,
+				66EE61B51925313500022D18 /* SBJsonStreamParserAccumulator.m */,
+				66EE61B61925313500022D18 /* SBJsonStreamParserAdapter.h */,
+				66EE61B71925313500022D18 /* SBJsonStreamParserAdapter.m */,
+				66EE61B81925313500022D18 /* SBJsonStreamParserState.h */,
+				66EE61B91925313500022D18 /* SBJsonStreamParserState.m */,
+				66EE61BA1925313500022D18 /* SBJsonStreamWriter.h */,
+				66EE61BB1925313500022D18 /* SBJsonStreamWriter.m */,
+				66EE61BC1925313500022D18 /* SBJsonStreamWriterAccumulator.h */,
+				66EE61BD1925313500022D18 /* SBJsonStreamWriterAccumulator.m */,
+				66EE61BE1925313500022D18 /* SBJsonStreamWriterState.h */,
+				66EE61BF1925313500022D18 /* SBJsonStreamWriterState.m */,
+				66EE61C01925313500022D18 /* SBJsonTokeniser.h */,
+				66EE61C11925313500022D18 /* SBJsonTokeniser.m */,
+				66EE61C21925313500022D18 /* SBJsonUTF8Stream.h */,
+				66EE61C31925313500022D18 /* SBJsonUTF8Stream.m */,
+				66EE61C41925313500022D18 /* SBJsonWriter.h */,
+				66EE61C51925313500022D18 /* SBJsonWriter.m */,
+			);
+			name = SBJson;
+			sourceTree = "<group>";
+		};
+		66EE61DE1925419100022D18 /* SVProgress */ = {
+			isa = PBXGroup;
+			children = (
+				66EE61D81925418D00022D18 /* SVProgressHUD-Prefix.pch */,
+				66EE61D91925418D00022D18 /* SVProgressHUD.bundle */,
+				66EE61DA1925418D00022D18 /* SVProgressHUD.h */,
+				66EE61DB1925418D00022D18 /* SVProgressHUD.m */,
+			);
+			name = SVProgress;
+			path = ..;
+			sourceTree = "<group>";
+		};
+		66EE61DF192545FE00022D18 /* Master */ = {
+			isa = PBXGroup;
+			children = (
+				66EE61741925276500022D18 /* MasterViewController.h */,
+				66EE61751925276500022D18 /* MasterViewController.m */,
+			);
+			name = Master;
+			sourceTree = "<group>";
+		};
+		66EE61E01925460400022D18 /* Detail */ = {
+			isa = PBXGroup;
+			children = (
+				66EE61771925276500022D18 /* DetailViewController.h */,
+				66EE61781925276500022D18 /* DetailViewController.m */,
+			);
+			name = Detail;
+			sourceTree = "<group>";
+		};
+		66EE61E11925460C00022D18 /* Delegate */ = {
+			isa = PBXGroup;
+			children = (
+				66EE616B1925276500022D18 /* AppDelegate.h */,
+				66EE616C1925276500022D18 /* AppDelegate.m */,
+			);
+			name = Delegate;
+			sourceTree = "<group>";
+		};
+		66EE61E619263C5200022D18 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				66EE61E719264F8700022D18 /* delete.png */,
+				66EE61E819264F8700022D18 /* download.png */,
+				66EE61E919264F8700022D18 /* file.png */,
+				66EE61EA19264F8700022D18 /* folder.png */,
+				66EE61EC19264F8700022D18 /* preview.png */,
+				66EE61A019252BE800022D18 /* logo.png */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		66EE61581925276500022D18 /* Cubbyhole */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 66EE61911925276600022D18 /* Build configuration list for PBXNativeTarget "Cubbyhole" */;
+			buildPhases = (
+				66EE61551925276500022D18 /* Sources */,
+				66EE61561925276500022D18 /* Frameworks */,
+				66EE61571925276500022D18 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Cubbyhole;
+			productName = Cubbyhole;
+			productReference = 66EE61591925276500022D18 /* Cubbyhole.app */;
+			productType = "com.apple.product-type.application";
+		};
+		66EE617F1925276600022D18 /* CubbyholeTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 66EE61941925276600022D18 /* Build configuration list for PBXNativeTarget "CubbyholeTests" */;
+			buildPhases = (
+				66EE617C1925276600022D18 /* Sources */,
+				66EE617D1925276600022D18 /* Frameworks */,
+				66EE617E1925276600022D18 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				66EE61861925276600022D18 /* PBXTargetDependency */,
+			);
+			name = CubbyholeTests;
+			productName = CubbyholeTests;
+			productReference = 66EE61801925276600022D18 /* CubbyholeTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		66EE61511925276500022D18 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0510;
+				ORGANIZATIONNAME = "Cubbyhole Staff";
+				TargetAttributes = {
+					66EE617F1925276600022D18 = {
+						TestTargetID = 66EE61581925276500022D18;
+					};
+				};
+			};
+			buildConfigurationList = 66EE61541925276500022D18 /* Build configuration list for PBXProject "Cubbyhole" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 66EE61501925276500022D18;
+			productRefGroup = 66EE615A1925276500022D18 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				66EE61581925276500022D18 /* Cubbyhole */,
+				66EE617F1925276600022D18 /* CubbyholeTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		66EE61571925276500022D18 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				66EE61ED19264F8700022D18 /* delete.png in Resources */,
+				66EE61EF19264F8700022D18 /* file.png in Resources */,
+				66EE6198192527DD00022D18 /* logo.png in Resources */,
+				66EE617B1925276500022D18 /* Images.xcassets in Resources */,
+				66EE61DC1925418D00022D18 /* SVProgressHUD.bundle in Resources */,
+				66EE61A119252BE800022D18 /* logo.png in Resources */,
+				66EE61EE19264F8700022D18 /* download.png in Resources */,
+				66EE61F019264F8700022D18 /* folder.png in Resources */,
+				66EE61701925276500022D18 /* Main_iPhone.storyboard in Resources */,
+				66EE61AB19252D8000022D18 /* LoginViewController.xib in Resources */,
+				66EE61F219264F8700022D18 /* preview.png in Resources */,
+				66EE61671925276500022D18 /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		66EE617E1925276600022D18 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				66EE618C1925276600022D18 /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		66EE61551925276500022D18 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				66EE61C91925313500022D18 /* SBJsonStreamParserAccumulator.m in Sources */,
+				66EE616D1925276500022D18 /* AppDelegate.m in Sources */,
+				66EE61D01925313500022D18 /* SBJsonUTF8Stream.m in Sources */,
+				66EE61761925276500022D18 /* MasterViewController.m in Sources */,
+				66EE61AA19252D8000022D18 /* LoginViewController.m in Sources */,
+				66EE61DD1925418D00022D18 /* SVProgressHUD.m in Sources */,
+				66EE61691925276500022D18 /* main.m in Sources */,
+				66EE61C71925313500022D18 /* SBJsonParser.m in Sources */,
+				66EE61CC1925313500022D18 /* SBJsonStreamWriter.m in Sources */,
+				66EE61C81925313500022D18 /* SBJsonStreamParser.m in Sources */,
+				66EE61CE1925313500022D18 /* SBJsonStreamWriterState.m in Sources */,
+				66EE61CA1925313500022D18 /* SBJsonStreamParserAdapter.m in Sources */,
+				66EE61CD1925313500022D18 /* SBJsonStreamWriterAccumulator.m in Sources */,
+				66EE61D11925313500022D18 /* SBJsonWriter.m in Sources */,
+				66EE61CB1925313500022D18 /* SBJsonStreamParserState.m in Sources */,
+				66EE61791925276500022D18 /* DetailViewController.m in Sources */,
+				66EE61C61925313500022D18 /* NSObject+SBJson.m in Sources */,
+				66EE61CF1925313500022D18 /* SBJsonTokeniser.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		66EE617C1925276600022D18 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				66EE618E1925276600022D18 /* CubbyholeTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		66EE61861925276600022D18 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 66EE61581925276500022D18 /* Cubbyhole */;
+			targetProxy = 66EE61851925276600022D18 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		66EE61651925276500022D18 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				66EE61661925276500022D18 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		66EE616E1925276500022D18 /* Main_iPhone.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				66EE616F1925276500022D18 /* Base */,
+			);
+			name = Main_iPhone.storyboard;
+			sourceTree = "<group>";
+		};
+		66EE618A1925276600022D18 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				66EE618B1925276600022D18 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		66EE618F1925276600022D18 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		66EE61901925276600022D18 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		66EE61921925276600022D18 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Cubbyhole/Cubbyhole-Prefix.pch";
+				INFOPLIST_FILE = "Cubbyhole/Cubbyhole-Info.plist";
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = 1;
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		66EE61931925276600022D18 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Cubbyhole/Cubbyhole-Prefix.pch";
+				INFOPLIST_FILE = "Cubbyhole/Cubbyhole-Info.plist";
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = 1;
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+		66EE61951925276600022D18 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Cubbyhole.app/Cubbyhole";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Cubbyhole/Cubbyhole-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "CubbyholeTests/CubbyholeTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Debug;
+		};
+		66EE61961925276600022D18 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Cubbyhole.app/Cubbyhole";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Cubbyhole/Cubbyhole-Prefix.pch";
+				INFOPLIST_FILE = "CubbyholeTests/CubbyholeTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		66EE61541925276500022D18 /* Build configuration list for PBXProject "Cubbyhole" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				66EE618F1925276600022D18 /* Debug */,
+				66EE61901925276600022D18 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		66EE61911925276600022D18 /* Build configuration list for PBXNativeTarget "Cubbyhole" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				66EE61921925276600022D18 /* Debug */,
+				66EE61931925276600022D18 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		66EE61941925276600022D18 /* Build configuration list for PBXNativeTarget "CubbyholeTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				66EE61951925276600022D18 /* Debug */,
+				66EE61961925276600022D18 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 66EE61511925276500022D18 /* Project object */;
+}
