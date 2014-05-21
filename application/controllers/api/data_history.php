@@ -38,7 +38,6 @@ class Data_history extends REST_Controller {
 		}
 
 		$DataHistoryNew = new Entities\DataHistory;
-
 		$DataHistoryNew->setDate(new DateTime('now', new DateTimeZone('Europe/Berlin')))
 				->setIp($DataHistory_ip)
 				->setCountry($DataHistory_country)
