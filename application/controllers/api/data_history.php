@@ -37,39 +37,18 @@ class Data_history extends REST_Controller {
 			$this->response(array('error' => true, 'message' => 'File not found.'), 400);
 		}
 
-		$query = $this->doctrine->em->createQueryBuilder()
-					->add('select', 'p')
-					->add('from', 'Entities\DataHistory p')
-					->add('where', 'p.ip = :ip')
-					->setParameter('ip', $DataHistory_ip)
-					->getQuery();
+		$DataHistoryNew = new Entities\DataHistory;
 
-		$queryFile = $this->doctrine->em->createQueryBuilder()
-					->add('select', 'p')
-					->add('from', 'Entities\File p')
-					->add('where', 'p.file = :file')
-					->setParameter('file', $DataHistory_file)
-					->getQuery();
-
-		$resultFile = $queryFile->getArrayResult();
-		$result = $query->getArrayResult();
-		if (!empty($result)) {
-			$this->response(array('error' => true, 'message' => 'A data history  with that Ip  is already specified.'), 400);
-		else if (!empty($resultFile)) {
-			$this->response(array('error' => true, 'message' => 'A data history  with that File  is already specified.'), 400);
-		} else {
-			$DataHistoryNew = new Entities\DataHistory;
-
-			$DataHistoryNew->setDate(new DateTime('now', new DateTimeZone('Europe/Berlin')))
+		$DataHistoryNew->setDate(new DateTime('now', new DateTimeZone('Europe/Berlin')))
 				->setIp($DataHistory_ip)
 				->setCountry($DataHistory_country)
 				->setFile($DataHistory_file)
 
-			$this->doctrine->em->persist($DataHistoryNew);
-			$this->doctrine->em->flush();
+		$this->doctrine->em->persist($DataHistoryNew);
+		//$this->doctrine->em->flush();
 
-			$this->response(array('error' => false, 'message' => 'DataHistory successfully created.', 'DataHistory' => $DataHistoryNew), 201);
-		}
+		$this->response(array('error' => false, 'message' => 'DataHistory successfully created.', 'DataHistory' => $DataHistoryNew), 201);
+	
 	}
 
 	// @UPDATE
@@ -101,7 +80,7 @@ class Data_history extends REST_Controller {
 				$this->doctrine->em->createQueryBuilder()
 					->update('Entities\DataHistory', 'p')
 					->set('p.is_default', '0')
-					->where('p.is_default = :default')
+					->add('where' ,'p.is_default = :default')
 					->setParameter('default', '1')
 					->getQuery()
 					->execute();
@@ -151,12 +130,18 @@ class Data_history extends REST_Controller {
 
 
 	//RETRIEVE ALL IP WHOM DOWNLOADED A SPECIFIC FILE
-	public function  stat_ip($StatIpFile)
+	public function  stat_ip($StatIpFile, $dateBegin = null, $dateEnd = null)
 	{
 		$query = $this->doctrine->em->createQueryBuilder()
 					->add('select', 'p.ip')
 					->add('from', 'Entities\DataHistory p')
-					->add('where', 'p.file = :file')
+					->add('where', 'p.file = :file');
+					if($dateBegin && $dateEnd)
+					{
+						 $query->add('where', 'p.date BETWEEN :dateBegin AND :dateEnd')
+					    ->setParameter('dateBegin', new DateTime($dateBegin, new DateTimeZone('Europe/Berlin')))
+					    ->setParameter('dateEnd', new DateTime($dateEnd, new DateTimeZone('Europe/Berlin')));
+					}					
 					->setParameter('file', $StatIpFile)
 					->getQuery();
 
@@ -169,16 +154,16 @@ class Data_history extends REST_Controller {
 			$this->response(array('error' => false, 'data ' => $data), 200);
 	}
 
-	//RETRIEVE ALL FILES DOWNLOADED BEETWEEN TWO DATES
-	public function  stat_file($dateOne, $dateTwo)
+	//RETRIEVE ALL FILES DOWNLOADED BEETWEEN TWO DATES 
+	public function  stat_file($dateBegin, $dateEnd)
 	{
 		$query = $this->doctrine->em->createQueryBuilder()
 					->add('select', 'p.file')
 					->add('from', 'Entities\DataHistory p')
 					->add('where', 'p.date = :date')
-					>where('p.date BETWEEN :dateOne AND :dateTwo')
-				   ->setParameter('dateOne', new DateTime($dateOne, new DateTimeZone('Europe/Berlin')))
-				   ->setParameter('dateTwo', new DateTime($dateTwo, new DateTimeZone('Europe/Berlin')))
+					->where('p.date BETWEEN :dateBegin AND :dateEnd')
+				    ->setParameter('dateBegin', new DateTime($dateBegin, new DateTimeZone('Europe/Berlin')))
+				    ->setParameter('dateEnd', new DateTime($dateEnd, new DateTimeZone('Europe/Berlin')))		
 					->getQuery();
 
 		$result = $query->getArrayResult();
@@ -191,15 +176,22 @@ class Data_history extends REST_Controller {
 	}
 
 	//RETRIEVE ALL DATA HISTORY BY COUNTRY CODE
-	public function stat_DataHistory($countryCode)
+	public function stat_DataHistory($countryCode, $dateBegin = null, $dateEnd = null)
 	{
 
 	$query = $this->doctrine->em->createQueryBuilder()
 					->add('select', 'p')
 					->add('from', 'Entities\DataHistory p')
-					->add('where', 'p.country = :country')
-					->setParameter('country', $countryCode)
+					->add('where', 'p.country = :country');
+					if($dateBegin && $dateEnd)
+					{
+						 $query->add('where', 'p.date BETWEEN :dateBegin AND :dateEnd')
+					    ->setParameter('dateBegin', new DateTime($dateBegin, new DateTimeZone('Europe/Berlin')))
+					    ->setParameter('dateEnd', new DateTime($dateEnd, new DateTimeZone('Europe/Berlin')));
+					}
+					$query->setParameter('country', $countryCode)
 					->getQuery();
+
 	$result = $query->getArrayResult();
 	$data = new StdClass();
 	$data->DataHistory = $result;
@@ -209,6 +201,65 @@ class Data_history extends REST_Controller {
 		$this->response(array('error' => false, 'data ' => $data), 200);
 
 	}
+
+	//RETRIEVE MOST DOWNLOAD FILE EVERYWHERE
+	public function stat_mostDownloadFile($dateBegin = null, $dateEnd = null)
+	{
+		$query = $this->doctrine->em->createQueryBuilder()
+			->select('count(dh.file)')
+			->from('Entities\DataHistory', 'dh')
+			->add('where', 'dh.is_active = :active');
+			if($dateBegin && $dateEnd)
+			{
+				 $query->add('where', 'p.date BETWEEN :dateBegin AND :dateEnd')
+			    ->setParameter('dateBegin', new DateTime($dateBegin, new DateTimeZone('Europe/Berlin')))
+			    ->setParameter('dateEnd', new DateTime($dateEnd, new DateTimeZone('Europe/Berlin')));
+			}
+			->groupBy('dh.file')
+			->orderBy( 'dh.file DESC')
+			->setParameter('active', '1')
+			->getQuery();
+
+		$result = $query->getArrayResult();
+		$data = new StdClass();
+		$data->file = $result;
+		if (empty($result)) 
+			$this->response(array('error' => true, 'data' => $data), 400);
+		else 
+			$this->response(array('error' => false, 'data ' => $data), 200);
+	}
+
+
+	//RETRIEVE MOST DOWNLOAD FILE BY COUNTRY
+	public function stat_mostDownloadFileByCountry($countryCode, $dateBegin = null, $dateEnd = null)
+	{
+		$query = $this->doctrine->em->createQueryBuilder()
+			->select('count(dh.file)')
+			->from('Entities\DataHistory', 'dh')
+			->add('where', 'dh.is_active = :active AND dh.country =:country');
+			if($dateBegin && $dateEnd)
+			{
+				 $query->add('where', 'p.date BETWEEN :dateBegin AND :dateEnd')
+			    ->setParameter('dateBegin', new DateTime($dateBegin, new DateTimeZone('Europe/Berlin')))
+			    ->setParameter('dateEnd', new DateTime($dateEnd, new DateTimeZone('Europe/Berlin')));
+			}
+			->groupBy('dh.file')
+			->orderBy( 'dh.file DESC')
+			->setParameter('country', $countryCode)
+			->setParameter('active', '1')
+			->getQuery();
+
+		$result = $query->getArrayResult();
+		$data = new StdClass();
+		$data->file = $result;
+		if (empty($result)) 
+			$this->response(array('error' => true, 'data' => $data), 400);
+		else 
+			$this->response(array('error' => false, 'data ' => $data), 200);
+	}
+
+
+
 
 
 }

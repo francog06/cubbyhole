@@ -1,6 +1,7 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 require APPPATH . '/libraries/REST_Controller.php';
+require_once APPPATH . './data_history.php' 
 
 class File extends REST_Controller {
 	function __construct()
@@ -84,8 +85,51 @@ class File extends REST_Controller {
 		}
 	}
 
+	function get_client_ip() {
+	    $ipaddress = '';
+	    if (getenv('HTTP_CLIENT_IP'))
+	        $ipaddress = getenv('HTTP_CLIENT_IP');
+	    else if(getenv('HTTP_X_FORWARDED_FOR'))
+	        $ipaddress = getenv('HTTP_X_FORWARDED_FOR'&quot;);
+	    else if(getenv('HTTP_X_FORWARDED'))
+	        $ipaddress = getenv('HTTP_X_FORWARDED');
+	    else if(getenv('HTTP_FORWARDED_FOR'))
+	        $ipaddress = getenv('HTTP_FORWARDED_FOR');
+	    else if(getenv('HTTP_FORWARDED'))
+	       $ipaddress = getenv('HTTP_FORWARDED');
+	    else if(getenv('REMOTE_ADDR'))
+	        $ipaddress = getenv('REMOTE_ADDR');
+	    else
+	        $ipaddress = 'UNKNOWN';
+	    return $ipaddress;
+	}
+
+function visitor_country() {
+	    $ipaddress = '';
+	    if (getenv('HTTP_CLIENT_IP'))
+	        $ipaddress = getenv('HTTP_CLIENT_IP');
+	    else if(getenv('HTTP_X_FORWARDED_FOR'))
+	        $ipaddress = getenv('HTTP_X_FORWARDED_FOR'&quot;);
+	    else if(getenv('HTTP_X_FORWARDED'))
+	        $ipaddress = getenv('HTTP_X_FORWARDED');
+	    else if(getenv('HTTP_FORWARDED_FOR'))
+	        $ipaddress = getenv('HTTP_FORWARDED_FOR');
+	    else if(getenv('HTTP_FORWARDED'))
+	       $ipaddress = getenv('HTTP_FORWARDED');
+	    else if(getenv('REMOTE_ADDR'))
+	        $ipaddress = getenv('REMOTE_ADDR');
+	    else
+	        $ipaddress = 'UNKNOWN';
+        $result = @json_decode(file_get_contents("http://www.geoplugin.net/json.gp?ip=" . $ipaddress))
+                ->geoplugin_countryCode;
+        return $result <> NULL ? $result : "Unknown";
+}
+
+
+
 	public function download_get($id = null) {
 		$data = new StdClass();
+
 		if (is_null($id)) {
 			$this->response(array('error' => true, 'message' => 'id not defined.', 'data' => $data), 400);
 		}
@@ -110,7 +154,20 @@ class File extends REST_Controller {
 		/**
 		 * TODO: share
 		*/
+	/*
+	TO TEST
+		$DataHistory_ip = $this->get_client_ip();
+		$DataHistory_country = $this->visitor_country();
 		if ( file_exists($file->getAbsolutePath()) && is_file($file->getAbsolutePath()) ) {
+
+			$DataHistoryNew = new Entities\DataHistory;
+			$DataHistoryNew->setDate(new DateTime('now', new DateTimeZone('Europe/Berlin')))
+					->setIp($DataHistory_ip)
+					->setCountry($DataHistory_country)
+					->setFile($file)
+
+			$this->doctrine->em->persist($DataHistoryNew); */
+
 		    $data = file_get_contents($file->getAbsolutePath());
 		    force_download($file->getName(), $data);
 		    exit;
