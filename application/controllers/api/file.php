@@ -250,6 +250,10 @@ class File extends REST_Controller {
 			}
 		}
 
+		if ( ($name = $this->post('name')) !== false ) {
+			$file->setName($name);
+		}
+
 		// Verify is the file is not too big for the plan
 		if (isset($_FILES['file'])) {
 			$fileSize = $_FILES['file']['size']; // Valeur octale
