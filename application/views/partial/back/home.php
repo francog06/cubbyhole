@@ -28,21 +28,22 @@
         $percent_used = 100*(($space_used)/$total_storage);
     ?>
     <style type="text/css">
-    /*.progress span {
+    .progress span {
         font-size: 12px;
         line-height: 20px;
         text-align: center;
         position: absolute;
         width: 100%;
         left: 0;
-    }*/
+    }
     </style>
     <div style="text-align:right;">
         <span class="glyphicon glyphicon-hdd" style="color:#39b3d7;top:-2px;margin-right:4px;"></span>
         <div class="progress space" style="width:200px;display:inline-block;margin:0;position:relative"  data-toggle="tooltip" data-placement="top" title="Espace : <?= $space_used; ?> / <?= $total_storage; ?> Mo utilisés (<?= intval($percent_free); ?>% libres)">
           <div class="progress-bar" role="progressbar" aria-valuenow="<?= intval($space_used); ?>" aria-valuemin="0" aria-valuemax="100" style="width: <?= intval($percent_used); ?>%;">
-            <?= $total_storage-$space_used; ?> Mo libres (<?= intval($percent_free); ?>%)
+            
           </div>
+          <span><?= $total_storage-$space_used; ?> Mo libres (<?= intval($percent_free); ?>%)</span>
         </div>
         &nbsp; 
         <a style="vertical-align:top;">Plus d'espace ?</a>
@@ -144,11 +145,6 @@
     $(document).ready(function(){    
         getRoot();
         // Hover actions tableau
-        $(".table tbody tr").hover(function(){
-            $(this).find('td > div').css("display","inline-block");
-        },function(){
-            $(this).find('td > div').css("display","none");
-        });
         $.bootstrapSortable();
         $("#refresh").click(function(){
             if($(".breadcrumb a:last-child").attr("data-id") == undefined){
@@ -163,7 +159,7 @@
                 url: '/api/folder/add',
                 type: 'POST',
                 headers:{
-                    "X-API-KEY":"5422e102a743fd70a22ee4ff7c2ebbe8"
+                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
                 },
                 data:{folder_id:$("#folder_id").val(),user_id:user_id,name:$("#folder_name").val()},
                 success: function(result) {
@@ -194,7 +190,7 @@
     // enable draggables to be dropped into this
     .dropzone(true)
     // only accept elements matching this CSS selector
-    .accept('.file, .folder')
+    .accept('.file .drag, .folder .drag')
     // listen for drop related events
     .on('dragenter', function (event) {
         var draggableElement = event.relatedTarget,
@@ -213,12 +209,12 @@
         //event.relatedTarget.textContent = 'Dropped';
         event.target.classList.remove('drop-target');
         //alert($(event.relatedTarget).attr("data-id"));
-        if($(event.relatedTarget).attr("class") == "file"){
+        if($(event.relatedTarget).parent().attr("class") == "file"){
             $.ajax({
-                url: '/api/file/update/'+$(event.relatedTarget).attr("data-id"),
+                url: '/api/file/update/'+$(event.relatedTarget).parent().attr("data-id"),
                 type: 'POST',
                 headers:{
-                    "X-API-KEY":"5422e102a743fd70a22ee4ff7c2ebbe8"
+                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
                 },
                 data:{folder_id:$(event.target).attr("data-id")},
                 success: function(result) {
@@ -234,12 +230,12 @@
                 }
             });
         }
-        else if($(event.relatedTarget).attr("class") == "folder"){
+        else if($(event.relatedTarget).parent().attr("class") == "folder"){
             $.ajax({
-                url: '/api/folder/update/'+$(event.relatedTarget).attr("data-id"),
+                url: '/api/folder/update/'+$(event.relatedTarget).parent().attr("data-id"),
                 type: 'PUT',
                 headers:{
-                    "X-API-KEY":"5422e102a743fd70a22ee4ff7c2ebbe8"
+                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
                 },
                 data:{folder_id:$(event.target).attr("data-id")},
                 success: function(result) {
@@ -263,7 +259,7 @@ interact('.parentFolder')
     // enable draggables to be dropped into this
     .dropzone(true)
     // only accept elements matching this CSS selector
-    .accept('.file, .folder')
+    .accept('.file .drag, .folder .drag')
     // listen for drop related events
     .on('dragenter', function (event) {
         var draggableElement = event.relatedTarget,
@@ -282,12 +278,12 @@ interact('.parentFolder')
         //event.relatedTarget.textContent = 'Dropped';
         event.target.classList.remove('drop-target');
         //alert($(event.relatedTarget).attr("data-id"));
-        if($(event.relatedTarget).attr("class") == "file"){
+        if($(event.relatedTarget).parent().attr("class") == "file"){
             $.ajax({
-                url: '/api/file/update/'+$(event.relatedTarget).attr("data-id"),
+                url: '/api/file/update/'+$(event.relatedTarget).parent().attr("data-id"),
                 type: 'POST',
                 headers:{
-                    "X-API-KEY":"5422e102a743fd70a22ee4ff7c2ebbe8"
+                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
                 },
                 data:{folder_id:$(event.target).attr("data-id")},
                 success: function(result) {
@@ -303,12 +299,12 @@ interact('.parentFolder')
                 }
             });
         }
-        else if($(event.relatedTarget).attr("class") == "folder"){
+        else if($(event.relatedTarget).parent().attr("class") == "folder"){
             $.ajax({
-                url: '/api/folder/update/'+$(event.relatedTarget).attr("data-id"),
+                url: '/api/folder/update/'+$(event.relatedTarget).parent().attr("data-id"),
                 type: 'PUT',
                 headers:{
-                    "X-API-KEY":"5422e102a743fd70a22ee4ff7c2ebbe8"
+                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
                 },
                 data:{folder_id:$(event.target).attr("data-id")},
                 success: function(result) {
@@ -329,7 +325,7 @@ interact('.parentFolder')
     });
 
 
-    interact('.file')
+    interact('.file .drag')
     .draggable({
         onmove: function (event) {
             var target = event.target;
@@ -342,10 +338,9 @@ interact('.parentFolder')
             target.style.webkitTransform = target.style.transform = 'translate( 0px, 0px)';
         }
     })
-    .inertia(true)
-    .restrict({ drag: 'parent' });
+    .inertia(true);
 
-    interact('.folder')
+    interact('.folder .drag')
     .draggable({
         onmove: function (event) {
             var target = event.target;
@@ -358,8 +353,7 @@ interact('.parentFolder')
             target.style.webkitTransform = target.style.transform = 'translate( 0px, 0px)';
         }
     })
-    .inertia(true)
-    .restrict({ drag: 'parent' });
+    .inertia(true);
 
 
 
@@ -479,7 +473,7 @@ interact('.parentFolder')
             cache: false,
             data: formData,
             headers:{
-                "X-API-KEY":"5422e102a743fd70a22ee4ff7c2ebbe8"
+                "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
             },
             success: function(data){
                 status.setProgress(100);
@@ -495,7 +489,23 @@ interact('.parentFolder')
      
         status.setAbort(jqXHR);
 }
-
+function getFile(id){
+    if(id > 0){
+        $.ajax({
+            url: '/api/file/details/'+id,
+            type: 'GET',
+            headers:{
+                "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+            },
+            success: function(result) { 
+                window.location.href = result.data.file.absolute_path;
+            },
+            error: function(result){
+                alert("problem with your file demand");
+            }
+        });
+    }
+}
 function getRoot(){
     $('#folder_id').val("");
     $('#loadingModal').modal("show");
@@ -503,7 +513,7 @@ function getRoot(){
             url: '/api/folder/user/'+user_id+'/root',
             type: 'GET',
             headers:{
-                "X-API-KEY":"5422e102a743fd70a22ee4ff7c2ebbe8"
+                "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
             },
             success: function(result) {
                 $("#cubbyhole tbody").html("");
@@ -521,9 +531,9 @@ function getRoot(){
                             }
                             $("#cubbyhole tbody").append('\
                                 <tr class="folder" data-id="'+result.data.folders[loop_folder].id+'">\
-                                    <td><a href="javascript:getFolder('+result.data.folders[loop_folder].id+')"><span class="sprite '+sprite+'"></span>'+result.data.folders[loop_folder].name+'</a></td>\
-                                    <td>'+type+'</td>\
-                                    <td>'+result.data.folders[loop_folder].last_update_date.date+'</td>\
+                                    <td class="drag"><a href="javascript:getFolder('+result.data.folders[loop_folder].id+')"><span class="sprite '+sprite+'"></span>'+result.data.folders[loop_folder].name+'</a></td>\
+                                    <td class="drag">'+type+'</td>\
+                                    <td class="drag">'+result.data.folders[loop_folder].last_update_date.date+'</td>\
                                     <td style="width:175px;"><div style="display:none">\
                                         <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..."><span class="glyphicon glyphicon-pencil"></span>&nbsp; Editer</button> \
                                          &nbsp; \
@@ -534,20 +544,44 @@ function getRoot(){
                         }
                     }
                     for(var loop_file in result.data.files){
-                        if(result.data.files[loop_file].share == null){
-                                sprite = "file";
-                                type = "Fichier";
+                        var extension = result.data.files[loop_file].absolute_path;
+                        extension = extension.substr((~-extension.lastIndexOf(".") >>> 0) + 2);
+                        var sprite;
+                        switch(extension.toLowerCase()){
+                            case "csv": 
+                            case "xls": 
+                            case "xlsx": sprite = "excel"; type = "Classeur";
+                            break;
+                            case "png": 
+                            case "jpg": 
+                            case "gif": 
+                            case "psd": 
+                            case "jpeg": sprite = "picture"; type = "Image";
+                            break;
+                            case "ppt": 
+                            case "pptx": sprite = "powerpoint"; type = "Présentation";
+                            break;
+                            case "pdf": sprite = "pdf"; type = "PDF";
+                            break;
+                            case "doc":
+                            case "docx": sprite = "word"; type = "Document";
+                            break;
+                            case "zip":
+                            case "rar":
+                            case "tar":
+                            case "gzip": sprite = "zip"; type = "Archive";
+                            break;
+                            default: sprite = "file"; type = "Fichier";
+                            break;
                         }
-                        else{
-                            sprite = "filePartage";
-                            type = "Fichier Partagé";
-                        }
+                        result.data.files[loop_file].share != null?type += " Partagé":"";
+                        
                         if(result.data.files.hasOwnProperty(loop_file)){
                             $("#cubbyhole tbody").append('\
                                 <tr class="file" data-id="'+result.data.files[loop_file].id+'">\
-                                    <td><span class="sprite '+sprite+'"></span>'+result.data.files[loop_file].name+'</td>\
-                                    <td>'+type+'</td>\
-                                    <td>'+result.data.files[loop_file].last_update_date.date+'</td>\
+                                    <td class="drag"><a href="javascript:getFile('+result.data.files[loop_file].id+')"><span class="fileSprite '+sprite+'"></span>'+result.data.files[loop_file].name+'</a></td>\
+                                    <td class="drag">'+type+'</td>\
+                                    <td class="drag">'+result.data.files[loop_file].last_update_date.date+'</td>\
                                     <td style="width:175px;"><div style="display:none">\
                                         <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..."><span class="glyphicon glyphicon-pencil"></span>&nbsp; Editer</button> \
                                          &nbsp; \
@@ -564,6 +598,45 @@ function getRoot(){
                     $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">'+result["message"]+'</p>');
                     $('#loadingModal').modal("hide");
                 }
+                $("#cubbyhole tbody tr").hover(function(){
+                    $(this).find('td > div').css("display","inline-block");
+                },function(){
+                    $(this).find('td > div').css("display","none");
+                });
+$(document).ready(function(){
+    var rid;
+    $("button.supprimer").click(function(){
+            if($(this).parent().parent().parent().hasClass("file")){
+                rid = $(this).parent().parent().parent().attr('data-id');
+                var method = "file";
+            }
+            else if($(this).parent().parent().parent().hasClass("folder")){
+                rid = $(this).parent().parent().parent().attr('data-id');
+                var method = "folder";
+            }
+
+            $.ajax({
+                url: '/api/'+method+'/remove/'+rid,
+                type: 'DELETE',
+                headers:{
+                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+                },
+                success: function(result) {
+                    if(result.error == false){
+                        $("div.result").append('<p class="bg-success" style="padding: 5px 0px;">'+result["message"]+'</p>');
+                        $("tr[data-id='"+rid+"']").remove();
+                    }
+                    else{
+                        $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">'+result["message"]+'</p>');
+                    }
+                },
+                error: function(result) {
+                        $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">Erreur lors du delete.</p>');
+                }
+            });
+    });
+});
+
             },
             error: function(result) {
                 $(".panel").fadeOut();
@@ -580,7 +653,7 @@ function getFolder(id){
             url: '/api/folder/details/'+id,
             type: 'GET',
             headers:{
-                "X-API-KEY":"5422e102a743fd70a22ee4ff7c2ebbe8"
+                "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
             },
             success: function(result) {
                 $("#cubbyhole tbody").html("");
@@ -603,7 +676,7 @@ function getFolder(id){
                         parent_id = $(parent).attr("data-id");
                     }
                     $("#cubbyhole tbody").append('\
-                        <tr class="parentFolder" data-id="'+$(parent).attr("data-id")+'">\
+                        <tr class="parentFolder" data-id="null">\
                             <td><a href="javascript:'+funct+'('+parent_id+')"><span class="glyphicon glyphicon-backward"></span> &nbsp; ...</a></td>\
                             <td data-value="a">Dossier Parent</td>\
                             <td data-value="0">--</td>\
@@ -622,9 +695,9 @@ function getFolder(id){
                             }
                             $("#cubbyhole tbody").append('\
                                 <tr class="folder" data-id="'+result.data.folder.folders[loop_folder].id+'">\
-                                    <td><a href="javascript:getFolder('+result.data.folder.folders[loop_folder].id+')"><span class="sprite '+sprite+'"></span>'+result.data.folder.folders[loop_folder].name+'</a></td>\
-                                    <td>'+type+'</td>\
-                                    <td>'+result.data.folder.folders[loop_folder].last_update_date.date+'</td>\
+                                    <td class="drag"><a href="javascript:getFolder('+result.data.folder.folders[loop_folder].id+')"><span class="sprite '+sprite+'"></span>'+result.data.folder.folders[loop_folder].name+'</a></td>\
+                                    <td class="drag">'+type+'</td>\
+                                    <td class="drag">'+result.data.folder.folders[loop_folder].last_update_date.date+'</td>\
                                     <td style="width:175px;"><div style="display:none">\
                                         <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..."><span class="glyphicon glyphicon-pencil"></span>&nbsp; Editer</button> \
                                          &nbsp; \
@@ -635,20 +708,43 @@ function getFolder(id){
                         }
                     }
                     for(var loop_file in result.data.folder.files){
-                        if(result.data.folder.files[loop_file].share == null){
-                                sprite = "file";
-                                type = "Fichier";
+                        var extension = result.data.folder.files[loop_file].absolute_path;
+                        extension = extension.substr((~-extension.lastIndexOf(".") >>> 0) + 2);
+                        var sprite;
+                        switch(extension.toLowerCase()){
+                            case "csv": 
+                            case "xls": 
+                            case "xlsx": sprite = "excel"; type = "Classeur";
+                            break;
+                            case "png": 
+                            case "jpg": 
+                            case "gif": 
+                            case "psd": 
+                            case "jpeg": sprite = "picture"; type = "Image";
+                            break;
+                            case "ppt": 
+                            case "pptx": sprite = "powerpoint"; type = "Présentation";
+                            break;
+                            case "pdf": sprite = "pdf"; type = "PDF";
+                            break;
+                            case "doc":
+                            case "docx": sprite = "word"; type = "Document";
+                            break;
+                            case "zip":
+                            case "rar":
+                            case "tar":
+                            case "gzip": sprite = "zip"; type = "Archive";
+                            break;
+                            default: sprite = "file"; type = "Fichier";
+                            break;
                         }
-                        else{
-                            sprite = "filePartage";
-                            type = "Fichier Partagé";
-                        }
+                        result.data.folder.files[loop_file].share != null?type += " Partagé":"";
                         if(result.data.folder.files.hasOwnProperty(loop_file)){
                             $("#cubbyhole tbody").append('\
                                 <tr class="file" data-id="'+result.data.folder.files[loop_file].id+'">\
-                                    <td><span class="sprite '+sprite+'"></span>'+result.data.folder.files[loop_file].name+'</td>\
-                                    <td>'+type+'</td>\
-                                    <td>'+result.data.folder.files[loop_file].last_update_date.date+'</td>\
+                                    <td class="drag"><a href="javascript:getFile('+result.data.folder.files[loop_file].id+')"><span class="fileSprite '+sprite+'"></span>'+result.data.folder.files[loop_file].name+'</a></td>\
+                                    <td class="drag">'+type+'</td>\
+                                    <td class="drag">'+result.data.folder.files[loop_file].last_update_date.date+'</td>\
                                     <td style="width:175px;"><div style="display:none">\
                                         <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..."><span class="glyphicon glyphicon-pencil"></span>&nbsp; Editer</button> \
                                          &nbsp; \
@@ -665,6 +761,45 @@ function getFolder(id){
                     $('#loadingModal').modal("hide");
                     $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">'+result["message"]+'</p>');
                 }
+                $("#cubbyhole tbody tr").hover(function(){
+                    $(this).find('td > div').css("display","inline-block");
+                },function(){
+                    $(this).find('td > div').css("display","none");
+                });
+$(document).ready(function(){
+    var rid;
+    $("button.supprimer").click(function(){
+            if($(this).parent().parent().parent().hasClass("file")){
+                rid = $(this).parent().parent().parent().attr('data-id');
+                var method = "file";
+            }
+            else if($(this).parent().parent().parent().hasClass("folder")){
+                rid = $(this).parent().parent().parent().attr('data-id');
+                var method = "folder";
+            }
+
+            $.ajax({
+                url: '/api/'+method+'/remove/'+rid,
+                type: 'DELETE',
+                headers:{
+                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+                },
+                success: function(result) {
+                    if(result.error == false){
+                        $("div.result").append('<p class="bg-success" style="padding: 5px 0px;">'+result["message"]+'</p>');
+                        $("tr[data-id='"+rid+"']").remove();
+                    }
+                    else{
+                        $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">'+result["message"]+'</p>');
+                    }
+                },
+                error: function(result) {
+                        $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">Erreur lors du delete.</p>');
+                }
+            });
+    });
+});
+
             },
             error: function(result) {
                 $(".panel").fadeOut();
