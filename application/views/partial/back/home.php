@@ -78,14 +78,14 @@
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
         <h4 class="modal-title">Nouveau fichier</h4>
       </div>
-      <form class="form-horizontal" role="form" method="post" id="formEditUser">
+      <form class="form-horizontal" role="form" method="post" id="formNewFile" enctype="multipart/form-data">
         <input type="hidden" id="user_id" name="user_id" value="" />
         <input type="hidden" id="folder_id" name="folder_id" value="" />
           <div class="modal-body">
               <div class="form-group">
                 <label for="user_email" class="col-sm-5 control-label">Sélectionner le fichier</label>
                 <div class="col-sm-4">
-                  <input type="file" class="form-control" id="file_name" name='file_name' />
+                  <input type="file" class="form-control" id="file_name" name='file' />
                 </div>
                 <br />
                 <h2>Ou</h2>
@@ -95,7 +95,7 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
-            <button type="submit" class="btn btn-primary" id="submitEditUser" data-loading-text="Loading...">Enregistrer</button>
+            <button type="submit" class="btn btn-primary" id="submitNewFile" data-loading-text="Loading...">Enregistrer</button>
           </div>
       </form>
     </div><!-- /.modal-content -->
@@ -110,7 +110,7 @@
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
         <h4 class="modal-title">Nouveau Dossier</h4>
       </div>
-      <form class="form-horizontal" role="form" method="post" id="formEditUser">
+      <form class="form-horizontal" role="form" method="post" id="formNewFolder">
           <div class="modal-body">
               <div class="form-group">
                 <label for="user_email" class="col-sm-5 control-label">Nom du dossier </label>
@@ -153,6 +153,45 @@
                 getFolder($(".breadcrumb a:last-child").attr("data-id"));
             }
         });
+
+        $("#formNewFile").submit(function(e){
+            e.preventDefault();
+            var formData = new FormData();
+             var user_id = <?= $user->getId(); ?>;
+            formData.append('file',document.getElementById('file_name').files[0]);
+            formData.append('user_id', user_id);
+            formData.append('folder_id', $("#folder_id").val());
+            $.ajax({
+                url: "/api/file/add",
+                type: "POST",
+                contentType:false,
+                processData: false,
+                cache: false,
+                data: formData,
+                headers:{
+                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+                },
+                success: function(result) {
+                    if(result.error == false){
+                       $('#newFileModal').modal("hide");
+                       $("div.result").append('<div class="alert alert-success fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                       if($(".breadcrumb a:last-child").attr("data-id") == undefined)
+                            getRoot();
+                        else
+                            getFolder($(".breadcrumb a:last-child").attr("data-id"));
+                    }
+                    else{
+                        $("div.result").append('<div class="alert alert-warning fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                        $('#newFolderModal').modal("hide");
+                    }
+                },
+                error: function(result) {
+                    $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">Erreur lors de la transaction.</p>');
+                    $('#newFileModal').modal("hide");
+                }
+            });
+        });
+
         $("#submitNewFolder").click(function(e){
             e.preventDefault();
             $.ajax({
@@ -165,10 +204,14 @@
                 success: function(result) {
                     if(result.error == false){
                        $('#newFolderModal').modal("hide");
-                       $("div.result").append('<p class="bg-success" style="padding: 5px 0px;">'+result["message"]+'</p>');
+                       $("div.result").append('<div class="alert alert-success fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                       if($(".breadcrumb a:last-child").attr("data-id") == undefined)
+                            getRoot();
+                        else
+                            getFolder($(".breadcrumb a:last-child").attr("data-id"));
                     }
                     else{
-                        $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">'+result["message"]+'</p>');
+                        $("div.result").append('<div class="alert alert-warning fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
                         $('#newFolderModal').modal("hide");
                     }
                 },
@@ -532,7 +575,7 @@ function getRoot(){
                             $("#cubbyhole tbody").append('\
                                 <tr class="folder" data-id="'+result.data.folders[loop_folder].id+'">\
                                     <td class="drag"><a href="javascript:getFolder('+result.data.folders[loop_folder].id+')"><span class="sprite '+sprite+'"></span>'+result.data.folders[loop_folder].name+'</a></td>\
-                                    <td class="drag">'+type+'</td>\
+                                    <td class="drag" data-value="a'+type+'">'+type+'</td>\
                                     <td class="drag">'+result.data.folders[loop_folder].last_update_date.date+'</td>\
                                     <td style="width:175px;"><div style="display:none">\
                                         <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..."><span class="glyphicon glyphicon-pencil"></span>&nbsp; Editer</button> \
@@ -595,7 +638,7 @@ function getRoot(){
                     $.bootstrapSortable();
                 }
                 else{
-                    $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">'+result["message"]+'</p>');
+                    $("div.result").append('<div class="alert alert-warning fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
                     $('#loadingModal').modal("hide");
                 }
                 $("#cubbyhole tbody tr").hover(function(){
@@ -623,11 +666,11 @@ $(document).ready(function(){
                 },
                 success: function(result) {
                     if(result.error == false){
-                        $("div.result").append('<p class="bg-success" style="padding: 5px 0px;">'+result["message"]+'</p>');
+                        $("div.result").append('<div class="alert alert-success fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
                         $("tr[data-id='"+rid+"']").remove();
                     }
                     else{
-                        $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">'+result["message"]+'</p>');
+                        $("div.result").append('<div class="alert alert-warning fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
                     }
                 },
                 error: function(result) {
@@ -759,7 +802,7 @@ function getFolder(id){
                 }
                 else{
                     $('#loadingModal').modal("hide");
-                    $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">'+result["message"]+'</p>');
+                    $("div.result").append('<div class="alert alert-warning fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
                 }
                 $("#cubbyhole tbody tr").hover(function(){
                     $(this).find('td > div').css("display","inline-block");
@@ -786,11 +829,11 @@ $(document).ready(function(){
                 },
                 success: function(result) {
                     if(result.error == false){
-                        $("div.result").append('<p class="bg-success" style="padding: 5px 0px;">'+result["message"]+'</p>');
+                        $("div.result").append('<div class="alert alert-success fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
                         $("tr[data-id='"+rid+"']").remove();
                     }
                     else{
-                        $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">'+result["message"]+'</p>');
+                        $("div.result").append('<div class="alert alert-warning fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
                     }
                 },
                 error: function(result) {
