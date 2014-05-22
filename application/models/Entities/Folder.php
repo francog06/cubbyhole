@@ -345,9 +345,11 @@ class Folder implements \JsonSerializable
                 $ci =& get_instance();
                 if (is_null($this->parent) || ($ci->uri->segment(2) == "folder" && $ci->uri->segment(3) == "details" && $ci->uri->segment(4) == $this->id) ) {
                     $collectionJson = array();
-                    foreach ($value->getKeys() as $collectionKey) {
-                        $collectionJson[] = $value->current();
-                        $value->next();
+                    if (!is_null($value)) {
+                        foreach ($value->getKeys() as $collectionKey) {
+                            $collectionJson[] = $value->current();
+                            $value->next();
+                        }
                     }
                     $json[$key] = $collectionJson;
                 }
