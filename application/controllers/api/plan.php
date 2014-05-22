@@ -21,7 +21,7 @@ class Plan extends REST_Controller {
 					->add('from', 'Entities\Plan p')
 					->getQuery();
 		$result = $query->getArrayResult();
-		$data->plans = $data;
+		$data->plans = $result;
 		$this->response(array('error' => false, 'data' => $data), 200);
 	}
 

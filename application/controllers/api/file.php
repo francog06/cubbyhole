@@ -33,7 +33,7 @@ class File extends REST_Controller {
 
 		$file = $this->doctrine->em->find('Entities\File', (int)$id);
 		if (is_null($file)) {
-			show_404();
+			$this->response(array('error' => true, 'message' => 'file not found', 'data' => $data), 404);
 		}
 
 		if ( file_exists($file->getAbsolutePath()) && is_file($file->getAbsolutePath()) ) {
@@ -55,7 +55,7 @@ class File extends REST_Controller {
 				$this->response(array('error' => true, 'message' => 'No preview available.', 'data' => $data), 400);
 		}
 		else {
-			show_404();
+			$this->response(array('error' => true, 'message' => 'file not found (hard drive)', 'data' => $data), 404);
 		}
 	}
 
@@ -72,7 +72,7 @@ class File extends REST_Controller {
 
 		$file = $this->doctrine->em->find('Entities\File', (int)$id);
 		if (is_null($file)) {
-			show_404();
+			$this->response(array('error' => true, 'message' => 'file not found', 'data' => $data), 404);
 		}
 
 		if ( file_exists($file->getAbsolutePath()) && is_file($file->getAbsolutePath()) ) {
@@ -80,7 +80,7 @@ class File extends REST_Controller {
 		    force_download($file->getName(), $data);
 		}
 		else {
-			show_404();
+			$this->response(array('error' => true, 'message' => 'file not found (hard drive)', 'data' => $data), 404);
 		}
 	}
 
@@ -128,7 +128,7 @@ class File extends REST_Controller {
 
 		$file = $this->doctrine->em->find('Entities\File', (int)$id);
 		if (is_null($file)) {
-			$this->response(array('error' => true, 'message' => 'file not found.', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'file not found.', 'data' => $data), 404);
 		}
 
 		if ($file->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL)
@@ -146,7 +146,7 @@ class File extends REST_Controller {
 
 		$file = $this->doctrine->em->find('Entities\File', (int)$id);
 		if (is_null($file)) {
-			$this->response(array('error' => true, 'message' => 'file not found.', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'file not found.', 'data' => $data), 404);
 		}
 
 		if ($file->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL)
@@ -167,7 +167,7 @@ class File extends REST_Controller {
 
 		$file = $this->doctrine->em->find('Entities\File', (int)$id);
 		if (is_null($file)) {
-			$this->response(array('error' => true, 'message' => 'file not found.', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'file not found.', 'data' => $data), 404);
 		}
 
 		if ($file->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL)
@@ -176,7 +176,7 @@ class File extends REST_Controller {
 		if ( ($folder_id = $this->post('folder_id')) !== false ) {
 			$folder = $this->doctrine->em->find('Entities\Folder', (int)$folder_id);
 			if (is_null($folder)) {
-				$this->response(array('error' => true, 'message' => 'Folder not found.', 'data' => $data), 400);
+				$this->response(array('error' => true, 'message' => 'Folder not found.', 'data' => $data), 404);
 			}
 			$file->setFolder($folder);
 		}
@@ -184,7 +184,7 @@ class File extends REST_Controller {
 		if ( ($share_id = $this->post('share_id')) !== false ) {
 			$share = $this->doctrine->em->find('Entities\Share', (int)$share_id);
 			if (is_null($share)) {
-				$this->response(array('error' => true, 'message' => 'Share not found.', 'data' => $data), 400);
+				$this->response(array('error' => true, 'message' => 'Share not found.', 'data' => $data), 404);
 			}
 			$file->setShare($share);
 		}
@@ -192,7 +192,7 @@ class File extends REST_Controller {
 		if ( ($user_id = $this->post('user_id')) !== false && $this->rest->level == ADMIN_KEY_LEVEL) {
 			$user = $this->doctrine->em->find('Entities\User', (int)$user_id);
 			if (is_null($user)) {
-				$this->response(array('error' => true, 'message' => 'user not found.', 'data' => $data), 400);
+				$this->response(array('error' => true, 'message' => 'user not found.', 'data' => $data), 404);
 			}
 			$file->setUser($user);
 
@@ -254,7 +254,7 @@ class File extends REST_Controller {
 		$data = new StdClass();
 		$user = $this->rest->user;
 		if (is_null($user)) {
-			$this->response(array('error' => true, 'message' => 'user not found.', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'user not found.', 'data' => $data), 404);
 		}
 
 		$this->uploadConfig['upload_path'] = APPPATH . 'uploads/' . $user->getId() . "/";
@@ -277,7 +277,7 @@ class File extends REST_Controller {
 				$this->response(array('error' => true, 'message' => 'Not enough space.', 'data' => $data), 400);
 		}
 		else
-			$this->response(array('error' => true, 'message' => 'file not found', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'file not found', 'data' => $data), 404);
 
 		$this->load->library('upload', $this->uploadConfig);
 		if ( ! $this->upload->do_upload('file')) {
@@ -297,7 +297,7 @@ class File extends REST_Controller {
 			if ( ($folder_id = $this->input->post('folder_id')) ) {
 				$folder = $this->doctrine->em->find('Entities\Folder', (int)$folder_id);
 				if (is_null($folder)) {
-					$this->response(array('error' => true, 'message' => 'folder not found.', 'data' => $data), 400);
+					$this->response(array('error' => true, 'message' => 'folder not found.', 'data' => $data), 404);
 				}
 
 				$file->setFolder($folder);

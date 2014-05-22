@@ -155,8 +155,13 @@ class Folder extends REST_Controller {
         	$filesRet[] = $file;
         }
 
+        $foldersRet = [];
+        foreach ($folders as $folder) {
+        	$foldersRet[] = $folder;
+        }
+
         $data->files = $filesRet;
-        $data->folders = $folders->toArray();
+        $data->folders = $foldersRet;
         $this->response(array('error' => false, 'data' => $data), 200);
 	}
 }
