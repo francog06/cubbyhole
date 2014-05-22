@@ -11,6 +11,7 @@
 #import "SVProgressHUD.h"
 
 @interface DetailViewController : UIViewController <UISplitViewControllerDelegate>
+@property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *trashButton;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *actionButton;
 @property (weak, nonatomic) IBOutlet UIImageView *imagePreview;

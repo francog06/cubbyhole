@@ -74,6 +74,7 @@ class Folder extends REST_Controller {
 
 		$this->doctrine->em->persist($folder);
 		$this->doctrine->em->flush();
+
 		$data->folder = $folder;
 		$this->response(array('error' => false, 'message' => 'Dossier créé.', 'data' => $data), 200);
 	}
@@ -96,12 +97,15 @@ class Folder extends REST_Controller {
 			if ((int)$folder_id == $folder->getId())
 				$this->response(array('error' => true, 'message' => "You can't move a folder into himself", 'data' => $data), 400);
 
-			$parentFolder = $this->doctrine->em->find('Entities\Folder', (int)$folder_id);
-			if (is_null($parentFolder)) {
-				$this->response(array('error' => true, 'message' => 'Parent folder not found.', 'data' => $data), 400);
+			if ( $folder_id == "null")
+				$folder->setParent(null);
+			else {
+				$parentFolder = $this->doctrine->em->find('Entities\Folder', (int)$folder_id);
+				if (is_null($parentFolder)) {
+					$this->response(array('error' => true, 'message' => 'Parent folder not found.', 'data' => $data), 400);
+				}
+				$folder->setParent($parentFolder);
 			}
-
-			$folder->setParent($parentFolder);
 		}
 
 		if ( ($user_id = $this->post('user_id')) !== false && $this->rest->level == ADMIN_KEY_LEVEL) {
