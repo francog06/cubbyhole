@@ -2,7 +2,16 @@
 
 require APPPATH . '/libraries/REST_Controller.php';
 
+/**
+ * @class User
+ * @brief Toutes les méthodes possibles concernant les utilisateurs.
+ */
 class User extends REST_Controller {
+
+    /**
+     * @fn __construct()
+     * @brief Methode de construction de User.
+     */
 	function __construct()
 	{
 		parent::__construct();
@@ -15,6 +24,14 @@ class User extends REST_Controller {
 		$this->methods['forget_post']['key'] = FALSE;
 	}
 
+    /**
+     * @fn details_get()
+     * @brief Méthode pour récuperer les infos d'un utilisateur donné.\n
+     * @URL{cubbyhole.name/api/user/details/id}\n
+     * @HTTPMethod{GET}
+     * @param $id @REQUIRED
+     * @return $data
+     */
 	public function details_get($id = null) {
 		$data = new StdClass();
 		if (is_null($id)) {
@@ -34,6 +51,15 @@ class User extends REST_Controller {
 		$this->response(array('error' => false, 'message' => 'Successfully retrieved user.', 'data' => $data), 200);
 	}
 
+    /**
+     * @fn login_post()
+     * @brief Méthode pour se connecter.\n
+     * @URL{cubbyhole.name/api/user/login}\n
+     * @HTTPMethod{POST}
+     * @param email @REQUIRED
+     * @param password @REQUIRED
+     * @return $data
+     * */
 	public function login_post() {
 		$user_email = $this->mandatory_value('email', 'post');
 		$user_pass = $this->mandatory_value('password', 'post');
@@ -75,6 +101,15 @@ class User extends REST_Controller {
 		}
 	}
 
+    /**
+     * @fn register_post()
+     * @brief Méthode pour s'inscrire.\n
+     * @URL{cubbyhole.nam/api/user/register}\n
+     * @HTTPMethod{POST}
+     * @param email @REQUIRED
+     * @param password @REQUIRED
+     * @return $data
+     * */
 	public function register_post() {
 		$user_email = $this->mandatory_value('email', 'post');
 		$user_pass = $this->mandatory_value('password', 'post');
@@ -145,6 +180,14 @@ class User extends REST_Controller {
 		}
 	}
 
+    /**
+     * @fn update_put()
+     * @brief Méthode pour mettre à jour les infos d'un utilisateur.\n
+     * @URL{cubbyhole.name/api/user/update}\n
+     * @HTTPMethod{PUT}
+     * @param $id @REQUIRED
+     * @return $data
+     * */
 	public function update_put($id = null) {
 		$data = new StdClass();
 		if (is_null($id)) {
@@ -184,6 +227,14 @@ class User extends REST_Controller {
 		$this->response(array('error' => false, 'message' => 'user updated successfully.', 'data' => $data), 200);
 	}
 
+    /**
+     * @fn delete_delete()
+     * @brief Méthode pour suprimer un utilisateur.\n
+     * @URL{cubbyhole.name/api/user/delete}\n
+     * @HTTPMethod{DELETE}
+     * @param $id @REQUIRED
+     * @return $data
+     * */
 	public function delete_delete($id = null) {
 		$data = new StdClass();
 		if (is_null($id)) {
@@ -204,6 +255,14 @@ class User extends REST_Controller {
 		$this->response(array('error' => false, 'message' => 'User has been removed.', 'data' => $data), 200);
 	}
 
+    /**
+     * @fn forget_post()
+     * @brief Méthode pour l'oublie de mot de passe.\n
+     * @URL{cubbyhole.name/api/user/forget}\n
+     * @HTTPMethod{POST}
+     * @param email @REQUIRED
+     * @return $data
+     * */
 	public function forget_post() {
 		$user_email = $this->mandatory_value('email', 'post');
 		$data = new StdClass();
