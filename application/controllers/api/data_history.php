@@ -1,7 +1,5 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-require APPPATH . '/libraries/REST_Controller.php';
-
 class Data_history extends REST_Controller {
 	function __construct()
 	{
@@ -19,7 +17,6 @@ class Data_history extends REST_Controller {
 		$result = $query->getArrayResult();
 		$this->response(array('error' => false, 'DataHistory' => $result), 200);
 	}
-
 
 	// @POST create
 	public function create_post() {
@@ -41,7 +38,7 @@ class Data_history extends REST_Controller {
 		$DataHistoryNew->setDate(new DateTime('now', new DateTimeZone('Europe/Berlin')))
 				->setIp($DataHistory_ip)
 				->setCountry($DataHistory_country)
-				->setFile($DataHistory_file)
+				->setFile($DataHistory_file);
 
 		$this->doctrine->em->persist($DataHistoryNew);
 		//$this->doctrine->em->flush();
@@ -140,9 +137,10 @@ class Data_history extends REST_Controller {
 						 $query->add('where', 'p.date BETWEEN :dateBegin AND :dateEnd')
 					    ->setParameter('dateBegin', new DateTime($dateBegin, new DateTimeZone('Europe/Berlin')))
 					    ->setParameter('dateEnd', new DateTime($dateEnd, new DateTimeZone('Europe/Berlin')));
-					}					
-					->setParameter('file', $StatIpFile)
-					->getQuery();
+					}
+
+		$query->setParameter('file', $StatIpFile)
+		->getQuery();
 
 		$result = $query->getArrayResult();
 		$data = new StdClass();
@@ -214,7 +212,8 @@ class Data_history extends REST_Controller {
 			    ->setParameter('dateBegin', new DateTime($dateBegin, new DateTimeZone('Europe/Berlin')))
 			    ->setParameter('dateEnd', new DateTime($dateEnd, new DateTimeZone('Europe/Berlin')));
 			}
-			->groupBy('dh.file')
+
+		$query->groupBy('dh.file')
 			->orderBy( 'dh.file DESC')
 			->setParameter('active', '1')
 			->getQuery();
@@ -242,7 +241,7 @@ class Data_history extends REST_Controller {
 			    ->setParameter('dateBegin', new DateTime($dateBegin, new DateTimeZone('Europe/Berlin')))
 			    ->setParameter('dateEnd', new DateTime($dateEnd, new DateTimeZone('Europe/Berlin')));
 			}
-			->groupBy('dh.file')
+		$query->groupBy('dh.file')
 			->orderBy( 'dh.file DESC')
 			->setParameter('country', $countryCode)
 			->setParameter('active', '1')

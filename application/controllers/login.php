@@ -130,7 +130,6 @@ class Login extends CI_Controller {
 			$this->doctrine->em->flush();
 
 			// Send user email
-
 			$this->email->clear();
 			$this->email->initialize(array(
 				'mailtype' => 'html',

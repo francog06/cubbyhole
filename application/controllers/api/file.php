@@ -1,7 +1,7 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 require APPPATH . '/libraries/REST_Controller.php';
-require_once APPPATH . './data_history.php' 
+require_once APPPATH . '/controllers/api/data_history.php';
 
 class File extends REST_Controller {
 	function __construct()
@@ -90,7 +90,7 @@ class File extends REST_Controller {
 	    if (getenv('HTTP_CLIENT_IP'))
 	        $ipaddress = getenv('HTTP_CLIENT_IP');
 	    else if(getenv('HTTP_X_FORWARDED_FOR'))
-	        $ipaddress = getenv('HTTP_X_FORWARDED_FOR'&quot;);
+	        $ipaddress = getenv('HTTP_X_FORWARDED_FOR');
 	    else if(getenv('HTTP_X_FORWARDED'))
 	        $ipaddress = getenv('HTTP_X_FORWARDED');
 	    else if(getenv('HTTP_FORWARDED_FOR'))
@@ -109,7 +109,7 @@ function visitor_country() {
 	    if (getenv('HTTP_CLIENT_IP'))
 	        $ipaddress = getenv('HTTP_CLIENT_IP');
 	    else if(getenv('HTTP_X_FORWARDED_FOR'))
-	        $ipaddress = getenv('HTTP_X_FORWARDED_FOR'&quot;);
+	        $ipaddress = getenv('HTTP_X_FORWARDED_FOR');
 	    else if(getenv('HTTP_X_FORWARDED'))
 	        $ipaddress = getenv('HTTP_X_FORWARDED');
 	    else if(getenv('HTTP_FORWARDED_FOR'))
@@ -154,8 +154,7 @@ function visitor_country() {
 		/**
 		 * TODO: share
 		*/
-	/*
-	TO TEST
+
 		$DataHistory_ip = $this->get_client_ip();
 		$DataHistory_country = $this->visitor_country();
 		if ( file_exists($file->getAbsolutePath()) && is_file($file->getAbsolutePath()) ) {
@@ -164,9 +163,9 @@ function visitor_country() {
 			$DataHistoryNew->setDate(new DateTime('now', new DateTimeZone('Europe/Berlin')))
 					->setIp($DataHistory_ip)
 					->setCountry($DataHistory_country)
-					->setFile($file)
+					->setFile($file);
 
-			$this->doctrine->em->persist($DataHistoryNew); */
+			$this->doctrine->em->persist($DataHistoryNew);
 
 		    $data = file_get_contents($file->getAbsolutePath());
 		    force_download($file->getName(), $data);
