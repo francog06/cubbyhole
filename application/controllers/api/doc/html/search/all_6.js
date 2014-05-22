@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['update_5fput',['update_put',['../classUser.html#a5061df23285d819f68b1e9b4feea68b6',1,'User']]],
-  ['user',['User',['../classUser.html',1,'']]]
+  ['plan',['Plan',['../classPlan.html',1,'']]],
+  ['plan_5fget',['plan_get',['../classPlan__history.html#a00778077b4811fb76a1e5b1b39d958e9',1,'Plan_history']]],
+  ['plan_5fhistory',['Plan_history',['../classPlan__history.html',1,'']]]
 ];

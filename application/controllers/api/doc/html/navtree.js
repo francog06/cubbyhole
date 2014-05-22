@@ -2,12 +2,12 @@ var NAVTREE =
 [
   [ "Cubbyhole", "index.html", [
     [ "Classes", null, [
-      [ "Class List", "annotated.html", "annotated" ],
-      [ "Class Index", "classes.html", null ],
-      [ "Class Hierarchy", "hierarchy.html", "hierarchy" ],
-      [ "Class Members", "functions.html", [
-        [ "All", "functions.html", null ],
-        [ "Functions", "functions_func.html", null ]
+      [ "Liste des classes", "annotated.html", "annotated" ],
+      [ "Index des classes", "classes.html", null ],
+      [ "Hiérarchie des classes", "hierarchy.html", "hierarchy" ],
+      [ "Membres de classe", "functions.html", [
+        [ "Tout", "functions.html", null ],
+        [ "Fonctions", "functions_func.html", null ]
       ] ]
     ] ]
   ] ]
@@ -18,8 +18,8 @@ var NAVTREEINDEX =
 "annotated.html"
 ];
 
-var SYNCONMSG = 'click to disable panel synchronisation';
-var SYNCOFFMSG = 'click to enable panel synchronisation';
+var SYNCONMSG = 'cliquez pour désactiver la synchronisation du panel';
+var SYNCOFFMSG = 'cliquez pour activer la synchronisation du panel';
 var navTreeSubIndices = new Array();
 
 function getData(varName)

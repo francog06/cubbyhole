@@ -4,7 +4,7 @@ require APPPATH . '/libraries/REST_Controller.php';
 
 /**
  * @class User
- * @brief Toutes les méthodes possibles concernant les utilisateurs.
+ * @brief Toutes les méthodes possibles concernant les User.
  */
 class User extends REST_Controller {
 
@@ -27,7 +27,7 @@ class User extends REST_Controller {
     /**
      * @fn details_get()
      * @brief Méthode pour récuperer les infos d'un utilisateur donné.\n
-     * @URL{cubbyhole.name/api/user/details/id}\n
+     * @URL{cubbyhole.name/api/user/details:id}\n
      * @HTTPMethod{GET}
      * @param $id @REQUIRED
      * @return $data
@@ -183,9 +183,13 @@ class User extends REST_Controller {
     /**
      * @fn update_put()
      * @brief Méthode pour mettre à jour les infos d'un utilisateur.\n
-     * @URL{cubbyhole.name/api/user/update}\n
+     * @URL{cubbyhole.name/api/user/update:id}\n
      * @HTTPMethod{PUT}
      * @param $id @REQUIRED
+     * @param email @OPTIONAL
+     * @param password @OPTIONAL
+     * @param user_location_ip @OPTIONAL
+     * @param is_admin @OPTIONAL
      * @return $data
      * */
 	public function update_put($id = null) {
@@ -230,7 +234,7 @@ class User extends REST_Controller {
     /**
      * @fn delete_delete()
      * @brief Méthode pour suprimer un utilisateur.\n
-     * @URL{cubbyhole.name/api/user/delete}\n
+     * @URL{cubbyhole.name/api/user/delete:id}\n
      * @HTTPMethod{DELETE}
      * @param $id @REQUIRED
      * @return $data
