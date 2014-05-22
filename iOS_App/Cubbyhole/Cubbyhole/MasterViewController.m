@@ -62,11 +62,13 @@
         NSDictionary *user = (NSDictionary *)[[NSUserDefaults standardUserDefaults] objectForKey:@"user"];
         //[user objectForKey:@"id"];
 
+        self.navigationItem.leftBarButtonItems = [NSArray arrayWithObjects:nil];
         callUrl = [NSString stringWithFormat:@"http://cubbyhole.name/api/folder/user/%s/root", "17"];
         url = [NSURL URLWithString:callUrl];
     }
     else {
         // Folder définie récupération du folder
+        self.navigationItem.leftBarButtonItems = [NSArray arrayWithObjects:self.backButton, nil];
         callUrl = [NSString stringWithFormat:@"http://cubbyhole.name/api/folder/details/%@", folder_id];
         url = [NSURL URLWithString:callUrl];
     }
@@ -155,11 +157,13 @@
     [super viewDidLoad];
     self.backButton = [[UIBarButtonItem alloc] initWithTitle:@"Back" style:UIBarButtonItemStyleBordered target:self action:@selector(Back)];
 
+    self.navigationItem.hidesBackButton = YES;
     self.navigationItem.leftBarButtonItems = [NSArray arrayWithObjects:self.backButton, nil];
     self.folder_id = nil;
 
     UIBarButtonItem *addButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(insertNewObject:)];
-    self.navigationItem.rightBarButtonItem = addButton;
+    UIBarButtonItem *disconnectButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemReply target:self action:@selector(disconnectUser:)];
+    self.navigationItem.rightBarButtonItems = [NSArray arrayWithObjects:disconnectButton, addButton, nil];
     self.detailViewController = (DetailViewController *)[[self.splitViewController.viewControllers lastObject] topViewController];
     
     /* Pull to refresh */
@@ -182,6 +186,18 @@
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
+}
+
+- (void)disconnectUser:(id)sender
+{
+    NSUserDefaults * defs = [NSUserDefaults standardUserDefaults];
+    NSDictionary * dict = [defs dictionaryRepresentation];
+    for (id key in dict) {
+        [defs removeObjectForKey:key];
+    }
+    [defs synchronize];
+    [self alertStatus:@"Successfull logout" :@"Success"];
+    [self.navigationController popToRootViewControllerAnimated:YES];
 }
 
 - (void)insertNewObject:(id)sender
@@ -290,6 +306,13 @@
         NSIndexPath *indexPath = [self.tableView indexPathForSelectedRow];
         [[segue destinationViewController] setDetailItem:_objects[indexPath.row]];
     }
+}
+
+-(void) alertStatus:(NSString *)msg: (NSString *)title
+{
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:title message:msg delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+    
+    [alertView show];
 }
 
 @end

@@ -31,6 +31,12 @@
                                              selector:@selector(handleNotification:)
                                                  name:SVProgressHUDDidAppearNotification
                                                object:nil];
+    
+    NSDictionary *user = (NSDictionary *)[[NSUserDefaults standardUserDefaults] objectForKey:@"user"];
+    if (user != nil && ![user isEqual:[NSNull null]])
+    {
+        [self performSegueWithIdentifier:@"AfterLogin" sender:self];
+    }
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -158,6 +164,8 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+
+    [self txtPassword].clearsOnBeginEditing = YES;
 }
 
 - (void)didReceiveMemoryWarning
