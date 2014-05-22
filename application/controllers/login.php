@@ -81,7 +81,6 @@ class Login extends CI_Controller {
 
 			$q = $this->db->get_where('keys', array('user_id' => $user->getId()))->row();
 			$this->session->set_userdata("user_token", $q->key);
-			// _p($this->session->userdata('user'));
 
 			redirect('/user/');
 		} else {
@@ -114,6 +113,8 @@ class Login extends CI_Controller {
 
 			$this->doctrine->em->persist($user);
 			$this->doctrine->em->flush();
+
+			$user->createKey();
 
 			$plan_history = new Entities\PlanHistory;
 			$plan = Entities\Plan::getDefaultPlan();
