@@ -103,7 +103,6 @@ class File extends REST_Controller {
 		        $ipaddress = 'UNKNOWN';
 	        $result = @json_decode(file_get_contents("http://www.geoplugin.net/json.gp?ip=" . $ipaddress))
 	                ->geoplugin_countryCode;
-	                _d($result);
 	        return $result <> NULL ? $result : "Local";
 	}
 
@@ -137,7 +136,7 @@ class File extends REST_Controller {
 
 		$DataHistory_ip = $this->input->ip_address();
 		$DataHistory_country = $this->visitor_country();
-		if ( file_exists($file->getAbsolutePath()) && is_file($file->getAbsolutePath()) || true) {
+		if ( file_exists($file->getAbsolutePath()) && is_file($file->getAbsolutePath()) ) {
 
 			$DataHistoryNew = new Entities\DataHistory;
 			$DataHistoryNew->setDate(new DateTime('now', new DateTimeZone('Europe/Berlin')))
@@ -148,8 +147,8 @@ class File extends REST_Controller {
 			$this->doctrine->em->persist($DataHistoryNew);
 			$this->doctrine->em->flush($DataHistoryNew);
 
-		    //$data = file_get_contents($file->getAbsolutePath());
-		    //force_download($file->getName(), $data);
+		    $data = file_get_contents($file->getAbsolutePath());
+		    force_download($file->getName(), $data);
 		    exit;
 		}
 		else {
