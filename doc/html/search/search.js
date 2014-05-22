@@ -7,9 +7,9 @@
 
 var indexSectionsWithContent =
 {
-  0: "_dflpru",
+  0: "_cdeflpru",
   1: "dfpu",
-  2: "_dflru"
+  2: "_cdeflpru"
 };
 
 var indexSectionNames =

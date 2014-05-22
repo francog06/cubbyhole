@@ -2,13 +2,29 @@
 
 require APPPATH . '/libraries/REST_Controller.php';
 
+/**
+ * @class Plan_history
+ * @brief Toutes les méthodes possibles concernant les Plan_history.
+ */
 class Plan_history extends REST_Controller {
+
+    /**
+     * @fn __construct()
+     * @brief Méthode de construction de Plan_history
+     * */
 	function __construct()
 	{
 		parent::__construct();
 	}
 
-	// @GET details
+    /**
+     * @fn details_get()
+     * @brief Méthode pour récuperer les infos d'un plan_history donné.\n
+     * @URL{cubbyhole.name/api/plan_history/details:id}\n
+     * @HTTPMethod{GET}
+     * @param $id @REQUIRED
+     * @return $data
+     */
 	public function details_get($id = null) {
 		$data = new StdClass();
 		if (is_null($id)) {
@@ -27,7 +43,14 @@ class Plan_history extends REST_Controller {
 		$this->response(array('error' => false, 'data' => $data), 200);
 	}
 
-	// @GET user
+	/**
+     * @fn user_get()
+     * @brief Méthode pour récuperer le plan_history actif d'un utilisateur.\n
+     * @URL{cubbyhole.name/api/plan_history/user:id}\n
+     * @HTTPMethod{GET}
+     * @param $id @REQUIRED
+     * @return $data
+	 * */
 	public function user_get($id = null) {
 		$data = new StdClass();
 		if (is_null($id)) {
@@ -57,7 +80,15 @@ class Plan_history extends REST_Controller {
 		}
 	}
 
-	// @POST create
+	/**
+     * @fn create_post()
+     * @brief Méthode pour créer un plan_history.\n
+     * @URL{cubbyhole.name/api/plan_history/create}\n
+     * @HTTPMethod{POST}
+     * @param plan_id @REQUIRED
+     * @param user_id @REQUIRED
+     * @return $data
+	 * */
 	public function create_post() {
 		$PlanHistory_planId = $this->mandatory_value('plan_id', 'post');
 		$PlanHistory_userId = $this->mandatory_value('user_id', 'post');
@@ -109,7 +140,14 @@ class Plan_history extends REST_Controller {
 		$this->response(array('error' => false, 'message' => 'A new plan history has been added.', 'data' => $data), 201);
 	}
 
-	// @UPDATE
+	/**
+     * @fn update_put()
+     * @brief Méthode pour mettre à jour un plan_history.\n
+     * @URL{cubbyhole.name/api/plan_history/update:id}\n
+     * @HTTPMethod{PUT}
+     * @param $id @REQUIRED
+     * @return $data
+	 * */
 	public function update_put($id = null) {
 		$data = new StdClass();
 		if (is_null($id)) {
@@ -144,7 +182,14 @@ class Plan_history extends REST_Controller {
 		$this->response(array('error' => false, 'message' => 'Successfully updated the plan history.', 'data' => $data), 200);
 	}
 
-	// @DELETE delete PlanHistory
+	/**
+     * @fn delete_delete()
+     * @brief Méthode pour supprimer un plan_history\n
+     * @URL{cubbyhole.name/api/plan_history/delete:id}\n
+     * @HTTPMethod{DELETE}
+     * @param $id @REQUIRED
+     * @return $data
+	 * */
 	public function delete_delete($id = null) {
 		$data = new StdClass();
 		if (is_null($id)) {
@@ -165,7 +210,14 @@ class Plan_history extends REST_Controller {
 		$this->response(array('error' => false, 'message' => 'PlanHistory has been removed.', 'data' => $data), 200);
 	}
 
-	// @GET plan
+	/**
+     * @fn plan_get()
+     * @brief Méthode pour récuperer les plan_history actifs avec un plan donné.\n
+     * @URL{cubbyhole.name/api/plan_history/plan:id}\n
+     * @HTTPMethod{GET}
+     * @param $id @REQUIRED
+     * @return $data
+	 * */
 	public function plan_get($id = null) {
 		$data = new StdClass();
 		if ($this->rest->level != ADMIN_KEY_LEVEL)
@@ -193,7 +245,13 @@ class Plan_history extends REST_Controller {
 		$this->response(array('error' => false, 'data' => $data), 200);
 	}
 
-	// @GET expires
+	/**
+     * @fn expires_get()
+     * @brief Méthode pour récuperer les plan_history qui expirent dans moins de 7 jours.\n
+     * @URL{cubbyhole.name/api/plan_history/expires}\n
+     * @HTTPMethod{GET}
+     * @return $data
+	 * */
 	public function expires_get() {
 		if ($this->rest->level != ADMIN_KEY_LEVEL)
 			$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data ), 401);

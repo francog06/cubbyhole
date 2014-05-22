@@ -46,7 +46,7 @@
           <span><?= $total_storage-$space_used; ?> Mo libres (<?= intval($percent_free); ?>%)</span>
         </div>
         &nbsp; 
-        <a style="vertical-align:top;">Plus d'espace ?</a>
+        <a style="vertical-align:top;" href="/user/upgrade/">Plus d'espace ?</a>
     </div>
     <div class="result"></div>
     <br />
@@ -122,6 +122,60 @@
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
             <button type="submit" class="btn btn-primary" id="submitNewFolder" data-loading-text="Loading...">Enregistrer</button>
+          </div>
+      </form>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!-- Modal folder edit -->
+<div class="modal fade" id="editFolderModal" tabindex="-1" role="dialog" aria-labelledby="Edition dossier" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Edition Dossier</h4>
+      </div>
+      <form class="form-horizontal" role="form" method="post" id="formNewFolder">
+          <div class="modal-body">
+              <div class="form-group">
+                <label for="user_email" class="col-sm-5 control-label">Nom du dossier </label>
+                <div class="col-sm-4">
+                  <input type="hidden" name="edit_folder_id" id="edit_folder_id" value="" />
+                  <input type="text" class="form-control" id="edit_folder_name" name='folder_name' />
+                </div>
+              </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+            <button type="submit" class="btn btn-primary" id="submitEditFolder" data-loading-text="Loading...">Enregistrer</button>
+          </div>
+      </form>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!-- Modal folder edit -->
+<div class="modal fade" id="editFileModal" tabindex="-1" role="dialog" aria-labelledby="Edition file" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Edition Fichier</h4>
+      </div>
+      <form class="form-horizontal" role="form" method="post" id="formNewFolder">
+          <div class="modal-body">
+              <div class="form-group">
+                <label for="user_email" class="col-sm-5 control-label">Nom du fichier </label>
+                <div class="col-sm-4">
+                  <input type="hidden" name="edit_file_id" id="edit_file_id" value="" />
+                  <input type="text" class="form-control" id="edit_file_name" name='file_name' />
+                </div>
+              </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+            <button type="submit" class="btn btn-primary" id="submitEditFile" data-loading-text="Loading...">Enregistrer</button>
           </div>
       </form>
     </div><!-- /.modal-content -->
@@ -218,6 +272,66 @@
                 error: function(result) {
                     $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">Erreur lors de la transaction.</p>');
                     $('#newFolderModal').modal("hide");
+                }
+           });
+        });
+   
+    $("#submitEditFolder").click(function(e){
+            e.preventDefault();
+            $.ajax({
+                url: '/api/folder/update/'+$("#edit_folder_id").val(),
+                type: 'PUT',
+                headers:{
+                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+                },
+                data:{user_id:user_id,name:$("#edit_folder_name").val()},
+                success: function(result) {
+                    if(result.error == false){
+                       $('#editFolderModal').modal("hide");
+                       $("div.result").append('<div class="alert alert-success fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                       if($(".breadcrumb a:last-child").attr("data-id") == undefined)
+                            getRoot();
+                        else
+                            getFolder($(".breadcrumb a:last-child").attr("data-id"));
+                    }
+                    else{
+                        $("div.result").append('<div class="alert alert-warning fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                        $('#editFolderModal').modal("hide");
+                    }
+                },
+                error: function(result) {
+                    $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">Erreur lors de la transaction.</p>');
+                    $('#editFolderModal').modal("hide");
+                }
+           });
+        });
+
+    $("#submitEditFile").click(function(e){
+            e.preventDefault();
+            $.ajax({
+                url: '/api/file/update/'+$("#edit_file_id").val(),
+                type: 'POST',
+                headers:{
+                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+                },
+                data:{user_id:user_id,name:$("#edit_file_name").val()},
+                success: function(result) {
+                    if(result.error == false){
+                       $('#editFileModal').modal("hide");
+                       $("div.result").append('<div class="alert alert-success fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                       if($(".breadcrumb a:last-child").attr("data-id") == undefined)
+                            getRoot();
+                        else
+                            getFolder($(".breadcrumb a:last-child").attr("data-id"));
+                    }
+                    else{
+                        $("div.result").append('<div class="alert alert-warning fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                        $('#editFileModal').modal("hide");
+                    }
+                },
+                error: function(result) {
+                    $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">Erreur lors de la transaction.</p>');
+                    $('#editFileModal').modal("hide");
                 }
            });
         });
@@ -578,9 +692,8 @@ function getRoot(){
                                     <td class="drag" data-value="a'+type+'">'+type+'</td>\
                                     <td class="drag">'+result.data.folders[loop_folder].last_update_date.date+'</td>\
                                     <td style="width:175px;"><div style="display:none">\
-                                        <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..."><span class="glyphicon glyphicon-pencil"></span>&nbsp; Editer</button> \
-                                         &nbsp; \
-                                        <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span>&nbsp; Supprimer</button></div>\
+                                        <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..."><span class="glyphicon glyphicon-pencil"></span> Editer</button> \
+                                        <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span> Supprimer</button></div>\
                                     </td>\
                                 </tr>\
                             ').fadeIn();
@@ -626,9 +739,8 @@ function getRoot(){
                                     <td class="drag">'+type+'</td>\
                                     <td class="drag">'+result.data.files[loop_file].last_update_date.date+'</td>\
                                     <td style="width:175px;"><div style="display:none">\
-                                        <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..."><span class="glyphicon glyphicon-pencil"></span>&nbsp; Editer</button> \
-                                         &nbsp; \
-                                        <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span>&nbsp; Supprimer</button></div>\
+                                        <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..."><span class="glyphicon glyphicon-pencil"></span> Editer</button> \
+                                        <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span> Supprimer</button></div>\
                                     </td>\
                                 </tr>\
                             ').fadeIn();
@@ -648,6 +760,14 @@ function getRoot(){
                 });
 $(document).ready(function(){
     var rid;
+     $("tr.folder td div button.editer").click(function(){
+        $("#editFolderModal").modal("show");
+        $("#edit_folder_id").val($(this).parent().parent().parent().attr("data-id"));
+    });
+     $("tr.file td div button.editer").click(function(){
+        $("#editFileModal").modal("show");
+        $("#edit_file_id").val($(this).parent().parent().parent().attr("data-id"));
+    });
     $("button.supprimer").click(function(){
             if($(this).parent().parent().parent().hasClass("file")){
                 rid = $(this).parent().parent().parent().attr('data-id');
@@ -742,9 +862,8 @@ function getFolder(id){
                                     <td class="drag">'+type+'</td>\
                                     <td class="drag">'+result.data.folder.folders[loop_folder].last_update_date.date+'</td>\
                                     <td style="width:175px;"><div style="display:none">\
-                                        <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..."><span class="glyphicon glyphicon-pencil"></span>&nbsp; Editer</button> \
-                                         &nbsp; \
-                                        <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span>&nbsp; Supprimer</button></div>\
+                                        <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..."><span class="glyphicon glyphicon-pencil"></span> Editer</button> \
+                                        <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span> Supprimer</button></div>\
                                     </td>\
                                 </tr>\
                             ').fadeIn();
@@ -789,9 +908,8 @@ function getFolder(id){
                                     <td class="drag">'+type+'</td>\
                                     <td class="drag">'+result.data.folder.files[loop_file].last_update_date.date+'</td>\
                                     <td style="width:175px;"><div style="display:none">\
-                                        <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..."><span class="glyphicon glyphicon-pencil"></span>&nbsp; Editer</button> \
-                                         &nbsp; \
-                                        <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span>&nbsp; Supprimer</button></div>\
+                                        <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..."><span class="glyphicon glyphicon-pencil"></span> Editer</button> \
+                                        <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span> Supprimer</button></div>\
                                     </td>\
                                 </tr>\
                             ').fadeIn();

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['login_5fpost',['login_post',['../classUser.html#a82fb9d79c2af1b51b8d176a8fd92d7d9',1,'User']]]
+  ['expires_5fget',['expires_get',['../classPlan__history.html#adb5ee12528763ec6a1f2b4bf85f91118',1,'Plan_history']]]
 ];

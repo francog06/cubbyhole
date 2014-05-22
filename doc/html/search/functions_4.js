@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['register_5fpost',['register_post',['../classUser.html#a30ccdb60ec1b3581239eb6bdf841519f',1,'User']]]
+  ['forget_5fpost',['forget_post',['../classUser.html#a916b93602c3af30345404b877bc06453',1,'User']]]
 ];

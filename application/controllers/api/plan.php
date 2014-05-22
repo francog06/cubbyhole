@@ -2,7 +2,10 @@
 
 require APPPATH . '/libraries/REST_Controller.php';
 
-
+/**
+ * @class Plan
+ * @brief Toutes les méthodes possibles concernant les Plan.
+ */
 class Plan extends REST_Controller {
 	
 	function __construct()

@@ -4,7 +4,6 @@ var classFile =
     [ "add_post", "classFile.html#a4b784a218573b6d5b03ca1f009bc4f13", null ],
     [ "details_get", "classFile.html#a347bcae16ead56f5168519b09024b809", null ],
     [ "download_get", "classFile.html#a107a9e7d2023290c6cb1e226b93df9ad", null ],
-    [ "get_client_ip", "classFile.html#a90c5369407bdea9c0bbb1eb331eb5cab", null ],
     [ "preview_get", "classFile.html#abd0cc301e7367702913a166f2fb672d6", null ],
     [ "remove_delete", "classFile.html#ad75a79926f1c11e92dd54b6dd1c33cdf", null ],
     [ "synchronize_get", "classFile.html#ab214dccfcde9120a77251d16d67c27db", null ],
