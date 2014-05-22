@@ -85,47 +85,27 @@ class File extends REST_Controller {
 		}
 	}
 
-	function get_client_ip() {
-	    $ipaddress = '';
-	    if (getenv('HTTP_CLIENT_IP'))
-	        $ipaddress = getenv('HTTP_CLIENT_IP');
-	    else if(getenv('HTTP_X_FORWARDED_FOR'))
-	        $ipaddress = getenv('HTTP_X_FORWARDED_FOR');
-	    else if(getenv('HTTP_X_FORWARDED'))
-	        $ipaddress = getenv('HTTP_X_FORWARDED');
-	    else if(getenv('HTTP_FORWARDED_FOR'))
-	        $ipaddress = getenv('HTTP_FORWARDED_FOR');
-	    else if(getenv('HTTP_FORWARDED'))
-	       $ipaddress = getenv('HTTP_FORWARDED');
-	    else if(getenv('REMOTE_ADDR'))
-	        $ipaddress = getenv('REMOTE_ADDR');
-	    else
-	        $ipaddress = 'UNKNOWN';
-	    return $ipaddress;
+	function visitor_country() {
+		    $ipaddress = '';
+		    if (getenv('HTTP_CLIENT_IP'))
+		        $ipaddress = getenv('HTTP_CLIENT_IP');
+		    else if(getenv('HTTP_X_FORWARDED_FOR'))
+		        $ipaddress = getenv('HTTP_X_FORWARDED_FOR');
+		    else if(getenv('HTTP_X_FORWARDED'))
+		        $ipaddress = getenv('HTTP_X_FORWARDED');
+		    else if(getenv('HTTP_FORWARDED_FOR'))
+		        $ipaddress = getenv('HTTP_FORWARDED_FOR');
+		    else if(getenv('HTTP_FORWARDED'))
+		       $ipaddress = getenv('HTTP_FORWARDED');
+		    else if(getenv('REMOTE_ADDR'))
+		        $ipaddress = getenv('REMOTE_ADDR');
+		    else
+		        $ipaddress = 'UNKNOWN';
+	        $result = @json_decode(file_get_contents("http://www.geoplugin.net/json.gp?ip=" . $ipaddress))
+	                ->geoplugin_countryCode;
+	                _d($result);
+	        return $result <> NULL ? $result : "Local";
 	}
-
-function visitor_country() {
-	    $ipaddress = '';
-	    if (getenv('HTTP_CLIENT_IP'))
-	        $ipaddress = getenv('HTTP_CLIENT_IP');
-	    else if(getenv('HTTP_X_FORWARDED_FOR'))
-	        $ipaddress = getenv('HTTP_X_FORWARDED_FOR');
-	    else if(getenv('HTTP_X_FORWARDED'))
-	        $ipaddress = getenv('HTTP_X_FORWARDED');
-	    else if(getenv('HTTP_FORWARDED_FOR'))
-	        $ipaddress = getenv('HTTP_FORWARDED_FOR');
-	    else if(getenv('HTTP_FORWARDED'))
-	       $ipaddress = getenv('HTTP_FORWARDED');
-	    else if(getenv('REMOTE_ADDR'))
-	        $ipaddress = getenv('REMOTE_ADDR');
-	    else
-	        $ipaddress = 'UNKNOWN';
-        $result = @json_decode(file_get_contents("http://www.geoplugin.net/json.gp?ip=" . $ipaddress))
-                ->geoplugin_countryCode;
-        return $result <> NULL ? $result : "Unknown";
-}
-
-
 
 	public function download_get($id = null) {
 		$data = new StdClass();
@@ -155,9 +135,9 @@ function visitor_country() {
 		 * TODO: share
 		*/
 
-		$DataHistory_ip = $this->get_client_ip();
+		$DataHistory_ip = $this->input->ip_address();
 		$DataHistory_country = $this->visitor_country();
-		if ( file_exists($file->getAbsolutePath()) && is_file($file->getAbsolutePath()) ) {
+		if ( file_exists($file->getAbsolutePath()) && is_file($file->getAbsolutePath()) || true) {
 
 			$DataHistoryNew = new Entities\DataHistory;
 			$DataHistoryNew->setDate(new DateTime('now', new DateTimeZone('Europe/Berlin')))
@@ -166,9 +146,10 @@ function visitor_country() {
 					->setFile($file);
 
 			$this->doctrine->em->persist($DataHistoryNew);
+			$this->doctrine->em->flush($DataHistoryNew);
 
-		    $data = file_get_contents($file->getAbsolutePath());
-		    force_download($file->getName(), $data);
+		    //$data = file_get_contents($file->getAbsolutePath());
+		    //force_download($file->getName(), $data);
 		    exit;
 		}
 		else {
@@ -344,7 +325,7 @@ function visitor_country() {
 
 			$file->setUser($user);
 			$file->setName($fileName);
-			$file->setSize(round($fileData['file_size'] / MB, 2));
+			$file->setSize(round( ($fileData['file_size'] * KB) / MB, 2));
 			$file->setAbsolutePath($fileData['full_path']);
 			$file->setCreationDate(new DateTime('now', new DateTimeZone('Europe/Berlin')));
 			$file->setLastUpdateDate(new DateTime('now', new DateTimeZone('Europe/Berlin')));

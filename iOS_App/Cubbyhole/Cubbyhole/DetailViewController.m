@@ -94,10 +94,26 @@ CGRect prevFrame;
     if ((long)[response statusCode] >=200 && (long)[response statusCode] <300)
     {
         [self.imagePreview initWithImage:img].hidden = NO;
+        
+        UITapGestureRecognizer *doubleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleDoubleTap:)];
+        
+        [doubleTap setNumberOfTapsRequired:2];
+        [self.scrollView addGestureRecognizer:doubleTap];
+
         self.imagePreview.contentMode = UIViewContentModeScaleAspectFit;
     } else {
         [self alertStatus:[jsonData objectForKey:@"message"] :@"An error occured"];
     }
+}
+
+- (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView
+{
+    return self.imagePreview;
+}
+
+-(void)handleDoubleTap:(id)sender
+{
+    [self.scrollView setZoomScale:1.0 animated:YES];
 }
 
 
@@ -110,6 +126,11 @@ CGRect prevFrame;
     NSArray *extensions = [NSArray arrayWithObjects: @"jpg", @"png", @"jpeg", @"JPG", @"PNG", @"JPEG", nil];
     if ([extensions containsObject:[[self.detailItem objectForKey:@"name"] pathExtension]])
     {
+        self.scrollView.minimumZoomScale=1;
+        self.scrollView.maximumZoomScale=6.0;
+        self.scrollView.contentSize=CGSizeMake(self.view.bounds.size.width, self.view.bounds.size.height);
+        self.scrollView.delegate=self;
+
         [SVProgressHUD show];
     }
     else
@@ -202,6 +223,7 @@ CGRect prevFrame;
     
     [alertView show];
 }
+
 - (IBAction)publicChanged:(id)sender {
         NSString *callUrl = [NSString stringWithFormat:@"http://cubbyhole.name/api/file/update/%@", (NSString *)[self.detailItem objectForKey:@"id"]];
         NSURL *url = [NSURL URLWithString:callUrl];
