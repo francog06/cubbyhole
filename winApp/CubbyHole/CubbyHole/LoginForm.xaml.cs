@@ -43,8 +43,9 @@ namespace CubbyHole
             if (response)
             {
                 Debug.WriteLine("Minimize application");
-                this.WindowState = WindowState.Minimized;
-                this.ShowInTaskbar = true;
+                //SHOW IN TASK BAR
+                /*this.WindowState = WindowState.Minimized;
+                this.ShowInTaskbar = true; */
             }
         }
 

@@ -3,10 +3,10 @@
   <Profiles />
   <Settings>
     <Setting Name="SiteUrl" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">http://local.cubbyhole.name/</Value>
+      <Value Profile="(Default)">http://cubbyhole.name/</Value>
     </Setting>
     <Setting Name="AdministratorHash" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">5422e102a743fd70a22ee4ff7c2ebbe8</Value>
+      <Value Profile="(Default)">884f77815f692eaa8d00c7c60c22ef30</Value>
     </Setting>
     <Setting Name="Token" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
