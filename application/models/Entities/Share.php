@@ -173,4 +173,58 @@ class Share
     {
         return $this->users;
     }
+    /**
+     * @var boolean $read
+     */
+    private $read;
+
+    /**
+     * @var boolean $write
+     */
+    private $write;
+
+
+    /**
+     * Set read
+     *
+     * @param boolean $read
+     * @return Share
+     */
+    public function setRead($read)
+    {
+        $this->read = $read;
+        return $this;
+    }
+
+    /**
+     * Get read
+     *
+     * @return boolean 
+     */
+    public function getRead()
+    {
+        return $this->read;
+    }
+
+    /**
+     * Set write
+     *
+     * @param boolean $write
+     * @return Share
+     */
+    public function setWrite($write)
+    {
+        $this->write = $write;
+        return $this;
+    }
+
+    /**
+     * Get write
+     *
+     * @return boolean 
+     */
+    public function getWrite()
+    {
+        return $this->write;
+    }
 }

@@ -141,9 +141,10 @@
                 {
                     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
                     NSDictionary *data = (NSDictionary *)[jsonData objectForKey:@"data"];
-                    
-                    [defaults setObject:[data objectForKey:@"token"] forKey:@"userToken"];
-                    [defaults setObject:[data objectForKey:@"user"] forKey:@"user"];
+                    NSDictionary *user = (NSDictionary *)[data objectForKey:@"user"];
+
+                    [defaults setObject:[user objectForKey:@"id"] forKey:@"user_id"];
+                    [defaults setObject:[data objectForKey:@"token"] forKey:@"user_token"];
                     [defaults synchronize];
                     
                     [self performSegueWithIdentifier:@"AfterLogin" sender:self];
@@ -156,7 +157,7 @@
         }
     }
     @catch (NSException * e) {
-        NSLog(@"Exception: %@", e);
+        //NSLog(@"Exception: %@", e);
         [self alertStatus:@"Login Failed" :@"Login Failed"];
     }
 }

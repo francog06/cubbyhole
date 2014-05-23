@@ -45,6 +45,7 @@
 {
     NSURL *url;
     NSString *callUrl;
+    NSString *user_token;
 
     if (!_objects) {
         _objects = [[NSMutableArray alloc] init];
@@ -59,12 +60,14 @@
 
     if (folder_id == nil || [folder_id isEqual:[NSNull null]]) {
         // Aucun folder définie, récupération du root
-        NSDictionary *user = (NSDictionary *)[[NSUserDefaults standardUserDefaults] objectForKey:@"user"];
-        //[user objectForKey:@"id"];
+        NSString *user_id = (NSString *)[[NSUserDefaults standardUserDefaults] objectForKey:@"user_id"];
+        user_token = (NSString *)[[NSUserDefaults standardUserDefaults] objectForKey:@"user_token"];
 
         self.navigationItem.leftBarButtonItems = [NSArray arrayWithObjects:nil];
-        callUrl = [NSString stringWithFormat:@"http://cubbyhole.name/api/folder/user/%s/root", "17"];
+        callUrl = [NSString stringWithFormat:@"http://cubbyhole.name/api/folder/user/%@/root", user_id];
         url = [NSURL URLWithString:callUrl];
+        
+        NSLog(@"Url: %@", callUrl);
     }
     else {
         // Folder définie récupération du folder
@@ -75,7 +78,7 @@
 
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
     [request setURL:url];
-    [request setValue:@"5422e102a743fd70a22ee4ff7c2ebbe8" forHTTPHeaderField:@"X-API-KEY"];
+    [request setValue:user_token forHTTPHeaderField:@"X-API-KEY"];
     [request setHTTPMethod:@"GET"];
     [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
     [request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];

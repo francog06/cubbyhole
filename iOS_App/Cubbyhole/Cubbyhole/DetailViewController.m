@@ -78,11 +78,11 @@ CGRect prevFrame;
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
     NSError *error = [[NSError alloc] init];
     NSHTTPURLResponse *response = nil;
-    NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults] objectForKey:@"userToken"];
+    NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults] objectForKey:@"user_token"];
 
     [request setURL:url];
     [request setHTTPMethod:@"GET"];
-    [request setValue:@"5422e102a743fd70a22ee4ff7c2ebbe8" forHTTPHeaderField:@"X-API-KEY"];
+    [request setValue:token forHTTPHeaderField:@"X-API-KEY"];
         
     NSData *data=[NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
     NSString *responseData = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
@@ -185,9 +185,10 @@ CGRect prevFrame;
     NSString *callUrl = [NSString stringWithFormat:@"http://cubbyhole.name/api/file/remove/%@", (NSString *)[self.detailItem objectForKey:@"id"]];
     NSURL *url = [NSURL URLWithString:callUrl];
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
+    NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults] objectForKey:@"user_token"];
 
     [request setURL:url];
-    [request setValue:@"5422e102a743fd70a22ee4ff7c2ebbe8" forHTTPHeaderField:@"X-API-KEY"];
+    [request setValue:token forHTTPHeaderField:@"X-API-KEY"];
     [request setHTTPMethod:@"DELETE"];
     [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
     [request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
@@ -231,9 +232,10 @@ CGRect prevFrame;
         NSString *post =[[NSString alloc] initWithFormat:@"is_public=%d", ([self.publicButton isOn] ? 1 : 0)];
         NSData *postData = [post dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
         NSString *postLength = [NSString stringWithFormat:@"%lu", (unsigned long)[postData length]];
-        
+        NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults] objectForKey:@"user_token"];
+    
         [request setURL:url];
-        [request setValue:@"5422e102a743fd70a22ee4ff7c2ebbe8" forHTTPHeaderField:@"X-API-KEY"];
+        [request setValue:token forHTTPHeaderField:@"X-API-KEY"];
         [request setHTTPMethod:@"POST"];
         [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
         [request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
