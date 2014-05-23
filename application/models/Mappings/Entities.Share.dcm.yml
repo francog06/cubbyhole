@@ -12,8 +12,10 @@ Entities\Share:
       nullable: false
     read:
       type: boolean
+      nullable: false
     write:
       type: boolean
+      nullable: false
   manyToMany:
     users:
       targetEntity: User

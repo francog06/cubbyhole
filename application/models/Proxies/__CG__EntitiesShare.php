@@ -117,10 +117,34 @@ class Share extends \Entities\Share implements \Doctrine\ORM\Proxy\Proxy
         return parent::getUsers();
     }
 
+    public function setRead($read)
+    {
+        $this->__load();
+        return parent::setRead($read);
+    }
+
+    public function getRead()
+    {
+        $this->__load();
+        return parent::getRead();
+    }
+
+    public function setWrite($write)
+    {
+        $this->__load();
+        return parent::setWrite($write);
+    }
+
+    public function getWrite()
+    {
+        $this->__load();
+        return parent::getWrite();
+    }
+
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'date', 'folder', 'file', 'owner', 'users');
+        return array('__isInitialized__', 'id', 'date', 'read', 'write', 'folder', 'file', 'owner', 'users');
     }
 
     public function __clone()
