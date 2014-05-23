@@ -10,16 +10,22 @@
 #import "SBJsonParser.h"
 #import "SVProgressHUD.h"
 
+#import <AvailabilityMacros.h>
+
+extern NSString * const SVPProgressLoadImage;
+extern NSString * const SVPProgressSetPublic;
+extern NSString * const SVPProgressDeleteFile;
+
 @interface DetailViewController : UIViewController <UISplitViewControllerDelegate>
+
 @property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *trashButton;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *actionButton;
 @property (weak, nonatomic) IBOutlet UIImageView *imagePreview;
 @property (weak, nonatomic) IBOutlet UISwitch *publicButton;
+@property NSString *doAction;
+
 - (IBAction)publicChanged:(id)sender;
-
-@property NSMutableArray *photos;
-
 - (IBAction)actionButtonClicked:(id)sender;
 - (IBAction)deleteButtonClicked:(id)sender;
 - (void)loadImage;

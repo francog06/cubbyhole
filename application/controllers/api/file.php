@@ -19,6 +19,7 @@ class File extends REST_Controller {
 		$this->load->helper(['file', 'download']);
 
 		$this->methods['download_get']['key'] = FALSE;
+		$this->methods['preview_get']['key'] = FALSE;
 	}
 
 	public function preview_get($id = null) {

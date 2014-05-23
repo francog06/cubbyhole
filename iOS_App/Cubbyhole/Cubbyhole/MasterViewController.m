@@ -45,7 +45,7 @@
 {
     NSURL *url;
     NSString *callUrl;
-    NSString *user_token;
+    NSString *user_token = (NSString *)[[NSUserDefaults standardUserDefaults] objectForKey:@"user_token"];
 
     if (!_objects) {
         _objects = [[NSMutableArray alloc] init];
@@ -61,13 +61,10 @@
     if (folder_id == nil || [folder_id isEqual:[NSNull null]]) {
         // Aucun folder définie, récupération du root
         NSString *user_id = (NSString *)[[NSUserDefaults standardUserDefaults] objectForKey:@"user_id"];
-        user_token = (NSString *)[[NSUserDefaults standardUserDefaults] objectForKey:@"user_token"];
 
         self.navigationItem.leftBarButtonItems = [NSArray arrayWithObjects:nil];
         callUrl = [NSString stringWithFormat:@"http://cubbyhole.name/api/folder/user/%@/root", user_id];
         url = [NSURL URLWithString:callUrl];
-        
-        NSLog(@"Url: %@", callUrl);
     }
     else {
         // Folder définie récupération du folder
@@ -161,7 +158,7 @@
     self.backButton = [[UIBarButtonItem alloc] initWithTitle:@"Back" style:UIBarButtonItemStyleBordered target:self action:@selector(Back)];
 
     self.navigationItem.hidesBackButton = YES;
-    self.navigationItem.leftBarButtonItems = [NSArray arrayWithObjects:self.backButton, nil];
+    self.navigationItem.leftBarButtonItems = [NSArray arrayWithObjects:self.backButton, self.editButtonItem, nil];
     self.folder_id = nil;
 
     UIBarButtonItem *addButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(insertNewObject:)];
@@ -227,6 +224,18 @@
     return _objects.count;
 }
 
+- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
+{
+    // update your model
+}
+
+// Override to support conditional rearranging of the table view.
+- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    // Return NO if you do not want the item to be re-orderable.
+    return YES;
+}
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Cell" forIndexPath:indexPath];
@@ -257,12 +266,60 @@
     return YES;
 }
 
+- (void)deleteEntity:(NSIndexPath *)indexPath
+{
+    NSString *callUrl;
+    NSDictionary *object = _objects[indexPath.row];
+
+        callUrl = [NSString stringWithFormat:@"http://cubbyhole.name/api/%@/remove/%@",
+                   (NSString *)[object  objectForKey:@"type"],
+                   (NSString *)[object  objectForKey:@"id"]];
+    NSURL *url = [NSURL URLWithString:callUrl];
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
+    NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults] objectForKey:@"user_token"];
+
+    [request setURL:url];
+    [request setValue:token forHTTPHeaderField:@"X-API-KEY"];
+    [request setHTTPMethod:@"DELETE"];
+    [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
+    [request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
+    
+    NSLog(@"Delete");
+    NSError *error = [[NSError alloc] init];
+    NSHTTPURLResponse *response = nil;
+    NSData *urlData=[NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
+    NSString *responseData = [[NSString alloc]initWithData:urlData encoding:NSUTF8StringEncoding];
+    SBJsonParser *jsonParser = [SBJsonParser new];
+    NSDictionary *jsonData = (NSDictionary *) [jsonParser objectWithString:responseData error:nil];
+    
+    if ((long)[response statusCode] >=200 && (long)[response statusCode] <300)
+    {
+        NSInteger error = [(NSNumber *) [jsonData objectForKey:@"error"] integerValue];
+        
+        if(error == false)
+        {
+            [self alertStatus:[jsonData objectForKey:@"message"] :@"Success delete"];
+            [_objects removeObjectAtIndex:indexPath.row];
+            [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
+        } else {
+            NSLog(@"%@", [jsonData objectForKey:@"message"]);
+        }
+    } else {
+        NSLog(@"%@", [jsonData objectForKey:@"message"]);
+    }
+}
+
+- (void)startEditing {
+    [self setEditing:YES animated:YES];
+}
+
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
-        [_objects removeObjectAtIndex:indexPath.row];
-        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
-    } else {// if (editingStyle == UITableViewCellEditingStyleInsert) {
+        [self deleteEntity:indexPath];
+    } else if (editingStyle == UITableViewCellEditingStyleInsert) {
+        NSLog(@"Editing style");
+    } else {
         // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view.
         NSLog(@"Unhandled editing style! %ld", editingStyle);
     }
