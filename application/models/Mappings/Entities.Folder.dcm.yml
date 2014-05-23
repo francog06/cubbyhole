@@ -27,10 +27,12 @@ Entities\Folder:
       targetEntity: File
       mappedBy: folder
       cascade: ["persist", "merge", "remove"]
+      onDelete: CASCADE
     folders:
       targetEntity: Folder
       mappedBy: parent
       cascade: ["persist", "merge", "remove"]
+      onDelete: CASCADE
   manyToOne:
     user:
       targetEntity: User

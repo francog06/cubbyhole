@@ -38,15 +38,19 @@ Entities\User:
       targetEntity: PlanHistory
       mappedBy: user
       cascade: ["persist", "merge", "remove"]
+      onDelete: CASCADE
     folders:
       targetEntity: Folder
       mappedBy: user
       cascade: ["persist", "merge", "remove"]
+      onDelete: CASCADE
     files:
       targetEntity: File
       mappedBy: user
       cascade: ["persist", "merge", "remove"]
+      onDelete: CASCADE
     shared:
       targetEntity: Share
       mappedBy: owner
       cascade: ["persist", "merge", "remove"]
+      onDelete: CASCADE

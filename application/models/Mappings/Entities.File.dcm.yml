@@ -33,6 +33,7 @@ Entities\File:
       targetEntity: DataHistory
       mappedBy: file
       cascade: ["persist", "merge", "remove"]
+      onDelete: CASCADE
   manyToOne:
     user:
       targetEntity: User
@@ -40,12 +41,14 @@ Entities\File:
       joinColumn:
         name: user_id
         referencedColumnName: id
+        onDelete: SET NULL
     folder:
       targetEntity: Folder
       inversedBy: files
       joinColumn:
         name: folder_id
         referencedColumnName: id
+        onDelete: SET NULL
   oneToOne:
     share:
       targetEntity: Share

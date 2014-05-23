@@ -42,4 +42,5 @@ Entities\Plan:
     plan_historys:
       targetEntity: PlanHistory
       mappedBy: plan
-      cascade: ["persist", "merge"]
+      cascade: ["persist", "merge", "remove"]
+      onDelete: CASCADE
