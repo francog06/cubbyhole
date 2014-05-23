@@ -10,6 +10,10 @@ Entities\Share:
     date:
       type: datetime
       nullable: false
+    read:
+      type: boolean
+    write:
+      type: boolean
   manyToMany:
     users:
       targetEntity: User
