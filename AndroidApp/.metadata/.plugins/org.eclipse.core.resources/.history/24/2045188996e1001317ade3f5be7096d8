@@ -1,0 +1,8 @@
+package com.supinfo.cubbyhole.mobileapp.fragment;
+
+import android.app.ListFragment;
+
+
+public class RefreshListFragment extends ListFragment {
+
+}

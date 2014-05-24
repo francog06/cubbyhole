@@ -1,0 +1,33 @@
+package com.supinfo.cubbyhole.mobileapp.adapters;
+
+import android.widget.ArrayAdapter;
+
+public class MoveListAdapter extends ArrayAdapter<Folder> {
+
+    private Context context;
+
+    public MyClassAdapter(Context context, int textViewResourceId, ArrayList<Folder> folders) {
+        super(context, textViewResourceId, items);
+        this.context = context;
+    }
+
+    public View getView(int position, View convertView, ViewGroup parent) {
+        View view = convertView;
+        if (view == null) {
+            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            view = inflater.inflate(R.layout.item, null);
+        }
+
+        MyClass item = getItem(position);
+        if (item!= null) {
+            // My layout has only one TextView
+            TextView itemView = (TextView) view.findViewById(R.id.ItemView);
+            if (itemView != null) {
+                // do whatever you want with your string and long
+                itemView.setText(String.format("%s %d", item.reason, item.long_val));
+            }
+         }
+
+        return view;
+    }
+}

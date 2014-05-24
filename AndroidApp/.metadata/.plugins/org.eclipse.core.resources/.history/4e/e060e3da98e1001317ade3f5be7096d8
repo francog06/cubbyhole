@@ -1,0 +1,26 @@
+package com.supinfo.cubbyhole.mobileapp.activities;
+
+import com.supinfo.cubbyhole.mobileapp.activities.Test.RefreshListFragment;
+
+import android.app.Activity;
+import android.app.Fragment;
+import android.os.Bundle;
+
+
+public class HomeActivity extends Activity {
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		// Add the Sample Fragment if there is one
+	    Fragment sampleFragment = new RefreshListFragment();
+	    if (sampleFragment != null) {
+	        getFragmentManager().beginTransaction()
+	                .replace(android.R.id.content, sampleFragment).commit();
+	    }
+	    
+	}
+	
+	
+}
