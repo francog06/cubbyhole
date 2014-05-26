@@ -113,16 +113,17 @@ class Data_history extends REST_Controller {
 
 	// @GET details
 	public function details_get($id = null) {
+		$data = new StdClass();
 		if (is_null($id)) {
-			$this->response(array('error' => true, 'message' => 'Id not defined.'), 400);
+			$this->response(array('error' => true, 'message' => 'id not defined.', 'data' => $data), 400);
 		}
 
 		$DataHistory = $this->doctrine->em->find('Entities\DataHistory', (int)$id);
 		if (is_null($DataHistory)) {
-			$this->response(array('error' => true, 'message' => 'DataHistory not found.'), 400);
+			$this->response(array('error' => true, 'message' => 'DataHistory not found.', 'data' => $data), 400);
 		}
-
-		$this->response(array('error' => false, 'DataHistory' => $DataHistory), 200);
+		$data->DataHistory = $DataHistory;
+		$this->response(array('error' => false, 'message' => 'DataHistory successfully retrieved', 'data' => $data), 200);
 	}
 
 

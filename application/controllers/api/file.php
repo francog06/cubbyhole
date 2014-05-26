@@ -19,6 +19,7 @@ class File extends REST_Controller {
 		$this->load->helper(['file', 'download']);
 
 		$this->methods['download_get']['key'] = FALSE;
+		$this->methods['preview_get']['key'] = FALSE;
 	}
 
 	public function preview_get($id = null) {
@@ -116,18 +117,37 @@ class File extends REST_Controller {
 		$file = $this->doctrine->em->find('Entities\File', (int)$id);
 		if (is_null($file)) {
 			show_404();
+
 		}
 
-		if (!$file->getIsPublic()) {
-			$this->response(array('error' => true, 'message' => 'This file is not public.', 'data' => $data), 400);
-		}
+		if (isset($_SERVER['HTTP_X_API_TOKEN'])) {
+			$key = $_SERVER['HTTP_X_API_TOKEN'];
 
-		if ( ($access_key = $this->input->get('accessKey')) !== false ) {
-			if ($access_key != $file->getAccessKey())
-				$this->response(array('error' => true, 'message' => 'Invalid access key.', 'data' => $data), 400);
+			if ( ! ($row = $this->rest->db->where(config_item('rest_key_column'), $key)->get(config_item('rest_keys_table'))->row()))
+			{
+				$this->response(array('error' => true, 'message' => "You can't download this file.", 'data' => $data), 400);
+			}
+			else
+			{
+				$user = $this->doctrine->em->find('Entities\User', (int)$row->user_id);
+				if (is_null($user))
+					$this->response(array('error' => true, 'message' => "User don't exist (APIKEY).", 'data' => $data), 400);
+				if ($file->getUser() != $user)
+					$this->response(array('error' => true, 'message' => "That's now your file", 'data' => $data), 400);
+			}
 		}
 		else {
-			$this->response(array('error' => true, 'message' => 'No access key.', 'data' => $data), 400);
+			if (!$file->getIsPublic()) {
+				$this->response(array('error' => true, 'message' => 'This file is not public.', 'data' => $data), 400);
+			}
+
+			if ( ($access_key = $this->input->get('accessKey')) !== false ) {
+				if ($access_key != $file->getAccessKey())
+					$this->response(array('error' => true, 'message' => 'Invalid access key.', 'data' => $data), 400);
+			}
+			else {
+				$this->response(array('error' => true, 'message' => 'No access key.', 'data' => $data), 400);
+			}
 		}
 
 		/**

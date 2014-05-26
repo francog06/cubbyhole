@@ -8,7 +8,12 @@
 
 #import "DetailViewController.h"
 
+NSString * const SVPProgressLoadImage = @"load_image";
+NSString * const SVPProgressSetPublic = @"set_public";
+NSString * const SVPProgressDeleteFile = @"delete_file";
+
 @interface DetailViewController ()
+
 @property (strong, nonatomic) UIPopoverController *masterPopoverController;
 - (void)configureView;
 @end
@@ -26,12 +31,22 @@ CGRect prevFrame;
                                              selector:@selector(handleNotification:)
                                                  name:SVProgressHUDDidAppearNotification
                                                object:nil];
+    
 }
 
 - (void)handleNotification:(NSNotification *)notif
 {
-    if ([notif.name isEqualToString:SVProgressHUDDidAppearNotification])
-        [self loadImage];
+    if ([notif.name isEqualToString:SVProgressHUDDidAppearNotification]) {
+        if ([self.doAction isEqualToString:SVPProgressLoadImage]) {
+            [self loadImage];
+        }
+        if ([self.doAction isEqualToString:SVPProgressSetPublic]) {
+            [self setPublic];
+        }
+        if ([self.doAction isEqualToString:SVPProgressDeleteFile]) {
+            [self deleteFile];
+        }
+    }
 }
 
 #pragma mark - Managing the detail item
@@ -70,7 +85,6 @@ CGRect prevFrame;
 - (void)loadImage
 {
     NSString *specialKey = @"ab14d0415c485464a187d5a9c97cc27c";
-    [SVProgressHUD dismiss];
     NSString *folder_ID = (NSString *)[self.detailItem objectForKey:@"id"];
     NSString *callUrl = [NSString stringWithFormat:@"http://cubbyhole.name/api/file/details/%@/preview?hash=%@", folder_ID, specialKey];
 
@@ -131,6 +145,7 @@ CGRect prevFrame;
         self.scrollView.contentSize=CGSizeMake(self.view.bounds.size.width, self.view.bounds.size.height);
         self.scrollView.delegate=self;
 
+        self.doAction = SVPProgressLoadImage;
         [SVProgressHUD show];
     }
     else
@@ -182,17 +197,24 @@ CGRect prevFrame;
 }
 
 - (IBAction)deleteButtonClicked:(id)sender {
+    self.doAction = SVPProgressDeleteFile;
+    [SVProgressHUD show];
+}
+
+- (void)deleteFile
+{
     NSString *callUrl = [NSString stringWithFormat:@"http://cubbyhole.name/api/file/remove/%@", (NSString *)[self.detailItem objectForKey:@"id"]];
     NSURL *url = [NSURL URLWithString:callUrl];
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
     NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults] objectForKey:@"user_token"];
-
+    
     [request setURL:url];
     [request setValue:token forHTTPHeaderField:@"X-API-KEY"];
     [request setHTTPMethod:@"DELETE"];
     [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
     [request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
     
+    NSLog(@"Delete");
     NSError *error = [[NSError alloc] init];
     NSHTTPURLResponse *response = nil;
     NSData *urlData=[NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
@@ -206,8 +228,8 @@ CGRect prevFrame;
         
         if(error == false)
         {
-            NSDictionary *data = (NSDictionary *)[jsonData objectForKey:@"data"];
-
+            //NSDictionary *data = (NSDictionary *)[jsonData objectForKey:@"data"];
+            
             [self alertStatus:[jsonData objectForKey:@"message"] :@"Success delete"];
             [self.navigationController popViewControllerAnimated:YES];
         } else {
@@ -225,45 +247,55 @@ CGRect prevFrame;
     [alertView show];
 }
 
-- (IBAction)publicChanged:(id)sender {
-        NSString *callUrl = [NSString stringWithFormat:@"http://cubbyhole.name/api/file/update/%@", (NSString *)[self.detailItem objectForKey:@"id"]];
-        NSURL *url = [NSURL URLWithString:callUrl];
-        NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
-        NSString *post =[[NSString alloc] initWithFormat:@"is_public=%d", ([self.publicButton isOn] ? 1 : 0)];
-        NSData *postData = [post dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
-        NSString *postLength = [NSString stringWithFormat:@"%lu", (unsigned long)[postData length]];
-        NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults] objectForKey:@"user_token"];
+- (void)setPublic {
+    NSString *callUrl = [NSString stringWithFormat:@"http://cubbyhole.name/api/file/update/%@", (NSString *)[self.detailItem objectForKey:@"id"]];
+    NSURL *url = [NSURL URLWithString:callUrl];
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
+    NSString *post =[[NSString alloc] initWithFormat:@"is_public=%d", ([self.publicButton isOn] ? 1 : 0)];
+    NSData *postData = [post dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
+    NSString *postLength = [NSString stringWithFormat:@"%lu", (unsigned long)[postData length]];
+    NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults] objectForKey:@"user_token"];
     
-        [request setURL:url];
-        [request setValue:token forHTTPHeaderField:@"X-API-KEY"];
-        [request setHTTPMethod:@"POST"];
-        [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
-        [request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
-        [request setValue:postLength forHTTPHeaderField:@"Content-Length"];
-        [request setHTTPBody:postData];
+    [request setURL:url];
+    [request setValue:token forHTTPHeaderField:@"X-API-KEY"];
+    [request setHTTPMethod:@"POST"];
+    [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
+    [request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
+    [request setValue:postLength forHTTPHeaderField:@"Content-Length"];
+    [request setHTTPBody:postData];
+    
+    NSError *error = [[NSError alloc] init];
+    NSHTTPURLResponse *response = nil;
+    NSData *urlData=[NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
+    NSString *responseData = [[NSString alloc]initWithData:urlData encoding:NSUTF8StringEncoding];
+    SBJsonParser *jsonParser = [SBJsonParser new];
+    NSDictionary *jsonData = (NSDictionary *) [jsonParser objectWithString:responseData error:nil];
+    
+    if ((long)[response statusCode] >=200 && (long)[response statusCode] <300)
+    {
+        NSInteger error = [(NSNumber *) [jsonData objectForKey:@"error"] integerValue];
         
-        NSError *error = [[NSError alloc] init];
-        NSHTTPURLResponse *response = nil;
-        NSData *urlData=[NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
-        NSString *responseData = [[NSString alloc]initWithData:urlData encoding:NSUTF8StringEncoding];
-        SBJsonParser *jsonParser = [SBJsonParser new];
-        NSDictionary *jsonData = (NSDictionary *) [jsonParser objectWithString:responseData error:nil];
-        
-        if ((long)[response statusCode] >=200 && (long)[response statusCode] <300)
+        if(error == false)
         {
-            NSInteger error = [(NSNumber *) [jsonData objectForKey:@"error"] integerValue];
+            NSDictionary *data = (NSDictionary *)[jsonData objectForKey:@"data"];
+            NSDictionary *file = (NSDictionary *)[data objectForKey:@"file"];
             
-            if(error == false)
-            {
-                NSDictionary *data = (NSDictionary *)[jsonData objectForKey:@"data"];
-                
-                [self setDetailItem:(NSDictionary *)[data objectForKey:@"file"]];
-                [self alertStatus:@"Your file is now public":@"Success"];
-            } else {
-                NSLog(@"Error: %@", [jsonData objectForKey:@"message"]);
+            [self setDetailItem:file];
+            if ( (Boolean)[file objectForKey:@"is_public"] == YES ) {
+                [self alertStatus:@"Your file is now private":@"Success"];
             }
+            else
+                [self alertStatus:@"Your file is now public":@"Success"];
         } else {
-            NSLog(@"Error response: %@", [jsonData objectForKey:@"message"]);
+            NSLog(@"Error: %@", [jsonData objectForKey:@"message"]);
         }
+    } else {
+        NSLog(@"Error response: %@", [jsonData objectForKey:@"message"]);
+    }
+}
+
+- (IBAction)publicChanged:(id)sender {
+    self.doAction = SVPProgressSetPublic;
+    [SVProgressHUD show];
 }
 @end

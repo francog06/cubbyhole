@@ -1,0 +1,5 @@
+package com.supinfo.cubbyhole.mobileapp.adapters;
+
+public class MoveListAdapter {
+
+}

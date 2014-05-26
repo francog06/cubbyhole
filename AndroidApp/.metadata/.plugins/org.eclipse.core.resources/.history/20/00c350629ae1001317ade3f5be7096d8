@@ -1,0 +1,290 @@
+package com.supinfo.cubbyhole.mobileapp.activities;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
+import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
+
+import com.supinfo.cubbyhole.mobileapp.R;
+import com.supinfo.cubbyhole.mobileapp.activities.Test.RefreshListFragment;
+import com.supinfo.cubbyhole.mobileapp.adapters.GenericListAdapter;
+import com.supinfo.cubbyhole.mobileapp.models.File;
+import com.supinfo.cubbyhole.mobileapp.models.Folder;
+import com.supinfo.cubbyhole.mobileapp.utils.Data;
+import com.supinfo.cubbyhole.mobileapp.utils.Utils;
+
+import android.app.Fragment;
+import android.app.ListFragment;
+import android.content.Context;
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.ProgressBar;
+
+
+public class HomeActivity extends ActionBarActivity {
+
+	private ProgressBar pb;
+    private ListView list;
+    private List<Object> objArray;
+    private GenericListAdapter listAdapter;
+    private	PullToRefreshLayout mPullToRefreshLayout;
+    private Object itemSelected = null;
+	
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		// Add the Sample Fragment if there is one
+	    Fragment sampleFragment = new RefreshListFragment();
+	    if (sampleFragment != null) {
+	        getFragmentManager().beginTransaction()
+	                .replace(android.R.id.content, sampleFragment).commit();
+	    }
+	    
+	    getSupportActionBar().setTitle(Utils.getUserFromSharedPreferences(this).getEmail());
+	    
+	}
+	
+
+	@Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+            	
+                Utils.removeUserFromSharedPreferences(this);
+                Intent intent_to_login = new Intent(this, LoginActivity.class);
+                startActivity(intent_to_login);
+                finish();
+
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+    
+    /**
+     *  Fragment
+     *  
+     */
+
+    
+    public static class RefreshListFragment extends ListFragment implements OnRefreshListener
+	{
+		int i=0;
+		private	PullToRefreshLayout mPullToRefreshLayout;
+		ArrayAdapter<String> adapter;
+		List<String> list;
+
+		@Override
+		public void onViewCreated(View view, Bundle savedInstanceState) {
+			super.onViewCreated(view, savedInstanceState);
+			
+			list=new ArrayList<String>();
+			int no=1;
+			for(int i=0;i<5;i++)
+			{
+				list.add("Item No :"+no++);
+			}
+			
+			  super.onViewCreated(view,savedInstanceState);
+	            ViewGroup viewGroup = (ViewGroup) view;
+
+	            // As we're using a ListFragment we create a PullToRefreshLayout manually
+	            mPullToRefreshLayout = new PullToRefreshLayout(viewGroup.getContext());
+
+	            // We can now setup the PullToRefreshLayout
+	            ActionBarPullToRefresh.from(getActivity())
+	                    // We need to insert the PullToRefreshLayout into the Fragment's ViewGroup
+	                    .insertLayoutInto(viewGroup)
+	                    // Here we mark just the ListView and it's Empty View as pullable
+	                    .theseChildrenArePullable(android.R.id.list, android.R.id.empty)
+	                    .listener(this)
+	                    .setup(mPullToRefreshLayout);
+			
+		}
+
+		@Override
+		public void onActivityCreated(Bundle savedInstanceState) {
+			super.onActivityCreated(savedInstanceState);
+		
+			adapter=new ArrayAdapter<String>(getActivity(),android.R.layout.simple_list_item_1, list);
+			
+		    // Set the List Adapter to display the sample items
+	        setListAdapter(adapter);
+	        setListShownNoAnimation(true);
+		}
+		
+		
+		@Override
+		public void onRefreshStarted(View view) {
+			//setListShown(false); // This will hide the listview and visible a round progress bar 
+			
+			 new AsyncTask<Void, Void, Void>() {
+
+	                @Override
+	                protected Void doInBackground(Void... params) {
+	                    try {
+	                        Thread.sleep(5000); // 5 seconds 
+	                        int itemNo=list.size();
+	                        itemNo++;
+	                     list.add("New Item No :"+itemNo);
+		                	
+	                       
+	                        
+	                    } catch (InterruptedException e) {
+	                        e.printStackTrace();
+	                    }
+	                    return null;
+	                }
+
+	                @Override
+	                protected void onPostExecute(Void result) {
+	                    super.onPostExecute(result);
+	              
+	                    adapter.notifyDataSetChanged();
+	                    // Notify PullToRefreshLayout that the refresh has finished
+	                    mPullToRefreshLayout.setRefreshComplete();
+	                }
+	            }.execute();
+		}
+	}
+    
+    
+    /**
+     *  Asynctask
+     *
+     */
+    
+    private class DeleteData extends AsyncTask<Void, Integer, Integer> {
+
+        Context ctx;
+        Object item;
+        
+        public DeleteData(Context ctx, Object item) {
+            this.ctx = ctx;
+            this.item = item;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pb.setVisibility(View.VISIBLE);
+        }
+
+        protected Integer doInBackground(Void... params) {
+
+        	if (item instanceof Folder){
+        		Utils.DeleteFolder(ctx, (Folder)item);
+        	}else if (item instanceof File){
+        		
+        	}
+        	
+        	return null;
+        	
+        }
+
+        @Override
+        protected void onPostExecute(Integer i) {
+            super.onPostExecute(i);
+
+            RefreshView();
+        	itemSelected = null;
+        	
+            if (pb!=null){pb.setVisibility(View.GONE);}
+            mPullToRefreshLayout.setRefreshComplete();
+        }
+
+    }
+    
+    private class GetData extends AsyncTask<Void, Integer, List<Object>> {
+
+        String url;
+        String USER_API_KEY;
+        Context ctx;
+
+        public GetData(Context ctx, String url, String USER_API_KEY) {
+            this.url = url;
+            this.USER_API_KEY = USER_API_KEY;
+            this.ctx = ctx;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pb.setVisibility(View.VISIBLE);
+        }
+
+        protected List<Object> doInBackground(Void... params) {
+
+            try {
+
+                return Utils.GetData(ctx, url, USER_API_KEY);
+
+            } catch (Exception e) {
+                Log.w(getClass().getSimpleName(), "exception Connect : Json");
+                e.printStackTrace();
+                return null;
+            }
+}
+
+        @Override
+        protected void onPostExecute(List<Object> downloadedArray) {
+            super.onPostExecute(downloadedArray);
+
+            if (downloadedArray != null){
+
+                if (listAdapter != null){
+                    listAdapter.clear();
+                    listAdapter.notifyDataSetChanged();
+                }
+
+                listAdapter = new GenericListAdapter(HomeActivity.this, R.layout.listview_item, downloadedArray);
+                list.setAdapter(listAdapter);
+            }
+
+            if (pb!=null){pb.setVisibility(View.GONE);}
+            mPullToRefreshLayout.setRefreshComplete();
+        }
+
+    }
+
+    
+    
+    /**
+     *  Refresh Layout
+     */
+    
+    private void RefreshView(){
+    	// Le folder courant est le root
+		if (Data.currentFolder == null){
+			new GetData(HomeActivity.this, Utils.DATA_ROOT, Utils.getUserFromSharedPreferences(HomeActivity.this).getToken()).execute();
+		}else{
+			 new GetData(HomeActivity.this, Utils.DATA_FOLDER+"/"+Data.currentFolder.getId(), Utils.getUserFromSharedPreferences(HomeActivity.this).getToken()).execute();
+		}
+    }
+    
+	
+}
