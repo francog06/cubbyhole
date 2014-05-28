@@ -55,11 +55,6 @@ class File implements \JsonSerializable
     private $size;
 
     /**
-     * @var Entities\Share
-     */
-    private $share;
-
-    /**
      * @var \Doctrine\Common\Collections\ArrayCollection
      */
     private $data_histories;
@@ -266,28 +261,6 @@ class File implements \JsonSerializable
     }
 
     /**
-     * Set share
-     *
-     * @param Entities\Share $share
-     * @return File
-     */
-    public function setShare(\Entities\Share $share = null)
-    {
-        $this->share = $share;
-        return $this;
-    }
-
-    /**
-     * Get share
-     *
-     * @return Entities\Share 
-     */
-    public function getShare()
-    {
-        return $this->share;
-    }
-
-    /**
      * Add data_histories
      *
      * @param Entities\DataHistory $dataHistories
@@ -386,5 +359,42 @@ class File implements \JsonSerializable
             }
         }
         return $json;
+    }
+    /**
+     * @var \Doctrine\Common\Collections\ArrayCollection
+     */
+    private $shares;
+
+
+    /**
+     * Add shares
+     *
+     * @param Entities\Share $shares
+     * @return File
+     */
+    public function addShare(\Entities\Share $shares)
+    {
+        $this->shares[] = $shares;
+        return $this;
+    }
+
+    /**
+     * Remove shares
+     *
+     * @param Entities\Share $shares
+     */
+    public function removeShare(\Entities\Share $shares)
+    {
+        $this->shares->removeElement($shares);
+    }
+
+    /**
+     * Get shares
+     *
+     * @return Doctrine\Common\Collections\Collection 
+     */
+    public function getShares()
+    {
+        return $this->shares;
     }
 }

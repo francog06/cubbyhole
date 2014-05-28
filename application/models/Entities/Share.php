@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Entities\Share
  */
-class Share
+class Share implements \JsonSerializable
 {
     /**
      * @var integer $id
@@ -35,9 +35,19 @@ class Share
     private $owner;
 
     /**
-     * @var \Doctrine\Common\Collections\ArrayCollection
+     * @var Entities\User
      */
-    private $users;
+    private $user;
+
+    /**
+     * @var boolean $read
+     */
+    private $read;
+
+    /**
+     * @var boolean $write
+     */
+    private $write;
 
     public function __construct()
     {
@@ -143,46 +153,15 @@ class Share
     }
 
     /**
-     * Add users
-     *
-     * @param Entities\User $users
+     * Set users
+     * 
+     * @param \Doctrine\Common\Collections\ArrayCollection
      * @return Share
      */
-    public function addUser(\Entities\User $users)
+    public function setUsers(\Doctrine\Common\Collections\ArrayCollection $users)
     {
-        $this->users[] = $users;
-        return $this;
+        $this->users = $users;
     }
-
-    /**
-     * Remove users
-     *
-     * @param Entities\User $users
-     */
-    public function removeUser(\Entities\User $users)
-    {
-        $this->users->removeElement($users);
-    }
-
-    /**
-     * Get users
-     *
-     * @return Doctrine\Common\Collections\Collection 
-     */
-    public function getUsers()
-    {
-        return $this->users;
-    }
-    /**
-     * @var boolean $read
-     */
-    private $read;
-
-    /**
-     * @var boolean $write
-     */
-    private $write;
-
 
     /**
      * Set read
@@ -226,5 +205,55 @@ class Share
     public function getWrite()
     {
         return $this->write;
+    }
+
+    /**
+     * Set user
+     *
+     * @param Entities\User $user
+     * @return Share
+     */
+    public function setUser(\Entities\User $user = null)
+    {
+        $this->user = $user;
+        return $this;
+    }
+
+    /**
+     * Get user
+     *
+     * @return Entities\User 
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * JSON serialize
+     * 
+     * @return public object
+     */
+    public function jsonSerialize() {
+        $excludes = [];
+        $json = [];
+
+        foreach ($this as $key => $value) {
+            if (!in_array($key, $excludes)) {
+                if (is_object($value) && strstr(get_class($value), 'Doctrine') !== false) {
+                    $collectionJson = array();
+                    if (!is_null($value)) {
+                        foreach ($value->getKeys() as $collectionKey) {
+                            $collectionJson[] = $value->current();
+                            $value->next();
+                        }
+                    }
+                    $json[$key] = $collectionJson;
+                }
+                else
+                    $json[$key] = $value;
+            }
+        }
+        return $json;
     }
 }

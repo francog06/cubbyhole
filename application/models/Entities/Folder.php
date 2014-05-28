@@ -40,11 +40,6 @@ class Folder implements \JsonSerializable
     private $access_key;
 
     /**
-     * @var Entities\Share
-     */
-    private $share;
-
-    /**
      * @var \Doctrine\Common\Collections\ArrayCollection
      */
     private $files;
@@ -180,28 +175,6 @@ class Folder implements \JsonSerializable
     }
 
     /**
-     * Set share
-     *
-     * @param Entities\Share $share
-     * @return Folder
-     */
-    public function setShare(\Entities\Share $share = null)
-    {
-        $this->share = $share;
-        return $this;
-    }
-
-    /**
-     * Get share
-     *
-     * @return Entities\Share 
-     */
-    public function getShare()
-    {
-        return $this->share;
-    }
-
-    /**
      * Add files
      *
      * @param Entities\File $files
@@ -321,6 +294,42 @@ class Folder implements \JsonSerializable
     }
 
     /**
+     * Recursively apply share
+     * 
+     * @return Entities\Folder
+     */
+    public function recursiveShare() {
+        $ci =& get_instance();
+
+        // Apply share to file
+        foreach ($this->getFiles()->toArray() as $file) {
+            if (!is_null($this->getShare())) {
+                /*
+                $share = new Entities\Share;
+
+                $share->setRead($this->getShare()->getRead());
+                $share->setWrite($this->getShare()->getWrite());
+                $share->setUsers($this->getShare()->getUsers());
+                $share->setOwner($this->getShare()->getOwner());
+                $share->setDate(new DateTime("now", new DateTimeZone("Europe/Berlin")));
+                $ci->doctrine->persist($share);
+                */
+            }
+        }
+
+        // Apply share to folder
+        foreach ($this->getFolders() as $folder) {
+            /*
+            $folder->setShare($this->getShare());
+            $folder->recursiveShare();
+            */
+        }
+        $ci->doctrine->persist($this);
+        $ci->doctrine->flush();
+        return $this;
+    }
+
+    /**
      * JSON serialize
      * 
      * @return public object
@@ -357,5 +366,42 @@ class Folder implements \JsonSerializable
         }
         $json["parent"] = (!is_null($this->parent) ? $this->parent->getId() : null);
         return $json;
+    }
+    /**
+     * @var \Doctrine\Common\Collections\ArrayCollection
+     */
+    private $shares;
+
+
+    /**
+     * Add shares
+     *
+     * @param Entities\Share $shares
+     * @return Folder
+     */
+    public function addShare(\Entities\Share $shares)
+    {
+        $this->shares[] = $shares;
+        return $this;
+    }
+
+    /**
+     * Remove shares
+     *
+     * @param Entities\Share $shares
+     */
+    public function removeShare(\Entities\Share $shares)
+    {
+        $this->shares->removeElement($shares);
+    }
+
+    /**
+     * Get shares
+     *
+     * @return Doctrine\Common\Collections\Collection 
+     */
+    public function getShares()
+    {
+        return $this->shares;
     }
 }
