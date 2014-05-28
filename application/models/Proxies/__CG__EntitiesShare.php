@@ -99,52 +99,40 @@ class Share extends \Entities\Share implements \Doctrine\ORM\Proxy\Proxy
         return parent::getOwner();
     }
 
-    public function addUser(\Entities\User $users)
+    public function setUser(\Entities\User $user = NULL)
     {
         $this->__load();
-        return parent::addUser($users);
+        return parent::setUser($user);
     }
 
-    public function removeUser(\Entities\User $users)
+    public function getUser()
     {
         $this->__load();
-        return parent::removeUser($users);
+        return parent::getUser();
     }
 
-    public function getUsers()
+    public function jsonSerialize()
     {
         $this->__load();
-        return parent::getUsers();
+        return parent::jsonSerialize();
     }
 
-    public function setRead($read)
+    public function setIsWritable($isWritable)
     {
         $this->__load();
-        return parent::setRead($read);
+        return parent::setIsWritable($isWritable);
     }
 
-    public function getRead()
+    public function getIsWritable()
     {
         $this->__load();
-        return parent::getRead();
-    }
-
-    public function setWrite($write)
-    {
-        $this->__load();
-        return parent::setWrite($write);
-    }
-
-    public function getWrite()
-    {
-        $this->__load();
-        return parent::getWrite();
+        return parent::getIsWritable();
     }
 
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'date', 'read', 'write', 'folder', 'file', 'owner', 'users');
+        return array('__isInitialized__', 'id', 'date', 'is_writable', 'user', 'owner', 'folder', 'file');
     }
 
     public function __clone()

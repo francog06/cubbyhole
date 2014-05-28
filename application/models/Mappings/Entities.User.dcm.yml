@@ -28,12 +28,12 @@ Entities\User:
     is_admin:
       type: boolean
       nullable: false
-  manyToMany:
-    shared_with_me:
-      inversedBy: users
-      targetEntity: Share
-      cascade: ["persist", "merge"]
   oneToMany:
+    shared_with_me:
+      targetEntity: Share
+      mappedBy: user
+      cascade: ["persist", "merge"]
+      onDelete: CASCADE
     plan_historys:
       targetEntity: PlanHistory
       mappedBy: user
@@ -49,7 +49,7 @@ Entities\User:
       mappedBy: user
       cascade: ["persist", "merge", "remove"]
       onDelete: CASCADE
-    shared:
+    shares:
       targetEntity: Share
       mappedBy: owner
       cascade: ["persist", "merge", "remove"]

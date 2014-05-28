@@ -10,30 +10,23 @@ Entities\Share:
     date:
       type: datetime
       nullable: false
-    read:
+    is_writable:
       type: boolean
       nullable: false
-    write:
-      type: boolean
-      nullable: false
-  manyToMany:
-    users:
-      targetEntity: User
-      mappedBy: shared_with_me
-      cascade: ["persist", "merge"]
   manyToOne:
+    user:
+      targetEntity: User
+      inversedBy: shared_with_me
+      cascade: ["persist", "merge"]
     owner:
-      inversedBy: shared
+      inversedBy: shares
       targetEntity: User
       cascade: ["persist", "merge"]
-  oneToOne:
     folder:
       targetEntity: Folder
-      joinColumn:
-        name: folder_id
-        referencedColumnName: id
+      inversedBy: shares
+      cascade: ["persist", "merge"]
     file:
       targetEntity: File
-      joinColumn:
-        name: file_id
-        referencedColumnName: id
+      inversedBy: shares
+      cascade: ["persist", "merge"]

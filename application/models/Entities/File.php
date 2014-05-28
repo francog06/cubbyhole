@@ -35,11 +35,6 @@ class File implements \JsonSerializable
     private $absolute_path;
 
     /**
-     * @var string $public_link_path
-     */
-    private $public_link_path;
-
-    /**
      * @var boolean $is_public
      */
     private $is_public;
@@ -53,11 +48,6 @@ class File implements \JsonSerializable
      * @var float $size
      */
     private $size;
-
-    /**
-     * @var Entities\Share
-     */
-    private $share;
 
     /**
      * @var \Doctrine\Common\Collections\ArrayCollection
@@ -178,28 +168,6 @@ class File implements \JsonSerializable
     }
 
     /**
-     * Set public_link_path
-     *
-     * @param string $publicLinkPath
-     * @return File
-     */
-    public function setPublicLinkPath($publicLinkPath)
-    {
-        $this->public_link_path = $publicLinkPath;
-        return $this;
-    }
-
-    /**
-     * Get public_link_path
-     *
-     * @return string 
-     */
-    public function getPublicLinkPath()
-    {
-        return $this->public_link_path;
-    }
-
-    /**
      * Set is_public
      *
      * @param boolean $isPublic
@@ -263,28 +231,6 @@ class File implements \JsonSerializable
     public function getSize()
     {
         return $this->size;
-    }
-
-    /**
-     * Set share
-     *
-     * @param Entities\Share $share
-     * @return File
-     */
-    public function setShare(\Entities\Share $share = null)
-    {
-        $this->share = $share;
-        return $this;
-    }
-
-    /**
-     * Get share
-     *
-     * @return Entities\Share 
-     */
-    public function getShare()
-    {
-        return $this->share;
     }
 
     /**
@@ -369,7 +315,7 @@ class File implements \JsonSerializable
      * @return public object
      */
     public function jsonSerialize() {
-        $excludes = ["user", "folder", "data_histories"];
+        $excludes = ["user", "folder", "data_histories", "shares"];
         $json = [];
         foreach ($this as $key => $value) {
             if (!in_array($key, $excludes)) {
@@ -386,5 +332,42 @@ class File implements \JsonSerializable
             }
         }
         return $json;
+    }
+    /**
+     * @var \Doctrine\Common\Collections\ArrayCollection
+     */
+    private $shares;
+
+
+    /**
+     * Add shares
+     *
+     * @param Entities\Share $shares
+     * @return File
+     */
+    public function addShare(\Entities\Share $shares)
+    {
+        $this->shares[] = $shares;
+        return $this;
+    }
+
+    /**
+     * Remove shares
+     *
+     * @param Entities\Share $shares
+     */
+    public function removeShare(\Entities\Share $shares)
+    {
+        $this->shares->removeElement($shares);
+    }
+
+    /**
+     * Get shares
+     *
+     * @return Doctrine\Common\Collections\Collection 
+     */
+    public function getShares()
+    {
+        return $this->shares;
     }
 }

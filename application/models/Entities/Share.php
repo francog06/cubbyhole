@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Entities\Share
  */
-class Share
+class Share implements \JsonSerializable
 {
     /**
      * @var integer $id
@@ -35,13 +35,17 @@ class Share
     private $owner;
 
     /**
-     * @var \Doctrine\Common\Collections\ArrayCollection
+     * @var Entities\User
      */
-    private $users;
+    private $user;
+
+    /**
+     * @var boolean $is_writable
+     */
+    private $is_writable;
 
     public function __construct()
     {
-        $this->users = new \Doctrine\Common\Collections\ArrayCollection();
     }
     
     /**
@@ -143,88 +147,77 @@ class Share
     }
 
     /**
-     * Add users
+     * Set user
      *
-     * @param Entities\User $users
+     * @param Entities\User $user
      * @return Share
      */
-    public function addUser(\Entities\User $users)
+    public function setUser(\Entities\User $user = null)
     {
-        $this->users[] = $users;
+        $this->user = $user;
         return $this;
     }
 
     /**
-     * Remove users
+     * Get user
      *
-     * @param Entities\User $users
+     * @return Entities\User 
      */
-    public function removeUser(\Entities\User $users)
+    public function getUser()
     {
-        $this->users->removeElement($users);
+        return $this->user;
     }
 
     /**
-     * Get users
-     *
-     * @return Doctrine\Common\Collections\Collection 
+     * JSON serialize
+     * 
+     * @return public object
      */
-    public function getUsers()
-    {
-        return $this->users;
+    public function jsonSerialize() {
+        $excludes = ["user", "owner"];
+        $json = [];
+
+        foreach ($this as $key => $value) {
+            if (!in_array($key, $excludes)) {
+                if (is_object($value) && strstr(get_class($value), 'Doctrine') !== false) {
+                    $collectionJson = array();
+                    if (!is_null($value)) {
+                        foreach ($value->getKeys() as $collectionKey) {
+                            $collectionJson[] = $value->current();
+                            $value->next();
+                        }
+                    }
+                    $json[$key] = $collectionJson;
+                }
+                else
+                    $json[$key] = $value;
+            }
+        }
+
+        $json["owner"] = array('id' => $this->owner->getId(), 'email' => $this->owner->getEmail());
+        $json["user"] = array('id' => $this->user->getId(), 'email' => $this->user->getEmail());
+        return $json;
     }
-    /**
-     * @var boolean $read
-     */
-    private $read;
 
     /**
-     * @var boolean $write
-     */
-    private $write;
-
-
-    /**
-     * Set read
+     * Set is_writable
      *
-     * @param boolean $read
+     * @param boolean $isWritable
      * @return Share
      */
-    public function setRead($read)
+    public function setIsWritable($isWritable)
     {
-        $this->read = $read;
+        $this->is_writable = $isWritable;
         return $this;
     }
 
     /**
-     * Get read
+     * Get is_writable
      *
      * @return boolean 
      */
-    public function getRead()
+    public function getIsWritable()
     {
-        return $this->read;
-    }
-
-    /**
-     * Set write
-     *
-     * @param boolean $write
-     * @return Share
-     */
-    public function setWrite($write)
-    {
-        $this->write = $write;
-        return $this;
-    }
-
-    /**
-     * Get write
-     *
-     * @return boolean 
-     */
-    public function getWrite()
-    {
-        return $this->write;
+        return $this->is_writable;
     }
 }

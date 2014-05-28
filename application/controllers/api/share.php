@@ -50,12 +50,12 @@ class Share extends REST_Controller {
             $this->response(array('error' => true, 'message' => 'Id not defined.', 'data' => $data), 400);
         }
 
-        $Share = $this->doctrine->em->find('Entities\Share', (int)$id);
-        if (is_null($Share)) {
+        $share = $this->doctrine->em->find('Entities\Share', (int)$id);
+        if (is_null($share)) {
             $this->response(array('error' => true, 'message' => 'Share not found.', 'data' => $data), 400);
         }
 
-        $data->share = $data;
+        $data->share = $share;
         $this->response(array('error' => false, 'data' => $data), 200);
     }
 
@@ -67,49 +67,55 @@ class Share extends REST_Controller {
      * @return $data
      */
     public function create_post() {
-        $file_id = null;
-        $folder_id = null;
-        $users = $this->mandatory_value('users', 'post');
-        if (isset($this->put('file_id'))) {
-            $file_id = $this->post('file_id');
-        } else if (isset($this->post('folder_id'))) {
-            $folder_id = $this->post('folder_id');
+        $type = null;
+        $data = new StdClass();
+        $email = $this->mandatory_value('email', 'post');
+        $write = $this->mandatory_value('write', 'post');
+
+
+        $user = Entities\User::getByEmail($email);
+        if (is_null($user)) {
+            $this->response(array('error' => true, 'message' => 'User not found', 'data' => $data), 404);
         }
 
-        $friends = new \Doctrine\Common\Collections\ArrayCollection();
-        foreach ($users as $user_id) {
-            $user = $this->doctrine->em->find('Entities\User', (int)$user_id);
-            if (is_null($user)) {
-                $this->response(array('error' => true, 'message' => 'User not found.', 'data' => $data), 400);
+        if ( ($file_id = $this->post('file')) !== false ) {
+            $file = $this->doctrine->em->find('Entities\File', (int)$file_id);
+            if (is_null($file)) {
+                $this->response(array('error' => true, 'message' => 'File not found', 'data' => $data), 404);
             }
-            $friends->add($user);
-         }
 
-        $file = $this->doctrine->em->find('Entities\File', (int)$file_id);
-        if (is_null($file)) {
-            $this->response(array('error' => true, 'message' => 'File not found.', 'data' => $data), 400);
+            if ($file->getUser() != $this->rest->user)
+                $this->response(array('error' => true, 'message' => "You can't share other user's file", 'data' => $data), 400);
+            $type = "file";
         }
 
-        $folder = $this->doctrine->em->find('Entities\Folder', (int)$folder_id);
-        if (is_null($folder)) {
-            $this->response(array('error' => true, 'message' => 'Folder not found.', 'data' => $data), 400);
+        if ( ($folder_id = $this->post('folder')) !== false && is_null($type) ) {
+            $folder = $this->doctrine->em->find('Entities\Folder', (int)$folder_id);
+            if (is_null($folder)) {
+                $this->response(array('error' => true, 'message' => 'Folder not found', 'data' => $data), 404);
+            }
+
+            if ($folder->getUser() != $this->rest->user)
+                $this->response(array('error' => true, 'message' => "You can't share other user's folder", 'data' => $data), 400);
+            $type = "folder";
         }
 
         $share = new Entities\Share;
-
         $share->setOwner($this->rest->user);
-        $share->setDate(new DateTime(new DateTimeZone('Europe/Berlin')));
-        if (isset($file)) {
-            $share->setFile($file);
-        } else {
+        $share->setDate(new DateTime("now", new DateTimeZone("Europe/Berlin")));
+
+        if ($type == "folder")
             $share->setFolder($folder);
-        }
-        $share->setRead(false);
-        $share->setWrite(false);
-        $share->addUser($friends);
+        if ($type == "file")
+            $share->setFile($file);
+
+        $share->setIsWritable( ($write == "1" ? true : false) );
+        $share->setUser($user);
 
         $this->doctrine->em->persist($share);
         $this->doctrine->em->flush();
+
+        // TODO: Send email with template, etc...
 
         $data->share = $share;
         $this->response(array('error' => false, 'data' => $data), 200);
@@ -129,17 +135,18 @@ class Share extends REST_Controller {
             $this->response(array('error' => true, 'message' => 'Id not defined.', 'data' => $data), 400);
         }
 
-        $Share = $this->doctrine->em->find('Entities\Share', (int)$id);
-        if (is_null($Share)) {
+        $share = $this->doctrine->em->find('Entities\Share', (int)$id);
+        if (is_null($share)) {
             $this->response(array('error' => true, 'message' => 'Share not found.', 'data' => $data), 400);
         }
 
-        if (isset($this->put('read'))) {
-            $Share->setRead($this->put('read'));
-        }
-        if (isset($this->put('write'))) {
-            $Share->setWrite($this->put('write'));
-        }
+        $share->setIsWritable( ($this->put('write') == "1" ? true : false) );
+
+        $this->doctrine->em->merge($share);
+        $this->doctrine->em->flush();
+
+        $data->share = $share;
+        $this->response(array('error' => false, 'data' => $data), 200);
     }
 
     /**

@@ -33,6 +33,11 @@ Entities\Folder:
       mappedBy: parent
       cascade: ["persist", "merge", "remove"]
       onDelete: CASCADE
+    shares:
+      targetEntity: Share
+      mappedBy: "folder"
+      cascade: ["persist", "merge", "remove"]
+      onDelete: CASCADE
   manyToOne:
     user:
       targetEntity: User
@@ -45,10 +50,4 @@ Entities\Folder:
       inversedBy: folders
       joinColumn:
         name: folder_id
-        referencedColumnName: id
-  oneToOne:
-    share:
-      targetEntity: Share
-      joinColumn:
-        name: share_id
         referencedColumnName: id

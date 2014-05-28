@@ -57,11 +57,6 @@ class User implements \JsonSerializable
     /**
      * @var \Doctrine\Common\Collections\ArrayCollection
      */
-    private $shared;
-
-    /**
-     * @var \Doctrine\Common\Collections\ArrayCollection
-     */
     private $shared_with_me;
 
     public function __construct()
@@ -69,7 +64,6 @@ class User implements \JsonSerializable
         $this->plan_historys = new \Doctrine\Common\Collections\ArrayCollection();
         $this->folders = new \Doctrine\Common\Collections\ArrayCollection();
         $this->files = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->shared = new \Doctrine\Common\Collections\ArrayCollection();
         $this->shared_with_me = new \Doctrine\Common\Collections\ArrayCollection();
     }
     
@@ -290,38 +284,6 @@ class User implements \JsonSerializable
     }
 
     /**
-     * Add shared
-     *
-     * @param Entities\Share $shared
-     * @return User
-     */
-    public function addShared(\Entities\Share $shared)
-    {
-        $this->shared[] = $shared;
-        return $this;
-    }
-
-    /**
-     * Remove shared
-     *
-     * @param Entities\Share $shared
-     */
-    public function removeShared(\Entities\Share $shared)
-    {
-        $this->shared->removeElement($shared);
-    }
-
-    /**
-     * Get shared
-     *
-     * @return Doctrine\Common\Collections\Collection 
-     */
-    public function getShared()
-    {
-        return $this->shared;
-    }
-
-    /**
      * Add shared_with_me
      *
      * @param Entities\Share $sharedWithMe
@@ -448,11 +410,40 @@ class User implements \JsonSerializable
     /**
     * Update key
     *
-    * @return 
+    * @return void
     */
     public function updateKey() {
         $ci =& get_instance();
         $ci->db->update('keys', array('level' => $this->getIsAdmin() ? 1 : 0), array('user_id' => $this->getId()));
+    }
+
+    /**
+     * Get user by email
+     * 
+     * @return Entities\User
+     */
+    public static function getByEmail($email)
+    {
+        if (empty($email) || is_null($email)) {
+            return null;
+        }
+
+        $ci =& get_instance();
+        $query = $ci->doctrine->em->createQueryBuilder()
+                    ->add('select', 'u')
+                    ->add('from', 'Entities\User u')
+                    ->add('where', 'u.email = :email')
+                    ->setParameter('email', $email)
+                    ->getQuery();
+
+        try {
+            $user = $query->getSingleResult();
+        } catch (Doctrine\ORM\NoResultException $e) {
+            return null;
+        } catch (Exception $e) {
+            return null;
+        }
+        return $user;
     }
 
     /**
@@ -461,7 +452,7 @@ class User implements \JsonSerializable
      * @return public object
      */
     public function jsonSerialize() {
-        $excludes = ["plan_historys"];
+        $excludes = ["plan_historys", "shares", "shared_with_me"];
         $json = [];
 
         $this->folders = $this->folders->filter(function($_) {
@@ -488,5 +479,42 @@ class User implements \JsonSerializable
         }
         $json['activePlanHistory'] = self::getActivePlanHistory();
         return $json;
+    }
+    /**
+     * @var \Doctrine\Common\Collections\ArrayCollection
+     */
+    private $shares;
+
+
+    /**
+     * Add shares
+     *
+     * @param Entities\Share $shares
+     * @return User
+     */
+    public function addShare(\Entities\Share $shares)
+    {
+        $this->shares[] = $shares;
+        return $this;
+    }
+
+    /**
+     * Remove shares
+     *
+     * @param Entities\Share $shares
+     */
+    public function removeShare(\Entities\Share $shares)
+    {
+        $this->shares->removeElement($shares);
+    }
+
+    /**
+     * Get shares
+     *
+     * @return Doctrine\Common\Collections\Collection 
+     */
+    public function getShares()
+    {
+        return $this->shares;
     }
 }

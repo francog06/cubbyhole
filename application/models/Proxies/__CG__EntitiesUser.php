@@ -165,24 +165,6 @@ class User extends \Entities\User implements \Doctrine\ORM\Proxy\Proxy
         return parent::getFiles();
     }
 
-    public function addShared(\Entities\Share $shared)
-    {
-        $this->__load();
-        return parent::addShared($shared);
-    }
-
-    public function removeShared(\Entities\Share $shared)
-    {
-        $this->__load();
-        return parent::removeShared($shared);
-    }
-
-    public function getShared()
-    {
-        $this->__load();
-        return parent::getShared();
-    }
-
     public function addSharedWithMe(\Entities\Share $sharedWithMe)
     {
         $this->__load();
@@ -231,10 +213,28 @@ class User extends \Entities\User implements \Doctrine\ORM\Proxy\Proxy
         return parent::jsonSerialize();
     }
 
+    public function addShare(\Entities\Share $shares)
+    {
+        $this->__load();
+        return parent::addShare($shares);
+    }
+
+    public function removeShare(\Entities\Share $shares)
+    {
+        $this->__load();
+        return parent::removeShare($shares);
+    }
+
+    public function getShares()
+    {
+        $this->__load();
+        return parent::getShares();
+    }
+
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'email', 'password', 'registration_date', 'user_location_ip', 'is_admin', 'plan_historys', 'folders', 'files', 'shared', 'shared_with_me');
+        return array('__isInitialized__', 'id', 'email', 'password', 'registration_date', 'user_location_ip', 'is_admin', 'shared_with_me', 'plan_historys', 'folders', 'files', 'shares');
     }
 
     public function __clone()

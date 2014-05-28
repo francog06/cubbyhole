@@ -171,7 +171,7 @@ class User extends REST_Controller {
 			$this->email->to($user->getEmail());
 			$this->email->from('registration@cubbyhole.name');
 			$this->email->subject('Votre inscription sur Cubbyhole');
-			$this->email->message($this->load->view('layouts/main', array('user' => $user, 'view' => 'email/registration'), TRUE));
+			$this->email->message($this->load->view('layouts/email', array('user' => $user, 'view' => 'email/registration'), TRUE));
 			@$this->email->send();
 
 			$data->user = $user;
@@ -301,7 +301,7 @@ class User extends REST_Controller {
 		$this->email->to($user->getEmail());
 		$this->email->from('password@cubbyhole.name');
 		$this->email->subject('Votre mot de passe sur Cubbyhole');
-		$this->email->message($this->load->view('layouts/main', array('user' => $user, 'view' => 'email/forget_password'), TRUE));
+		$this->email->message($this->load->view('layouts/email', array('user' => $user, 'view' => 'email/forget_password'), TRUE));
 		@$this->email->send();
 
 		$this->response(array('error' => false, 'message' => 'Mail sent.', 'data' => $data), 200);

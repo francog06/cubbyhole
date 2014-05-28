@@ -34,6 +34,11 @@ Entities\File:
       mappedBy: file
       cascade: ["persist", "merge", "remove"]
       onDelete: CASCADE
+    shares:
+      targetEntity: Share
+      mappedBy: "file"
+      cascade: ["persist", "merge", "remove"]
+      onDelete: CASCADE
   manyToOne:
     user:
       targetEntity: User
@@ -49,9 +54,3 @@ Entities\File:
         name: folder_id
         referencedColumnName: id
         onDelete: SET NULL
-  oneToOne:
-    share:
-      targetEntity: Share
-      joinColumn:
-        name: share_id
-        referencedColumnName: id
