@@ -758,6 +758,24 @@ span.fileSprite {
   display: inline-block;
 }
 
+span.twitter{
+  background-position: left -8516px;
+  width: 32px;
+  height: 32px;
+}
+
+span.facebook{
+  background-position: left -4717px;
+  width: 32px;
+  height: 32px;
+}
+
+span.mail{
+  background-position: left -9355px;
+  width: 32px;
+  height: 32px;
+}
+
 span.dossier{
   background-position: left -2557px;
   width: 28px;

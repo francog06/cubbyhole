@@ -1,3 +1,473 @@
+<script type="text/javascript">
+    var user_id = <?= $user->getId(); ?>;
+    var sprite,type;
+
+    $(document).ready(function(){   
+        //First load 
+        getRoot();
+        // Hover actions tableau
+        $.bootstrapSortable();
+
+        /* ------------------
+            BOUTONS HEADER
+        --------------------- */
+
+        //Button refresh
+        $("#refresh").click(function(){
+            if($(".breadcrumb a:last-child").attr("data-id") == undefined){
+                getRoot();
+            }else{
+                getFolder($(".breadcrumb a:last-child").attr("data-id"));
+            }
+        });
+        // Nouveau fichier
+        $("#formNewFile").submit(function(e){
+            e.preventDefault();
+            var formData = new FormData();
+            var user_id = <?= $user->getId(); ?>;
+            formData.append('file',document.getElementById('file_name').files[0]);
+            formData.append('user_id', user_id);
+            formData.append('folder_id', $("#folder_id").val());
+            $("#loadingModal").modal("show");
+            $.ajax({
+                url: "/api/file/add",
+                type: "POST",
+                contentType:false,
+                processData: false,
+                cache: false,
+                data: formData,
+                headers:{
+                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+                },
+                success: function(result) {
+                    if(result.error == false){
+                       $('#newFileModal').modal("hide");
+                       $("div.result").append('<div class="alert alert-success fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                       if($(".breadcrumb a:last-child").attr("data-id") == undefined)
+                            getRoot();
+                        else
+                            getFolder($(".breadcrumb a:last-child").attr("data-id"));
+                    }
+                    else{
+                        $("div.result").append('<div class="alert alert-warning fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                        $('#newFolderModal').modal("hide");
+                    }
+                    $("#loadingModal").modal("hide");
+                },
+                error: function(result) {
+                    $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">Erreur lors de la transaction.</p>');
+                    $('#newFileModal').modal("hide");
+                    $("#loadingModal").modal("hide");
+                }
+            });
+        });
+        //Nouveau dossier
+        $("#submitNewFolder").click(function(e){
+            e.preventDefault();
+            $.ajax({
+                url: '/api/folder/add',
+                type: 'POST',
+                headers:{
+                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+                },
+                data:{folder_id:$("#folder_id").val(),user_id:user_id,name:$("#folder_name").val()},
+                success: function(result) {
+                    if(result.error == false){
+                       $('#newFolderModal').modal("hide");
+                       $("div.result").append('<div class="alert alert-success fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                       if($(".breadcrumb a:last-child").attr("data-id") == undefined)
+                            getRoot();
+                        else
+                            getFolder($(".breadcrumb a:last-child").attr("data-id"));
+                    }
+                    else{
+                        $("div.result").append('<div class="alert alert-warning fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                        $('#newFolderModal').modal("hide");
+                    }
+                },
+                error: function(result) {
+                    $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">Erreur lors de la transaction.</p>');
+                    $('#newFolderModal').modal("hide");
+                }
+           });
+        });
+
+    /* ------------------
+        BOUTONS LISTE
+    --------------------- */
+    //Eidter Folder
+        $("#submitEditFolder").click(function(e){
+            e.preventDefault();
+            $.ajax({
+                url: '/api/folder/update/'+$("#edit_folder_id").val(),
+                type: 'PUT',
+                headers:{
+                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+                },
+                data:{user_id:user_id,name:$("#edit_folder_name").val()},
+                success: function(result) {
+                    if(result.error == false){
+                       $('#editFolderModal').modal("hide");
+                       $("div.result").append('<div class="alert alert-success fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                       if($(".breadcrumb a:last-child").attr("data-id") == undefined)
+                            getRoot();
+                        else
+                            getFolder($(".breadcrumb a:last-child").attr("data-id"));
+                    }
+                    else{
+                        $("div.result").append('<div class="alert alert-warning fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                        $('#editFolderModal').modal("hide");
+                    }
+                },
+                error: function(result) {
+                    $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">Erreur lors de la transaction.</p>');
+                    $('#editFolderModal').modal("hide");
+                }
+           });
+        });
+    //Editer Fichier
+        $("#submitEditFile").click(function(e){
+            e.preventDefault();
+            $.ajax({
+                url: '/api/file/update/'+$("#edit_file_id").val(),
+                type: 'POST',
+                headers:{
+                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+                },
+                data:{user_id:user_id,name:$("#edit_file_name").val()+$("#edit_file_ext").html()},
+                success: function(result) {
+                    if(result.error == false){
+                       $('#editFileModal').modal("hide");
+                       $("div.result").append('<div class="alert alert-success fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                       if($(".breadcrumb a:last-child").attr("data-id") == undefined)
+                            getRoot();
+                        else
+                            getFolder($(".breadcrumb a:last-child").attr("data-id"));
+                    }
+                    else{
+                        $("div.result").append('<div class="alert alert-warning fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                        $('#editFileModal').modal("hide");
+                    }
+                },
+                error: function(result) {
+                    $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">Erreur lors de la transaction.</p>');
+                    $('#editFileModal').modal("hide");
+                }
+           });
+        });
+        
+    });</script>
+<script type="text/javascript" src="http://interactjs.io/js/interact.min.js"></script>
+<script type="text/javascript">
+    var obj = $("#dragandrophandler");
+    var user_id = <?= $user->getId(); ?>;
+
+    /* ------------------
+        DRAG AND DROP LISTE
+    --------------------- */
+    
+    //Drag&drop file/folder
+    interact('.folder')
+    // enable draggables to be dropped into this
+    .dropzone(true)
+    // only accept elements matching this CSS selector
+    .accept('.file .drag, .folder .drag')
+    // listen for drop related events
+    .on('dragenter', function (event) {
+        var draggableElement = event.relatedTarget,
+            dropzoneElement = event.target;
+
+        // feedback the possibility of a drop
+        dropzoneElement.classList.add('drop-target');
+        //draggableElement.classList.add('can-drop');
+    })
+    .on('dragleave', function (event) {
+        // remove the drop feedback style
+        event.target.classList.remove('drop-target');
+        //event.relatedTarget.classList.remove('can-drop');
+    })
+    .on('drop', function (event) {
+        //event.relatedTarget.textContent = 'Dropped';
+        event.target.classList.remove('drop-target');
+        //alert($(event.relatedTarget).attr("data-id"));
+        if($(event.relatedTarget).parent().attr("class") == "file"){
+            $.ajax({
+                url: '/api/file/update/'+$(event.relatedTarget).parent().attr("data-id"),
+                type: 'POST',
+                headers:{
+                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+                },
+                data:{folder_id:$(event.target).attr("data-id")},
+                success: function(result) {
+                    if(result.error == false){
+                        if($(".breadcrumb a:last-child").attr("data-id") == undefined)
+                            getRoot();
+                        else
+                            getFolder($(".breadcrumb a:last-child").attr("data-id"));
+                            
+                    }
+                },
+                error: function(result) {
+                }
+            });
+        }
+        else if($(event.relatedTarget).parent().attr("class") == "folder"){
+            $.ajax({
+                url: '/api/folder/update/'+$(event.relatedTarget).parent().attr("data-id"),
+                type: 'PUT',
+                headers:{
+                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+                },
+                data:{folder_id:$(event.target).attr("data-id")},
+                success: function(result) {
+                    if(result.error == false){
+                        if($(".breadcrumb a:last-child").attr("data-id") == undefined)
+                            getRoot();
+                        else
+                            getFolder($(".breadcrumb a:last-child").attr("data-id"));
+                            
+                    }
+                },
+                error: function(result) {
+                }
+            });
+        }
+        else alert('error');
+        
+    });
+    interact('.parentFolder')
+        // enable draggables to be dropped into this
+        .dropzone(true)
+        // only accept elements matching this CSS selector
+        .accept('.file .drag, .folder .drag')
+        // listen for drop related events
+        .on('dragenter', function (event) {
+            var draggableElement = event.relatedTarget,
+                dropzoneElement = event.target;
+
+            // feedback the possibility of a drop
+            dropzoneElement.classList.add('drop-target');
+            //draggableElement.classList.add('can-drop');
+        })
+        .on('dragleave', function (event) {
+            // remove the drop feedback style
+            event.target.classList.remove('drop-target');
+            //event.relatedTarget.classList.remove('can-drop');
+        })
+        .on('drop', function (event) {
+            //event.relatedTarget.textContent = 'Dropped';
+            event.target.classList.remove('drop-target');
+            //alert($(event.relatedTarget).attr("data-id"));
+            if($(event.relatedTarget).parent().attr("class") == "file"){
+                $.ajax({
+                    url: '/api/file/update/'+$(event.relatedTarget).parent().attr("data-id"),
+                    type: 'POST',
+                    headers:{
+                        "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+                    },
+                    data:{folder_id:$(event.target).attr("data-id")},
+                    success: function(result) {
+                        if(result.error == false){
+                            if($(".breadcrumb a:last-child").attr("data-id") == undefined)
+                                getRoot();
+                            else
+                                getFolder($(".breadcrumb a:last-child").attr("data-id"));
+                                
+                        }
+                    },
+                    error: function(result) {
+                    }
+                });
+            }
+            else if($(event.relatedTarget).parent().attr("class") == "folder"){
+                $.ajax({
+                    url: '/api/folder/update/'+$(event.relatedTarget).parent().attr("data-id"),
+                    type: 'PUT',
+                    headers:{
+                        "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+                    },
+                    data:{folder_id:$(event.target).attr("data-id")},
+                    success: function(result) {
+                        if(result.error == false){
+                            if($(".breadcrumb a:last-child").attr("data-id") == undefined)
+                                getRoot();
+                            else
+                                getFolder($(".breadcrumb a:last-child").attr("data-id"));
+                                
+                        }
+                    },
+                    error: function(result) {
+                    }
+                });
+            }
+            else alert('error');
+            
+        });
+    interact('.file .drag')
+    .draggable({
+        onmove: function (event) {
+            var target = event.target;
+            //target.x = (target.x|0) + event.dx;
+            target.y = (target.y|0) + event.dy;
+            target.style.webkitTransform = target.style.transform = 'translate( 0px, ' + target.y + 'px)';
+        },
+        onend  : function (event) {
+            var target = event.target;
+            target.style.webkitTransform = target.style.transform = 'translate( 0px, 0px)';
+        }
+    })
+    .inertia(true);
+
+    interact('.folder .drag')
+    .draggable({
+        onmove: function (event) {
+            var target = event.target;
+            //target.x = (target.x|0) + event.dx;
+            target.y = (target.y|0) + event.dy;
+            target.style.webkitTransform = target.style.transform = 'translate( 0px, ' + target.y + 'px)';
+        },
+        onend  : function (event) {
+            var target = event.target;
+            target.style.webkitTransform = target.style.transform = 'translate( 0px, 0px)';
+        }
+    })
+    .inertia(true);</script>
+<script type="text/javascript">
+    /* ------------------
+        DRAG AND DROP UPLOAD FILE
+    --------------------- */
+    
+    obj.on('dragenter', function (e) 
+    {
+        e.stopPropagation();
+        e.preventDefault();
+        $(this).css('border', '2px solid #ccc');
+    });
+    obj.on('dragover', function (e) 
+    {
+         e.stopPropagation();
+         e.preventDefault();
+    });
+    obj.on('drop', function (e) 
+    {
+         $(this).css('border', '2px dashed #ccc');
+         e.preventDefault();
+         var files = e.originalEvent.dataTransfer.files;
+     
+         //We need to send dropped files to Server
+         handleFileUpload(files,obj);
+    });
+
+    function handleFileUpload(files,obj)
+    {
+       for (var i = 0; i < files.length; i++) 
+       {
+            var fd = new FormData();
+            fd.append('file', files[i]);
+            fd.append('user_id', user_id);
+            fd.append('folder_id', $("#folder_id").val());
+     
+            var status = new createStatusbar(obj); //Using this we can set progress.
+            status.setFileNameSize(files[i].name,files[i].size);
+            sendFileToServer(fd,status);
+     
+       }
+    }
+
+    var rowCount=0;
+    function createStatusbar(obj)
+    {
+         rowCount++;
+         var row="odd";
+         if(rowCount %2 ==0) row ="even";
+         this.statusbar = $("<div class='statusbar "+row+"'></div>");
+         this.filename = $("<div class='filename'></div>").appendTo(this.statusbar);
+         this.size = $("<div class='filesize'></div>").appendTo(this.statusbar);
+         this.progressBar = $("<div class='progressBar'><div></div></div>").appendTo(this.statusbar);
+         this.abort = $("<div class='abort'>Abort</div>").appendTo(this.statusbar);
+         obj.after(this.statusbar);
+     
+        this.setFileNameSize = function(name,size)
+        {
+            var sizeStr="";
+            var sizeKB = size/1024;
+            if(parseInt(sizeKB) > 1024)
+            {
+                var sizeMB = sizeKB/1024;
+                sizeStr = sizeMB.toFixed(2)+" MB";
+            }
+            else
+            {
+                sizeStr = sizeKB.toFixed(2)+" KB";
+            }
+     
+            this.filename.html(name);
+            this.size.html(sizeStr);
+        }
+        this.setProgress = function(progress)
+        {       
+            var progressBarWidth =progress*this.progressBar.width()/ 100;  
+            this.progressBar.find('div').animate({ width: progressBarWidth }, 10).html(progress + "% ");
+            if(parseInt(progress) >= 100)
+            {
+                this.abort.hide();
+            }
+        }
+        this.setAbort = function(jqxhr)
+        {
+            var sb = this.statusbar;
+            this.abort.click(function()
+            {
+                jqxhr.abort();
+                sb.hide();
+            });
+        }
+    }
+
+    function sendFileToServer(formData,status)
+    {
+        var extraData ={}; //Extra Data.
+        console.log(formData);
+        var jqXHR=$.ajax({
+                xhr: function() {
+                var xhrobj = $.ajaxSettings.xhr();
+                if (xhrobj.upload) {
+                        xhrobj.upload.addEventListener('progress', function(event) {
+                            var percent = 0;
+                            var position = event.loaded || event.position;
+                            var total = event.total;
+                            if (event.lengthComputable) {
+                                percent = Math.ceil(position / total * 100);
+                            }
+                            //Set progress
+                            status.setProgress(percent);
+                        }, false);
+                    }
+                return xhrobj;
+            },
+            url: "/api/file/add",
+            type: "POST",
+            contentType:false,
+            processData: false,
+            cache: false,
+            data: formData,
+            headers:{
+                "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+            },
+            success: function(data){
+                status.setProgress(100);
+                $("#status1").append("File upload Done<br>");       
+                $("#newFileModal").modal("hide");
+                 if($(".breadcrumb a:last-child").attr("data-id") == undefined){
+                    getRoot();
+                }else{
+                    getFolder($(".breadcrumb a:last-child").attr("data-id"));
+                }    
+            }
+        }); 
+     
+        status.setAbort(jqXHR);
+    }</script>
 <div class="inner cover admin">
    <h1>Mon Cubbyhole</h1>
    <script type="text/javascript">
@@ -128,6 +598,74 @@
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
+<!-- Modal partage -->
+<style type="text/css">
+    .btn-default {
+        color: #333;
+        background-color: #fff;
+        border-color: #ccc;
+    }
+    .btn-default:hover, .btn-default:focus, .btn-default:active, .btn-default.active, .open .dropdown-toggle.btn-default {
+        color: #333;
+        background-color: #ebebeb;
+        border-color: #adadad;
+    }
+    .btn:active, .btn.active {
+        outline: 0;
+        background-image: none;
+        -webkit-box-shadow: inset 0 3px 5px rgba(0,0,0,.125);
+        box-shadow: inset 0 3px 5px rgba(0,0,0,.125);
+    }
+</style>
+<div class="modal fade" id="partageModal" tabindex="-1" role="dialog" aria-labelledby="Partage" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Partager cet élément</h4>
+            </div>
+            <form class="form-horizontal" role="form" method="post" id="formNewFolder">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6" style="border-right:1px dotted #ccc">
+                            <h4>Avec tout le monde</h4>
+                            <div class="btn-group" data-toggle="buttons">
+                              <label class="btn btn-default" id="shared_y">
+                                <input type="radio" name="shared"> Oui
+                              </label>
+                              <label class="btn btn-default" id="shared_n">
+                                <input type="radio" name="shared"> Non
+                              </label>
+                            </div>
+                            <script type="text/javascript">
+                                $("#shared_n").click(function(){ $("#publicPartage").fadeOut() });
+                                $("#shared_y").click(function(){ $("#publicPartage").fadeIn() });
+                            </script>
+                            <div id="publicPartage" class="row" style="margin-top:25px;">
+                                <label class="col-sm-2 control-label">Url</label>
+                                <div class="col-sm-9">
+                                    <input class="form-control" type="text" id="shareUrl" Placeholder="Generating..." value="" onclick="this.select();" />
+                                </div>
+                                <br><br><br>
+                                Partager sur mes réseaux
+                                <br>
+                                <a href="" id="mail"><span class="sprite mail"></span></a>
+                                <a href="" id="facebook"><span class="sprite facebook"></span></a>
+                                <a href="" id="twitter"><span class="sprite twitter"></span></a>
+                            </div>
+
+                        </div>
+                        <div class="col-md-6">
+                            <h4>Avec un autre utilisateur</h4>
+
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
 <!-- Modal folder edit -->
 <div class="modal fade" id="editFolderModal" tabindex="-1" role="dialog" aria-labelledby="Edition dossier" aria-hidden="true">
   <div class="modal-dialog modal-lg">
@@ -155,7 +693,7 @@
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
-<!-- Modal folder edit -->
+<!-- Modal file edit -->
 <div class="modal fade" id="editFileModal" tabindex="-1" role="dialog" aria-labelledby="Edition file" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -165,12 +703,11 @@
       </div>
       <form class="form-horizontal" role="form" method="post" id="formNewFolder">
           <div class="modal-body">
-              <div class="form-group">
-                <label for="user_email" class="col-sm-5 control-label">Nom du fichier </label>
-                <div class="col-sm-4">
+            <label for="user_email" class="col-sm-2 control-label">Nom du fichier </label>
+              <div class="input-group">  
                   <input type="hidden" name="edit_file_id" id="edit_file_id" value="" />
-                  <input type="text" class="form-control" id="edit_file_name" name='file_name' />
-                </div>
+                  <input type="text" class="form-control" id="edit_file_name" name='file_name' value="" />
+                  <span class="input-group-addon" id="edit_file_ext"></span>
               </div>
           </div>
           <div class="modal-footer">
@@ -193,476 +730,26 @@
     </div>
   </div>
 </div>
-    <script type="text/javascript">
-    var user_id = <?= $user->getId(); ?>;
-    var sprite,type;
-    $(document).ready(function(){    
-        getRoot();
-        // Hover actions tableau
-        $.bootstrapSortable();
-        $("#refresh").click(function(){
-            if($(".breadcrumb a:last-child").attr("data-id") == undefined){
-                getRoot();
-            }else{
-                getFolder($(".breadcrumb a:last-child").attr("data-id"));
-            }
-        });
 
-        $("#formNewFile").submit(function(e){
-            e.preventDefault();
-            var formData = new FormData();
-             var user_id = <?= $user->getId(); ?>;
-            formData.append('file',document.getElementById('file_name').files[0]);
-            formData.append('user_id', user_id);
-            formData.append('folder_id', $("#folder_id").val());
-            $.ajax({
-                url: "/api/file/add",
-                type: "POST",
-                contentType:false,
-                processData: false,
-                cache: false,
-                data: formData,
-                headers:{
-                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
-                },
-                success: function(result) {
-                    if(result.error == false){
-                       $('#newFileModal').modal("hide");
-                       $("div.result").append('<div class="alert alert-success fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
-                       if($(".breadcrumb a:last-child").attr("data-id") == undefined)
-                            getRoot();
-                        else
-                            getFolder($(".breadcrumb a:last-child").attr("data-id"));
-                    }
-                    else{
-                        $("div.result").append('<div class="alert alert-warning fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
-                        $('#newFolderModal').modal("hide");
-                    }
-                },
-                error: function(result) {
-                    $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">Erreur lors de la transaction.</p>');
-                    $('#newFileModal').modal("hide");
-                }
-            });
-        });
 
-        $("#submitNewFolder").click(function(e){
-            e.preventDefault();
-            $.ajax({
-                url: '/api/folder/add',
-                type: 'POST',
-                headers:{
-                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
-                },
-                data:{folder_id:$("#folder_id").val(),user_id:user_id,name:$("#folder_name").val()},
-                success: function(result) {
-                    if(result.error == false){
-                       $('#newFolderModal').modal("hide");
-                       $("div.result").append('<div class="alert alert-success fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
-                       if($(".breadcrumb a:last-child").attr("data-id") == undefined)
-                            getRoot();
-                        else
-                            getFolder($(".breadcrumb a:last-child").attr("data-id"));
-                    }
-                    else{
-                        $("div.result").append('<div class="alert alert-warning fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
-                        $('#newFolderModal').modal("hide");
-                    }
-                },
-                error: function(result) {
-                    $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">Erreur lors de la transaction.</p>');
-                    $('#newFolderModal').modal("hide");
-                }
-           });
-        });
-   
-    $("#submitEditFolder").click(function(e){
-            e.preventDefault();
-            $.ajax({
-                url: '/api/folder/update/'+$("#edit_folder_id").val(),
-                type: 'PUT',
-                headers:{
-                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
-                },
-                data:{user_id:user_id,name:$("#edit_folder_name").val()},
-                success: function(result) {
-                    if(result.error == false){
-                       $('#editFolderModal').modal("hide");
-                       $("div.result").append('<div class="alert alert-success fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
-                       if($(".breadcrumb a:last-child").attr("data-id") == undefined)
-                            getRoot();
-                        else
-                            getFolder($(".breadcrumb a:last-child").attr("data-id"));
-                    }
-                    else{
-                        $("div.result").append('<div class="alert alert-warning fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
-                        $('#editFolderModal').modal("hide");
-                    }
-                },
-                error: function(result) {
-                    $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">Erreur lors de la transaction.</p>');
-                    $('#editFolderModal').modal("hide");
-                }
-           });
-        });
-
-    $("#submitEditFile").click(function(e){
-            e.preventDefault();
-            $.ajax({
-                url: '/api/file/update/'+$("#edit_file_id").val(),
-                type: 'POST',
-                headers:{
-                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
-                },
-                data:{user_id:user_id,name:$("#edit_file_name").val()},
-                success: function(result) {
-                    if(result.error == false){
-                       $('#editFileModal').modal("hide");
-                       $("div.result").append('<div class="alert alert-success fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
-                       if($(".breadcrumb a:last-child").attr("data-id") == undefined)
-                            getRoot();
-                        else
-                            getFolder($(".breadcrumb a:last-child").attr("data-id"));
-                    }
-                    else{
-                        $("div.result").append('<div class="alert alert-warning fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
-                        $('#editFileModal').modal("hide");
-                    }
-                },
-                error: function(result) {
-                    $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">Erreur lors de la transaction.</p>');
-                    $('#editFileModal').modal("hide");
-                }
-           });
-        });
-        
-    });
-    </script>
-<script type="text/javascript" src="http://interactjs.io/js/interact.min.js"></script>
 <script type="text/javascript">
-    var obj = $("#dragandrophandler");
-    var user_id = <?= $user->getId(); ?>;
 
-    interact('.folder')
-    // enable draggables to be dropped into this
-    .dropzone(true)
-    // only accept elements matching this CSS selector
-    .accept('.file .drag, .folder .drag')
-    // listen for drop related events
-    .on('dragenter', function (event) {
-        var draggableElement = event.relatedTarget,
-            dropzoneElement = event.target;
-
-        // feedback the possibility of a drop
-        dropzoneElement.classList.add('drop-target');
-        //draggableElement.classList.add('can-drop');
-    })
-    .on('dragleave', function (event) {
-        // remove the drop feedback style
-        event.target.classList.remove('drop-target');
-        //event.relatedTarget.classList.remove('can-drop');
-    })
-    .on('drop', function (event) {
-        //event.relatedTarget.textContent = 'Dropped';
-        event.target.classList.remove('drop-target');
-        //alert($(event.relatedTarget).attr("data-id"));
-        if($(event.relatedTarget).parent().attr("class") == "file"){
-            $.ajax({
-                url: '/api/file/update/'+$(event.relatedTarget).parent().attr("data-id"),
-                type: 'POST',
-                headers:{
-                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
-                },
-                data:{folder_id:$(event.target).attr("data-id")},
-                success: function(result) {
-                    if(result.error == false){
-                        if($(".breadcrumb a:last-child").attr("data-id") == undefined)
-                            getRoot();
-                        else
-                            getFolder($(".breadcrumb a:last-child").attr("data-id"));
-                            
-                    }
-                },
-                error: function(result) {
-                }
-            });
-        }
-        else if($(event.relatedTarget).parent().attr("class") == "folder"){
-            $.ajax({
-                url: '/api/folder/update/'+$(event.relatedTarget).parent().attr("data-id"),
-                type: 'PUT',
-                headers:{
-                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
-                },
-                data:{folder_id:$(event.target).attr("data-id")},
-                success: function(result) {
-                    if(result.error == false){
-                        if($(".breadcrumb a:last-child").attr("data-id") == undefined)
-                            getRoot();
-                        else
-                            getFolder($(".breadcrumb a:last-child").attr("data-id"));
-                            
-                    }
-                },
-                error: function(result) {
-                }
-            });
-        }
-        else alert('error');
-        
-    });
-
-interact('.parentFolder')
-    // enable draggables to be dropped into this
-    .dropzone(true)
-    // only accept elements matching this CSS selector
-    .accept('.file .drag, .folder .drag')
-    // listen for drop related events
-    .on('dragenter', function (event) {
-        var draggableElement = event.relatedTarget,
-            dropzoneElement = event.target;
-
-        // feedback the possibility of a drop
-        dropzoneElement.classList.add('drop-target');
-        //draggableElement.classList.add('can-drop');
-    })
-    .on('dragleave', function (event) {
-        // remove the drop feedback style
-        event.target.classList.remove('drop-target');
-        //event.relatedTarget.classList.remove('can-drop');
-    })
-    .on('drop', function (event) {
-        //event.relatedTarget.textContent = 'Dropped';
-        event.target.classList.remove('drop-target');
-        //alert($(event.relatedTarget).attr("data-id"));
-        if($(event.relatedTarget).parent().attr("class") == "file"){
-            $.ajax({
-                url: '/api/file/update/'+$(event.relatedTarget).parent().attr("data-id"),
-                type: 'POST',
-                headers:{
-                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
-                },
-                data:{folder_id:$(event.target).attr("data-id")},
-                success: function(result) {
-                    if(result.error == false){
-                        if($(".breadcrumb a:last-child").attr("data-id") == undefined)
-                            getRoot();
-                        else
-                            getFolder($(".breadcrumb a:last-child").attr("data-id"));
-                            
-                    }
-                },
-                error: function(result) {
-                }
-            });
-        }
-        else if($(event.relatedTarget).parent().attr("class") == "folder"){
-            $.ajax({
-                url: '/api/folder/update/'+$(event.relatedTarget).parent().attr("data-id"),
-                type: 'PUT',
-                headers:{
-                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
-                },
-                data:{folder_id:$(event.target).attr("data-id")},
-                success: function(result) {
-                    if(result.error == false){
-                        if($(".breadcrumb a:last-child").attr("data-id") == undefined)
-                            getRoot();
-                        else
-                            getFolder($(".breadcrumb a:last-child").attr("data-id"));
-                            
-                    }
-                },
-                error: function(result) {
-                }
-            });
-        }
-        else alert('error');
-        
-    });
-
-
-    interact('.file .drag')
-    .draggable({
-        onmove: function (event) {
-            var target = event.target;
-            //target.x = (target.x|0) + event.dx;
-            target.y = (target.y|0) + event.dy;
-            target.style.webkitTransform = target.style.transform = 'translate( 0px, ' + target.y + 'px)';
-        },
-        onend  : function (event) {
-            var target = event.target;
-            target.style.webkitTransform = target.style.transform = 'translate( 0px, 0px)';
-        }
-    })
-    .inertia(true);
-
-    interact('.folder .drag')
-    .draggable({
-        onmove: function (event) {
-            var target = event.target;
-            //target.x = (target.x|0) + event.dx;
-            target.y = (target.y|0) + event.dy;
-            target.style.webkitTransform = target.style.transform = 'translate( 0px, ' + target.y + 'px)';
-        },
-        onend  : function (event) {
-            var target = event.target;
-            target.style.webkitTransform = target.style.transform = 'translate( 0px, 0px)';
-        }
-    })
-    .inertia(true);
-
-
-
-    obj.on('dragenter', function (e) 
-    {
-        e.stopPropagation();
-        e.preventDefault();
-        $(this).css('border', '2px solid #ccc');
-    });
-    obj.on('dragover', function (e) 
-    {
-         e.stopPropagation();
-         e.preventDefault();
-    });
-    obj.on('drop', function (e) 
-    {
-     
-         $(this).css('border', '2px dashed #ccc');
-         e.preventDefault();
-         var files = e.originalEvent.dataTransfer.files;
-     
-         //We need to send dropped files to Server
-         handleFileUpload(files,obj);
-    });
-
-    function handleFileUpload(files,obj)
-    {
-       for (var i = 0; i < files.length; i++) 
-       {
-            var fd = new FormData();
-            fd.append('file', files[i]);
-            fd.append('user_id', user_id);
-            fd.append('folder_id', $("#folder_id").val());
-     
-            var status = new createStatusbar(obj); //Using this we can set progress.
-            status.setFileNameSize(files[i].name,files[i].size);
-            sendFileToServer(fd,status);
-     
-       }
-    }
-
-    var rowCount=0;
-    function createStatusbar(obj)
-    {
-         rowCount++;
-         var row="odd";
-         if(rowCount %2 ==0) row ="even";
-         this.statusbar = $("<div class='statusbar "+row+"'></div>");
-         this.filename = $("<div class='filename'></div>").appendTo(this.statusbar);
-         this.size = $("<div class='filesize'></div>").appendTo(this.statusbar);
-         this.progressBar = $("<div class='progressBar'><div></div></div>").appendTo(this.statusbar);
-         this.abort = $("<div class='abort'>Abort</div>").appendTo(this.statusbar);
-         obj.after(this.statusbar);
-     
-        this.setFileNameSize = function(name,size)
-        {
-            var sizeStr="";
-            var sizeKB = size/1024;
-            if(parseInt(sizeKB) > 1024)
-            {
-                var sizeMB = sizeKB/1024;
-                sizeStr = sizeMB.toFixed(2)+" MB";
-            }
-            else
-            {
-                sizeStr = sizeKB.toFixed(2)+" KB";
-            }
-     
-            this.filename.html(name);
-            this.size.html(sizeStr);
-        }
-        this.setProgress = function(progress)
-        {       
-            var progressBarWidth =progress*this.progressBar.width()/ 100;  
-            this.progressBar.find('div').animate({ width: progressBarWidth }, 10).html(progress + "% ");
-            if(parseInt(progress) >= 100)
-            {
-                this.abort.hide();
-            }
-        }
-        this.setAbort = function(jqxhr)
-        {
-            var sb = this.statusbar;
-            this.abort.click(function()
-            {
-                jqxhr.abort();
-                sb.hide();
-            });
-        }
-    }
-
-    function sendFileToServer(formData,status)
-    {
-        var extraData ={}; //Extra Data.
-        console.log(formData);
-        var jqXHR=$.ajax({
-                xhr: function() {
-                var xhrobj = $.ajaxSettings.xhr();
-                if (xhrobj.upload) {
-                        xhrobj.upload.addEventListener('progress', function(event) {
-                            var percent = 0;
-                            var position = event.loaded || event.position;
-                            var total = event.total;
-                            if (event.lengthComputable) {
-                                percent = Math.ceil(position / total * 100);
-                            }
-                            //Set progress
-                            status.setProgress(percent);
-                        }, false);
-                    }
-                return xhrobj;
-            },
-            url: "/api/file/add",
-            type: "POST",
-            contentType:false,
-            processData: false,
-            cache: false,
-            data: formData,
-            headers:{
-                "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
-            },
-            success: function(data){
-                status.setProgress(100);
-                $("#status1").append("File upload Done<br>");       
-                $("#newFileModal").modal("hide");
-                 if($(".breadcrumb a:last-child").attr("data-id") == undefined){
-                    getRoot();
-                }else{
-                    getFolder($(".breadcrumb a:last-child").attr("data-id"));
-                }    
-            }
-        }); 
-     
-        status.setAbort(jqXHR);
-}
-function getFile(id){
+function getFile(id,accessKey){
     if(id > 0){
         $.ajax({
-            url: '/api/file/details/'+id,
+            url: '/api/file/download/'+id+'?accessKey='+accessKey,
             type: 'GET',
             headers:{
-                "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+                "X_API_TOKEN":"<?= $this->session->userdata('user_token'); ?>"
             },
-            success: function(result) { 
-                window.location.href = result.data.file.absolute_path;
-            },
+            success: function(result) { },
             error: function(result){
                 alert("problem with your file demand");
             }
         });
     }
 }
+
 function getRoot(){
     $('#folder_id').val("");
     $('#loadingModal').modal("show");
@@ -692,7 +779,8 @@ function getRoot(){
                                     <td class="drag" data-value="a'+type+'">'+type+'</td>\
                                     <td class="drag">'+result.data.folders[loop_folder].last_update_date.date+'</td>\
                                     <td style="width:175px;"><div style="display:none">\
-                                        <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..."><span class="glyphicon glyphicon-pencil"></span> Editer</button> \
+                                        <button type="button" class="btn btn-xs btn-warning partager"><span class="glyphicon glyphicon-link"></span> Partager</button>\
+                                        <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..." data-fname="'+result.data.folders[loop_folder].name+'"><span class="glyphicon glyphicon-pencil"></span> Editer</button> \
                                         <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span> Supprimer</button></div>\
                                     </td>\
                                 </tr>\
@@ -725,21 +813,24 @@ function getRoot(){
                             case "zip":
                             case "rar":
                             case "tar":
+                            case "tar.gz":
                             case "gzip": sprite = "zip"; type = "Archive";
                             break;
                             default: sprite = "file"; type = "Fichier";
                             break;
                         }
                         result.data.files[loop_file].share != null?type += " Partagé":"";
-                        
+                        var share;
+                        result.data.files[loop_file].access_key == null?share="":share="shared";
                         if(result.data.files.hasOwnProperty(loop_file)){
                             $("#cubbyhole tbody").append('\
-                                <tr class="file" data-id="'+result.data.files[loop_file].id+'">\
-                                    <td class="drag"><a href="javascript:getFile('+result.data.files[loop_file].id+')"><span class="fileSprite '+sprite+'"></span>'+result.data.files[loop_file].name+'</a></td>\
+                                <tr class="file '+share+'" data-id="'+result.data.files[loop_file].id+'" data-key="'+result.data.files[loop_file].access_key+'">\
+                                    <td class="drag"><a href="javascript:getFile('+result.data.files[loop_file].id+', '+result.data.files[loop_file].access_key+')"><span class="fileSprite '+sprite+'"></span>'+result.data.files[loop_file].name+'</a></td>\
                                     <td class="drag">'+type+'</td>\
                                     <td class="drag">'+result.data.files[loop_file].last_update_date.date+'</td>\
-                                    <td style="width:175px;"><div style="display:none">\
-                                        <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..."><span class="glyphicon glyphicon-pencil"></span> Editer</button> \
+                                    <td style="width:235px;"><div style="display:none">\
+                                        <button type="button" class="btn btn-xs btn-warning partager"><span class="glyphicon glyphicon-link"></span> Partager</button>\
+                                        <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..." data-fname="'+result.data.files[loop_file].name+'"><span class="glyphicon glyphicon-pencil"></span> Editer</button> \
                                         <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span> Supprimer</button></div>\
                                     </td>\
                                 </tr>\
@@ -758,47 +849,117 @@ function getRoot(){
                 },function(){
                     $(this).find('td > div').css("display","none");
                 });
-$(document).ready(function(){
-    var rid;
-     $("tr.folder td div button.editer").click(function(){
-        $("#editFolderModal").modal("show");
-        $("#edit_folder_id").val($(this).parent().parent().parent().attr("data-id"));
-    });
-     $("tr.file td div button.editer").click(function(){
-        $("#editFileModal").modal("show");
-        $("#edit_file_id").val($(this).parent().parent().parent().attr("data-id"));
-    });
-    $("button.supprimer").click(function(){
-            if($(this).parent().parent().parent().hasClass("file")){
-                rid = $(this).parent().parent().parent().attr('data-id');
-                var method = "file";
-            }
-            else if($(this).parent().parent().parent().hasClass("folder")){
-                rid = $(this).parent().parent().parent().attr('data-id');
-                var method = "folder";
-            }
 
-            $.ajax({
-                url: '/api/'+method+'/remove/'+rid,
-                type: 'DELETE',
-                headers:{
-                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
-                },
-                success: function(result) {
-                    if(result.error == false){
-                        $("div.result").append('<div class="alert alert-success fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
-                        $("tr[data-id='"+rid+"']").remove();
-                    }
-                    else{
-                        $("div.result").append('<div class="alert alert-warning fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
-                    }
-                },
-                error: function(result) {
-                        $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">Erreur lors du delete.</p>');
-                }
-            });
-    });
-});
+                $(document).ready(function(){
+                    var filepartageid,filepartagekey;
+                    // Click modal Folder edit
+                     $("tr.folder td div button.editer").click(function(){
+                        $("#editFolderModal").modal("show");
+                        $("#edit_folder_id").val($(this).parent().parent().parent().attr("data-id"));
+                        $("#edit_folder_name").val($(this).attr("data-fname"));
+                    });
+                     //Click modal partage
+                     $("button.partager").click(function(){
+                        filepartageid = $(this).parent().parent().parent().attr("data-id");
+                        filepartagekey = $(this).parent().parent().parent().attr("data-key");
+                        $("#shared_y, #shared_n").removeClass("active");
+                        $("#partageModal").modal("show");
+                        if($(this).parent().parent().parent().hasClass("shared")){
+                            $("#shared_y").addClass("active");
+                            $("#publicPartage").fadeIn();
+                            $("#shareUrl").val("http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+filepartagekey);
+                            $("#facebook").attr("href","https://www.facebook.com/sharer/sharer.php?u=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+filepartagekey);
+                            $("#twitter").attr("href","http://twitter.com/intent/tweet/?url=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+filepartagekey+"&text=Télécharge ce fichier depuis Cubbyhole !");
+                            $("#mail").attr("href","mailto:?subject=Cubbyhole&body=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+filepartagekey+"&text=Télécharge ce fichier depuis Cubbyhole !");
+                        }
+                        else {
+                            $("#shared_n").addClass("active");
+                            $("#publicPartage").attr("style",$("#publicPartage").attr("style")+";display:none;");
+                        }
+
+                        $("#shared_y").click(function(){
+                            $("#loadingModal").modal("show");
+                            $.ajax({
+                                url:"/api/file/update/"+filepartageid,
+                                type:"POST",
+                                headers:{
+                                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+                                },
+                                data:{is_public:true},
+                                success: function(result) {
+                                    $("#loadingModal").modal("hide");
+                                    if(result.error == false){
+                                        $("#shareUrl").val("http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+result.data.file.access_key);
+                                        $("#facebook").attr("href","https://www.facebook.com/sharer/sharer.php?u=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+result.data.file.access_key);
+                                        $("#twitter").attr("href","http://twitter.com/intent/tweet/?url=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+result.data.file.access_key+"&text=Télécharge ce fichier depuis Cubbyhole !");
+                                        $("#mail").attr("href","mailto:?subject=Cubbyhole&body=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+result.data.file.access_key+"&text=Télécharge ce fichier depuis Cubbyhole !");
+                                    }
+                                }
+                            })
+                        });
+                         $("#shared_n").click(function(){
+                            $.ajax({
+                                url:"/api/file/update/"+filepartageid,
+                                type:"POST",
+                                headers:{
+                                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+                                },
+                                data:{is_public:"0"},
+                                success: function(result) {
+
+                                }
+                            })
+                        });
+                    });
+                    //refresh after close modal
+                    $('#partageModal').on('hide.bs.modal', function (e) {
+                      $("#refresh").click();
+                    })
+                     //Click modal File edit
+                     $("tr.file td div button.editer").click(function(){
+                        $("#editFileModal").modal("show");
+                        $("#edit_file_id").val($(this).parent().parent().parent().attr("data-id"));
+                        var fn = $(this).attr("data-fname");
+                        var ext = fn.substr((~-fn.lastIndexOf(".") >>> 0) + 2);
+                        if (ext == "gz") ext = "tar.gz"
+                        ext = "."+ext;
+                        fn = fn.replace(ext, "");
+                        $("#edit_file_ext").html(ext);
+                        $("#edit_file_name").val(fn);
+                    });
+                     // Click supprimer
+                     var rid;
+                    $("button.supprimer").click(function(){
+                            if($(this).parent().parent().parent().hasClass("file")){
+                                rid = $(this).parent().parent().parent().attr('data-id');
+                                var method = "file";
+                            }
+                            else if($(this).parent().parent().parent().hasClass("folder")){
+                                rid = $(this).parent().parent().parent().attr('data-id');
+                                var method = "folder";
+                            }
+
+                            $.ajax({
+                                url: '/api/'+method+'/remove/'+rid,
+                                type: 'DELETE',
+                                headers:{
+                                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+                                },
+                                success: function(result) {
+                                    if(result.error == false){
+                                        $("div.result").append('<div class="alert alert-success fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                                        $("tr[data-id='"+rid+"']").remove();
+                                    }
+                                    else{
+                                        $("div.result").append('<div class="alert alert-warning fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                                    }
+                                },
+                                error: function(result) {
+                                        $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">Erreur lors du delete.</p>');
+                                }
+                            });
+                    });
+                });
 
             },
             error: function(result) {
@@ -808,6 +969,9 @@ $(document).ready(function(){
             }
        });
 }
+
+
+
 
 function getFolder(id){
     $('#folder_id').val(id);
@@ -862,7 +1026,8 @@ function getFolder(id){
                                     <td class="drag">'+type+'</td>\
                                     <td class="drag">'+result.data.folder.folders[loop_folder].last_update_date.date+'</td>\
                                     <td style="width:175px;"><div style="display:none">\
-                                        <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..."><span class="glyphicon glyphicon-pencil"></span> Editer</button> \
+                                        <button type="button" class="btn btn-xs btn-warning partager"><span class="glyphicon glyphicon-link"></span> Partager</button>\
+                                        <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..." data-fname="'+result.data.folder.folders[loop_folder].name+'"><span class="glyphicon glyphicon-pencil"></span> Editer</button> \
                                         <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span> Supprimer</button></div>\
                                     </td>\
                                 </tr>\
@@ -895,6 +1060,7 @@ function getFolder(id){
                             case "zip":
                             case "rar":
                             case "tar":
+                            case "tar.gz":
                             case "gzip": sprite = "zip"; type = "Archive";
                             break;
                             default: sprite = "file"; type = "Fichier";
@@ -907,8 +1073,9 @@ function getFolder(id){
                                     <td class="drag"><a href="javascript:getFile('+result.data.folder.files[loop_file].id+')"><span class="fileSprite '+sprite+'"></span>'+result.data.folder.files[loop_file].name+'</a></td>\
                                     <td class="drag">'+type+'</td>\
                                     <td class="drag">'+result.data.folder.files[loop_file].last_update_date.date+'</td>\
-                                    <td style="width:175px;"><div style="display:none">\
-                                        <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..."><span class="glyphicon glyphicon-pencil"></span> Editer</button> \
+                                    <td style="width:235px;"><div style="display:none">\
+                                        <button type="button" class="btn btn-xs btn-warning partager"><span class="glyphicon glyphicon-link"></span> Partager</button>\
+                                        <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..." data-fname="'+result.data.folder.files[loop_file].name+'"><span class="glyphicon glyphicon-pencil"></span> Editer</button> \
                                         <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span> Supprimer</button></div>\
                                     </td>\
                                 </tr>\
@@ -929,6 +1096,33 @@ function getFolder(id){
                 });
 $(document).ready(function(){
     var rid;
+    // Click modal Folder edit
+     $("tr.folder td div button.editer").click(function(){
+        $("#editFolderModal").modal("show");
+        $("#edit_folder_id").val($(this).parent().parent().parent().attr("data-id"));
+        $("#edit_folder_name").val($(this).attr("data-fname"));
+    });
+     //Click modal partage
+     $("button.partager").click(function(){
+        $("#shared_y, #shared_n").removeClass("active");
+        $("#partageModal").modal("show");
+        if($(this).parent().parent().parent().hasClass("shared"))
+            $("#shared_y").addClass("active");
+        else 
+            $("#shared_n").addClass("active");
+    });
+     //Click modal File edit
+     $("tr.file td div button.editer").click(function(){
+        $("#editFileModal").modal("show");
+        $("#edit_file_id").val($(this).parent().parent().parent().attr("data-id"));
+        var fn = $(this).attr("data-fname");
+        var ext = fn.substr((~-fn.lastIndexOf(".") >>> 0) + 2);
+        if (ext == "gz") ext = "tar.gz"
+        ext = "."+ext;
+        fn = fn.replace(ext, "");
+        $("#edit_file_ext").html(ext);
+        $("#edit_file_name").val(fn);
+    });
     $("button.supprimer").click(function(){
             if($(this).parent().parent().parent().hasClass("file")){
                 rid = $(this).parent().parent().parent().attr('data-id');
