@@ -10,10 +10,7 @@ Entities\Share:
     date:
       type: datetime
       nullable: false
-    read:
-      type: boolean
-      nullable: false
-    write:
+    is_writable:
       type: boolean
       nullable: false
   manyToOne:
@@ -28,12 +25,8 @@ Entities\Share:
     folder:
       targetEntity: Folder
       inversedBy: shares
-      joinColumn:
-        name: folder_id
-        referencedColumnName: id
+      cascade: ["persist", "merge"]
     file:
       targetEntity: File
       inversedBy: shares
-      joinColumn:
-        name: file_id
-        referencedColumnName: id
+      cascade: ["persist", "merge"]
