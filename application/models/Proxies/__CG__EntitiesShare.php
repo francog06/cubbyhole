@@ -99,36 +99,6 @@ class Share extends \Entities\Share implements \Doctrine\ORM\Proxy\Proxy
         return parent::getOwner();
     }
 
-    public function setUsers(\Doctrine\Common\Collections\ArrayCollection $users)
-    {
-        $this->__load();
-        return parent::setUsers($users);
-    }
-
-    public function setRead($read)
-    {
-        $this->__load();
-        return parent::setRead($read);
-    }
-
-    public function getRead()
-    {
-        $this->__load();
-        return parent::getRead();
-    }
-
-    public function setWrite($write)
-    {
-        $this->__load();
-        return parent::setWrite($write);
-    }
-
-    public function getWrite()
-    {
-        $this->__load();
-        return parent::getWrite();
-    }
-
     public function setUser(\Entities\User $user = NULL)
     {
         $this->__load();

@@ -8,6 +8,21 @@ class Folder extends REST_Controller {
 		parent::__construct();
 	}
 
+	public function shares_get($id = null) {
+		$data = new StdClass();
+		if (is_null($id)) {
+			$this->response(array('error' => true, 'message' => 'id not defined.', 'data' => $data), 400);
+		}
+
+		$folder = $this->doctrine->em->find('Entities\Folder', (int)$id);
+		if (is_null($folder)) {
+			$this->response(array('error' => true, 'message' => 'folder not found', 'data' => $data), 404);
+		}
+
+		$data->shares = $folder->getShares()->toArray();
+		$this->response(array('error' => false, 'message' => 'Successfully retrieved folder details.', 'data' => $data), 200);
+	}
+
 	public function details_get($id = null) {
 		$data = new StdClass();
 		if (is_null($id)) {

@@ -40,8 +40,14 @@
 
 $route['default_controller'] = "home";
 $route['404_override'] = '';
+
+/* FOLDER SPECIAL ROUTE */
 $route['api/folder/user/(:num)/root'] = "api/folder/user_root/$1";
+$route['api/folder/details/(:num)/shares'] = "api/folder/shares/$1";
+
+/* FILE SPECIAL ROUTE */
 $route['api/file/details/(:num)/preview'] = "api/file/preview/$1";
+$route['api/file/details/(:num)/shares'] = "api/file/shares/$1";
 
 //$route['api/(:any)/format.(:any)'] = "api/$1/format.$3"; // api/{controller}/{method}/{format}
 

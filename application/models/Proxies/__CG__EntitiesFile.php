@@ -99,18 +99,6 @@ class File extends \Entities\File implements \Doctrine\ORM\Proxy\Proxy
         return parent::getAbsolutePath();
     }
 
-    public function setPublicLinkPath($publicLinkPath)
-    {
-        $this->__load();
-        return parent::setPublicLinkPath($publicLinkPath);
-    }
-
-    public function getPublicLinkPath()
-    {
-        $this->__load();
-        return parent::getPublicLinkPath();
-    }
-
     public function setIsPublic($isPublic)
     {
         $this->__load();

@@ -19,7 +19,7 @@ Entities\Share:
       inversedBy: shared_with_me
       cascade: ["persist", "merge"]
     owner:
-      inversedBy: shared
+      inversedBy: shares
       targetEntity: User
       cascade: ["persist", "merge"]
     folder:

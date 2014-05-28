@@ -50,12 +50,12 @@ class Share extends REST_Controller {
             $this->response(array('error' => true, 'message' => 'Id not defined.', 'data' => $data), 400);
         }
 
-        $Share = $this->doctrine->em->find('Entities\Share', (int)$id);
-        if (is_null($Share)) {
+        $share = $this->doctrine->em->find('Entities\Share', (int)$id);
+        if (is_null($share)) {
             $this->response(array('error' => true, 'message' => 'Share not found.', 'data' => $data), 400);
         }
 
-        $data->share = $data;
+        $data->share = $share;
         $this->response(array('error' => false, 'data' => $data), 200);
     }
 
@@ -109,8 +109,7 @@ class Share extends REST_Controller {
         if ($type == "file")
             $share->setFile($file);
 
-        $share->setRead(true);
-        $share->setWrite( ($write == "1" ? true : false) );
+        $share->setIsWritable( ($write == "1" ? true : false) );
         $share->setUser($user);
 
         $this->doctrine->em->persist($share);
@@ -141,10 +140,13 @@ class Share extends REST_Controller {
             $this->response(array('error' => true, 'message' => 'Share not found.', 'data' => $data), 400);
         }
 
-        $share->setWrite( ($this->put('write') == "1" ? true : false) );
+        $share->setIsWritable( ($this->put('write') == "1" ? true : false) );
 
         $this->doctrine->em->merge($share);
         $this->doctrine->em->flush();
+
+        $data->share = $share;
+        $this->response(array('error' => false, 'data' => $data), 200);
     }
 
     /**

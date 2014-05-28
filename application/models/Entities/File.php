@@ -35,11 +35,6 @@ class File implements \JsonSerializable
     private $absolute_path;
 
     /**
-     * @var string $public_link_path
-     */
-    private $public_link_path;
-
-    /**
      * @var boolean $is_public
      */
     private $is_public;
@@ -170,28 +165,6 @@ class File implements \JsonSerializable
     public function getAbsolutePath()
     {
         return $this->absolute_path;
-    }
-
-    /**
-     * Set public_link_path
-     *
-     * @param string $publicLinkPath
-     * @return File
-     */
-    public function setPublicLinkPath($publicLinkPath)
-    {
-        $this->public_link_path = $publicLinkPath;
-        return $this;
-    }
-
-    /**
-     * Get public_link_path
-     *
-     * @return string 
-     */
-    public function getPublicLinkPath()
-    {
-        return $this->public_link_path;
     }
 
     /**
@@ -342,7 +315,7 @@ class File implements \JsonSerializable
      * @return public object
      */
     public function jsonSerialize() {
-        $excludes = ["user", "folder", "data_histories"];
+        $excludes = ["user", "folder", "data_histories", "shares"];
         $json = [];
         foreach ($this as $key => $value) {
             if (!in_array($key, $excludes)) {

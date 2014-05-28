@@ -335,7 +335,7 @@ class Folder implements \JsonSerializable
      * @return public object
      */
     public function jsonSerialize() {
-        $excludes = ["user", "parent", "folders"];
+        $excludes = ["user", "parent", "folders", "shares"];
         $json = [];
         foreach ($this as $key => $value) {
             if (!in_array($key, $excludes)) {
