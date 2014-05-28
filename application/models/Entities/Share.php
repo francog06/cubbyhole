@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Entities\Share
  */
-class Share implements \JsonSerializable
+class Share
 {
     /**
      * @var integer $id
@@ -255,5 +255,32 @@ class Share implements \JsonSerializable
             }
         }
         return $json;
+    }
+    /**
+     * @var boolean $is_writable
+     */
+    private $is_writable;
+
+
+    /**
+     * Set is_writable
+     *
+     * @param boolean $isWritable
+     * @return Share
+     */
+    public function setIsWritable($isWritable)
+    {
+        $this->is_writable = $isWritable;
+        return $this;
+    }
+
+    /**
+     * Get is_writable
+     *
+     * @return boolean 
+     */
+    public function getIsWritable()
+    {
+        return $this->is_writable;
     }
 }
