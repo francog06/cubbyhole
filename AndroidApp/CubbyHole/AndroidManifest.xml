@@ -43,10 +43,7 @@
         <activity android:name=".activities.Home"
             android:screenOrientation="portrait"/>
         
-        <activity android:name=".activities.Test"
-            android:screenOrientation="portrait"/>
-
-        <activity android:name=".activities.CopyOfHome"
+        <activity android:name=".activities.DetailActivity"
             android:screenOrientation="portrait"/>
         
 </application>

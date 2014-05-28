@@ -74,7 +74,7 @@ public class GenericListAdapter extends ArrayAdapter<Object> {
                 File file = (File)o;
                 	
                 arrow.setVisibility(View.GONE);
-                iconImg.setImageDrawable(this.context.getResources().getDrawable(R.drawable.file));
+                iconImg.setImageDrawable(this.context.getResources().getDrawable(R.drawable.cubby_file));
 
                 if (file.getName() != null){
                     nameTv.setText(file.getName());
@@ -97,7 +97,7 @@ public class GenericListAdapter extends ArrayAdapter<Object> {
 
                 final Folder folder = (Folder)o;
 
-                iconImg.setImageDrawable(this.context.getResources().getDrawable(R.drawable.folder));
+                iconImg.setImageDrawable(this.context.getResources().getDrawable(R.drawable.cubby_folder));
 
                 if (folder.getName() != null){
                     nameTv.setText(folder.getName());
@@ -156,142 +156,6 @@ public class GenericListAdapter extends ArrayAdapter<Object> {
                 }
             	
             }
-            
-            
-            
-            
-            /*// item.setSticky permet de desactiver le dismiss de la dialog apres le clic sur l'item
-            ActionItem moveItem 	= new ActionItem(Utils.QUICKACTION_ID_MOVE, "Déplacer", this.context.getResources().getDrawable(R.drawable.dark_rename));
-            ActionItem copyItem 	= new ActionItem(Utils.QUICKACTION_ID_COPY, "Copier", this.context.getResources().getDrawable(R.drawable.dark_rename));
-            ActionItem renameItem 	= new ActionItem(Utils.QUICKACTION_ID_RENAME, "Renommer", this.context.getResources().getDrawable(R.drawable.dark_rename));
-            ActionItem deleteItem 	= new ActionItem(Utils.QUICKACTION_ID_DELETE, "Supprimer", this.context.getResources().getDrawable(R.drawable.dark_delete));
-
-            quickAction = new QuickAction(this.context, QuickAction.HORIZONTAL);
-
-            quickAction.addActionItem(moveItem);
-            quickAction.addActionItem(copyItem);
-            quickAction.addActionItem(renameItem);
-            quickAction.addActionItem(deleteItem);
-        	
-            quickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
-                @Override
-                public void onItemClick(QuickAction source, int pos, int actionId) {
-
-                    ActionItem actionItem = quickAction.getActionItem(pos);
-                    
-                     * 	Rename
-                     
-                    
-                    if (actionId == Utils.QUICKACTION_ID_RENAME) {
-                    	
-                    	if (o != null && o instanceof Folder){
-                    		
-                    		AlertDialog.Builder alert = new AlertDialog.Builder(context);
-                    		alert.setTitle("Edition du dossier");
-                    		alert.setMessage("Merci de spécifier un nouveau nom pour ce dossier :");
-                    		final EditText input = new EditText(context);
-                    		alert.setView(input);
-                    		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                    		public void onClick(DialogInterface dialog, int whichButton) {
-
-                    			String value = input.getText().toString();
-                    			
-                    			if (!value.trim().isEmpty()){
-
-                    				final Folder folderSelected = (Folder)o;
-                    				folderSelected.setName(input.getText().toString());
-                    				
-                    				Home home = new Home();
-                    				Home.UpdateData async = (UpdateData) home.new UpdateData(context, folderSelected).execute();
-                    			
-                    			}else{
-                    				Utils.DisplayToastHome(context, "Le champs nom ne peut pas etre vide..");
-                    			}
-                    			
-                    		}
-                    		});
-                    		alert.setNegativeButton("Annuler", new DialogInterface.OnClickListener() {
-                    		  public void onClick(DialogInterface dialog, int whichButton) {
-                    		  }
-                    		});
-                    		alert.show();
-                    		
-                    	}else if (o != null && o instanceof File){
-                    		
-                    		AlertDialog.Builder alert = new AlertDialog.Builder(context);
-                    		alert.setTitle("Edition du fichier");
-                    		alert.setMessage("Merci de spécifier un nouveau nom pour ce fichier :");
-                    		final EditText input = new EditText(context);
-                    		alert.setView(input);
-                    		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                    		public void onClick(DialogInterface dialog, int whichButton) {
-
-                    			String value = input.getText().toString();
-                    			
-                    			if (!value.trim().isEmpty()){
-
-                    				final File fileSelected = (File)o;
-                    				fileSelected.setName(input.getText().toString());
-                    				
-                    				Home home = new Home();
-                    				Home.UpdateData async = (UpdateData) home.new UpdateData(context, fileSelected).execute();
-                    			
-                    			}else{
-                    				Utils.DisplayToastHome(context, "Le champs nom ne peut pas etre vide..");
-                    			}
-                    			
-                    		}
-                    		});
-                    		alert.setNegativeButton("Annuler", new DialogInterface.OnClickListener() {
-                    		  public void onClick(DialogInterface dialog, int whichButton) {
-                    		  }
-                    		});
-                    		alert.show();
-                    		
-                    	}
-                    	
-                    }
-                    
-                     *  Delete
-                     
-                    
-                    else if (actionId == Utils.QUICKACTION_ID_DELETE) {
-
-                    	if (o != null && o instanceof Folder){
-
-                    		
-                    	}else if (o != null && o instanceof File){
-                    		
-                    		
-                    		
-                    	}
-                    	
-                    }
-                    
-                     *  Copy
-                     
-                    
-                    else if (actionId == Utils.QUICKACTION_ID_COPY){
-                    	
-                    	
-                    	if (o != null && o instanceof Folder){
-                    		
-                    	}else if (o != null && o instanceof File){
-                    		
-                    	}
-
-                    }else if (actionId == Utils.QUICKACTION_ID_MOVE){
-
-                    	if (o != null && o instanceof Folder){
-                    		
-                    	}else if (o != null && o instanceof File){
-                    		
-                    	}
-                    }
-                }
-            });*/
-            
-            
             
         }
 

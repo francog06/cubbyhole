@@ -1,24 +1,37 @@
 package com.supinfo.cubbyhole.mobileapp.activities;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.provider.MediaStore.Images;
+import android.support.v4.content.CursorLoader;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.supinfo.cubbyhole.mobileapp.R;
 import com.supinfo.cubbyhole.mobileapp.adapters.GenericListAdapter;
@@ -28,14 +41,26 @@ import com.supinfo.cubbyhole.mobileapp.models.Empty;
 import com.supinfo.cubbyhole.mobileapp.models.File;
 import com.supinfo.cubbyhole.mobileapp.models.Folder;
 import com.supinfo.cubbyhole.mobileapp.quickactions.ActionItem;
+import com.supinfo.cubbyhole.mobileapp.quickactions.AlertDialogIntentChooser;
 import com.supinfo.cubbyhole.mobileapp.quickactions.QuickAction;
 import com.supinfo.cubbyhole.mobileapp.utils.Data;
 import com.supinfo.cubbyhole.mobileapp.utils.Utils;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.message.BasicNameValuePair;
 
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
@@ -54,8 +79,11 @@ public class Home extends ActionBarActivity implements OnRefreshListener{
     private QuickAction quickAction;
     
     private	PullToRefreshLayout mPullToRefreshLayout;
-    private static Object itemSelected = null;
+    public static Object itemSelected = null;
     
+    private String selectedImagePath;
+    private String filemanagerstring;
+	  
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -70,14 +98,14 @@ public class Home extends ActionBarActivity implements OnRefreshListener{
 
         // item.setSticky permet de desactiver le dismiss de la dialog apres le clic sur l'item
         ActionItem moveItem 	= new ActionItem(Utils.QUICKACTION_ID_MOVE, "Déplacer", getResources().getDrawable(R.drawable.dark_rename));
-        ActionItem copyItem 	= new ActionItem(Utils.QUICKACTION_ID_COPY, "Copier", getResources().getDrawable(R.drawable.dark_rename));
+        ActionItem manageItem 	= new ActionItem(Utils.QUICKACTION_ID_MANAGE, "Gérer", getResources().getDrawable(R.drawable.dark_rename));
         ActionItem renameItem 	= new ActionItem(Utils.QUICKACTION_ID_RENAME, "Renommer", getResources().getDrawable(R.drawable.dark_rename));
         ActionItem deleteItem 	= new ActionItem(Utils.QUICKACTION_ID_DELETE, "Supprimer", getResources().getDrawable(R.drawable.dark_delete));
 
         quickAction = new QuickAction(this, QuickAction.HORIZONTAL);
 
+        quickAction.addActionItem(manageItem);
         quickAction.addActionItem(moveItem);
-        quickAction.addActionItem(copyItem);
         quickAction.addActionItem(renameItem);
         quickAction.addActionItem(deleteItem);
 
@@ -88,7 +116,7 @@ public class Home extends ActionBarActivity implements OnRefreshListener{
         pb = (ProgressBar)findViewById(R.id.home_pb);
         list = (ListView)findViewById(R.id.home_list);
         mPullToRefreshLayout = (PullToRefreshLayout) findViewById(R.id.ptr_layout);
-        
+
         // Instanciation du pulltorefresh
         ActionBarPullToRefresh.from(this)
                 .allChildrenArePullable()
@@ -113,6 +141,15 @@ public class Home extends ActionBarActivity implements OnRefreshListener{
             public void onItemClick(QuickAction source, int pos, int actionId) {
 
                 ActionItem actionItem = quickAction.getActionItem(pos);
+                
+                /*
+                 *  Manage
+                 */
+                
+                if (actionId == Utils.QUICKACTION_ID_MANAGE) {
+                		Intent intent_to_detail = new Intent(Home.this, DetailActivity.class);
+                        startActivityForResult(intent_to_detail, Utils.INTENT_DETAIL);
+                }
                 
                 /*
                  * 	Rename
@@ -213,21 +250,6 @@ public class Home extends ActionBarActivity implements OnRefreshListener{
                 		
                 	}
                 	
-                }
-                
-                /*
-                 *  Copy
-                 */
-                
-                else if (actionId == Utils.QUICKACTION_ID_COPY){
-                	
-                	
-                	if (itemSelected != null && itemSelected instanceof Folder){
-                		
-                	}else if (itemSelected != null && itemSelected instanceof File){
-                		
-                	}
-
                 }
                 
                 /*
@@ -346,7 +368,9 @@ public class Home extends ActionBarActivity implements OnRefreshListener{
                  }else if (list.getAdapter().getItem(position) instanceof File){
 
                      File fileSelected = (File) list.getAdapter().getItem(position);
+                     itemSelected = fileSelected;
                      // Telechargement du fichier depuis le webservice et affichage
+                     new DownloadFile(Home.this, fileSelected).execute();
 
                  }else if (list.getAdapter().getItem(position) instanceof Back){
 
@@ -402,27 +426,333 @@ public class Home extends ActionBarActivity implements OnRefreshListener{
         return true;
     }
 
-
-    @Override
+    @SuppressLint("InlinedApi")
+	@Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_settings:
-            	
+
+        	case R.id.action_settings:
+        		
                 Utils.removeUserFromSharedPreferences(this);
                 Intent intent_to_login = new Intent(this, LoginActivity.class);
                 startActivity(intent_to_login);
                 finish();
 
                 return true;
+                
+        	case R.id.action_add:
+        		
+        		AlertDialog.Builder alert = new AlertDialog.Builder(Home.this);
+        		alert.setTitle("Ajout d'élément dans le repertoire courant");
+        		alert.setMessage("Que souhaitez vous faire ?");
+        		alert.setPositiveButton("Ajouter un fichier texte", new DialogInterface.OnClickListener() {
+        		public void onClick(DialogInterface dialog, int whichButton) {
+        			
+        			AlertDialog.Builder alert = new AlertDialog.Builder(Home.this);
+            		alert.setTitle("Ajout d'un fichier texte");
+            		alert.setMessage("Merci de spécifier un nom pour ce fichier :");
+            		final EditText input = new EditText(Home.this);
+            		alert.setView(input);
+            		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            		public void onClick(DialogInterface dialog, int whichButton) {
+
+            			String value = input.getText().toString();
+            			
+            			List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+            			if (!value.trim().isEmpty() && !value.contains(".") && !value.contains("!") && !value.contains("//") && !value.contains("#")){
+            				pairs.add(new BasicNameValuePair("name", value+".txt"));
+            				pairs.add(new BasicNameValuePair("user_id", String.valueOf(Utils.getUserFromSharedPreferences(Home.this).getId())));
+            				if (Data.currentFolder == null){
+            					pairs.add(new BasicNameValuePair("folder_id", "null"));
+            				}else{
+            					pairs.add(new BasicNameValuePair("folder_id", String.valueOf(Data.currentFolder.getId())));
+            				}
+            				new AddData(Home.this, new File(), pairs).execute();
+            			}else{
+            				Utils.DisplayToastHome(Home.this, "Les caracteres : //!.#&* sont interdits pour la creation d'un fichier..");
+            			}
+            			
+            		}
+            		});
+            		alert.setNegativeButton("Annuler", new DialogInterface.OnClickListener() {
+            		  public void onClick(DialogInterface dialog, int whichButton) {
+            		  }
+            		});
+            		alert.show();
+        			
+        		}
+        		});
+        		alert.setNegativeButton("Ajouter un dossier", new DialogInterface.OnClickListener() {
+        		  public void onClick(DialogInterface dialog, int whichButton) {
+        			  
+        			  AlertDialog.Builder alert = new AlertDialog.Builder(Home.this);
+              		alert.setTitle("Ajout d'un dossier");
+              		alert.setMessage("Merci de spécifier un nom pour ce dossier :");
+              		final EditText input = new EditText(Home.this);
+              		alert.setView(input);
+              		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+              		public void onClick(DialogInterface dialog, int whichButton) {
+
+              			String value = input.getText().toString();
+              			
+              			List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+              			if (!value.trim().isEmpty() && !value.contains(".") && !value.contains("!") && !value.contains("//") && !value.contains("#")){
+              				System.out.println("good");
+            				pairs.add(new BasicNameValuePair("name", value));
+            				pairs.add(new BasicNameValuePair("user_id", String.valueOf(Utils.getUserFromSharedPreferences(Home.this).getId())));
+            				if (Data.currentFolder == null){
+            					pairs.add(new BasicNameValuePair("parent", "null"));
+            				}else{
+            					pairs.add(new BasicNameValuePair("folder_id", String.valueOf(Data.currentFolder.getId())));
+            				}
+            				new AddData(Home.this, new Folder(), pairs).execute();
+            			}else{
+            				Utils.DisplayToastHome(Home.this, "Les caracteres : //!.#&* sont interdits pour la creation d'un fichier..");
+            			}
+              			
+              		}
+              		});
+              		alert.setNegativeButton("Annuler", new DialogInterface.OnClickListener() {
+              		  public void onClick(DialogInterface dialog, int whichButton) {
+              		  }
+              		});
+              		alert.show();
+        			  
+        		  }
+        		});
+        		alert.show();
+        		
+                return true;
+            
+            case R.id.action_upload:
+            	
+            	/*if (Build.VERSION.SDK_INT <19){
+            	    Intent intent = new Intent(); 
+            	    intent.setType("image/*");
+            	    intent.setAction(Intent.ACTION_GET_CONTENT);
+            	    startActivityForResult(Intent.createChooser(intent, "Selectionnez une application"),0);
+            	} else {
+            	    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            	    intent.addCategory(Intent.CATEGORY_OPENABLE);
+            	    intent.setType("image/*");
+            	    startActivityForResult(intent, 1);
+            	}*/
+            	Intent intent = new Intent(Intent.ACTION_PICK, 
+						Images.Media.EXTERNAL_CONTENT_URI);
+				startActivityForResult(intent, Utils.INTENT_UPLOAD);
+            	return true;
+            	
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
-
+    
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    	System.out.println("request code : "+requestCode+" result code : "+resultCode);
+    	
+    	//if (resultCode != Activity.RESULT_OK) return;
+    	//if (null == data) return;
+        
+    	if (requestCode == Utils.INTENT_UPLOAD) {
+    		
+	    	//Uri return from external activity
+			Uri orgUri = data.getData();
+			//path converted from Uri
+			String convertedPath = Utils.GetRealPathFromURI(this, orgUri);
+			//Uri convert back again from path
+			Uri uriFromPath = Uri.fromFile(new java.io.File(convertedPath));
+			
+			java.io.File file = new java.io.File(convertedPath);
+			 List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+				pairs.add(new BasicNameValuePair("name", file.getName()));
+				pairs.add(new BasicNameValuePair("user_id", String.valueOf(Utils.getUserFromSharedPreferences(Home.this).getId())));
+				if (Data.currentFolder == null){
+					pairs.add(new BasicNameValuePair("folder_id", "null"));
+				}else{
+					pairs.add(new BasicNameValuePair("folder_id", String.valueOf(Data.currentFolder.getId())));
+				}
+			new AddImage(file, this, pairs).execute();
+			
+    	}else if (requestCode == Utils.INTENT_DETAIL){
+    		
+    		
+    		
+    	}else if (requestCode == Utils.INTENT_OPEN){
+    		
+    	}
+    }
+    
+    @Override
+    protected void onDestroy() {
+    	super.onDestroy();
+    	
+    	java.io.File sdCard = Environment.getExternalStorageDirectory();
+      	java.io.File directory = new java.io.File (sdCard.getAbsolutePath() + "/Cubbyhole");
+      	
+    	try {
+			FileUtils.cleanDirectory(directory);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} 
+    }
+    
+    private void shareContent(String update) {
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TEXT, update);
+        startActivity(Intent.createChooser(intent, "Partager ce fichier"));
+    }
+    
     /**
      *  Asynctask
      *
      */
+    
+    public class DownloadFile extends AsyncTask<Void, Integer, java.io.File> {
+
+        private Context ctx;
+        private File file;
+        private  ProgressDialog ringProgressDialog;
+        
+        public DownloadFile(Context ctx, File file) {
+            this.ctx = ctx;
+            this.file = file;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            
+            ringProgressDialog = ProgressDialog.show(ctx, "Veuillez patienter...", "Téléchargement du fichier en cours..", true);
+            ringProgressDialog.setCancelable(true);
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                            } catch (Exception e) {
+             
+                            }
+                        }
+                    }).start();
+
+
+        }
+        
+        @Override
+        protected java.io.File doInBackground(Void... params) {
+        	
+        	return Utils.UrlToFile(this.ctx, this.file);
+        	
+        }
+
+        @Override
+        protected void onPostExecute(java.io.File file) {
+            super.onPostExecute(file);
+            
+            ringProgressDialog.dismiss();
+            
+            if (file != null){
+            	 Utils.OpenFile(Home.this, file);
+            }else{
+            	Utils.DisplayToastHome(this.ctx, "La récupération du fichier a échouée, merci de vérifier votre connexion internet.");
+            }
+            
+        }
+
+    }
+    
+    public class AddData extends AsyncTask<Void, Integer, Integer> {
+
+        private Context ctx;
+        private Object item;
+        private List<NameValuePair> pairs;
+        
+        public AddData(Context ctx, Object item, List<NameValuePair> pairs) {
+            this.ctx = ctx;
+            this.item = item;
+            this.pairs = pairs;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pb.setVisibility(View.VISIBLE);
+        }
+        
+        @Override
+        protected Integer doInBackground(Void... params) {
+
+        	if (item instanceof Folder){
+        		Utils.AddFolder(this.ctx, pairs);
+        	}else if (item instanceof File){
+        		
+        		try {
+					Utils.AddFile(this.ctx, pairs);
+				} catch (ClientProtocolException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+        		
+        	}
+        	
+        	return 1;
+        	
+        }
+
+        @Override
+        protected void onPostExecute(Integer i) {
+            super.onPostExecute(i);
+
+        	pb.setVisibility(View.GONE);
+            RefreshView();
+        }
+
+    }
+    
+    public class AddImage extends AsyncTask<Void, Integer, Integer> {
+
+        private Context ctx;
+        private List<NameValuePair> pairs;
+        private java.io.File file;
+        
+        public AddImage(java.io.File file, Context ctx,List<NameValuePair> pairs) {
+            this.ctx = ctx;
+            this.pairs = pairs;
+            this.file = file;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pb.setVisibility(View.VISIBLE);
+        }
+        
+        @Override
+        protected Integer doInBackground(Void... params) {
+
+        		try {
+					Utils.AddImage(this.file ,this.ctx, pairs);
+				} catch (ClientProtocolException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+        	
+        	return 1;
+        	
+        }
+
+        @Override
+        protected void onPostExecute(Integer i) {
+            super.onPostExecute(i);
+
+        	pb.setVisibility(View.GONE);
+            RefreshView();
+        }
+
+    }
     
     public class UpdateData extends AsyncTask<Void, Integer, Integer> {
 
@@ -569,8 +899,6 @@ public class Home extends ActionBarActivity implements OnRefreshListener{
 
     }
 
-    
-    
     /**
      *  Refresh Layout
      */
@@ -592,6 +920,5 @@ public class Home extends ActionBarActivity implements OnRefreshListener{
 		RefreshView();
 		
 	}
-
 
 }

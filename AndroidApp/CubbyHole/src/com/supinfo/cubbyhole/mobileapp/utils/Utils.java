@@ -2,17 +2,29 @@
 package com.supinfo.cubbyhole.mobileapp.utils;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.MimeTypeMap;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -34,17 +46,26 @@ import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -60,15 +81,11 @@ public class Utils {
 
     /** API FOLDER/FILES **/
     /** **************** **/
-
-    /* ROUTES
-    /api/folder/details/{id} : Requete GET
-    /api/folder/create : Requete POST
-    /api/folder/remove/{id}: Requete DELETE
-    /api/folder/update/{id}: Requete PUT
-    /api/folder/user/{user_id}/root: Requete GET - Renvois les folder sur / de l'utilisateur
-    */
-
+	
+	public static final int INTENT_UPLOAD = 0;
+	public static final int INTENT_DETAIL = 1;
+	public static final int INTENT_OPEN = 2;
+	
 	public static final String JSON_FOLDER_NAME = "name";
 	public static final String JSON_FOLDER_LASTUPDATE = "last_update_date";
 	public static final String JSON_FOLDER_ISPUBLIC = "is_public";
@@ -81,8 +98,92 @@ public class Utils {
     public static final String UPDATE_FOLDER = "http://cubbyhole.name/api/folder/update/";
     public static final String DELETE_FILE = "http://cubbyhole.name/api/file/remove/";
     public static final String UPDATE_FILE = "http://cubbyhole.name/api/file/update/";
+    public static final String ADD_FILE = "http://cubbyhole.name/api/file/add";
+    public static final String ADD_FOLDER = "http://cubbyhole.name/api/folder/add";
     public static String DATA_ROOT = "";
-
+    
+    public static final String HASH_DL = "ab14d0415c485464a187d5a9c97cc27c";
+    public static final String FILE = "http://cubbyhole.name/api/file/"; 	// Preview : preview/ID?hash=
+    																		// DL avec quota : download/ID?hash=
+    																		// DL sans quota : synchronize/ID?hash=
+    
+    /*
+     *  Download File
+     */
+    
+	  public static java.io.File GetFileFromStorage(Context ctx, File mfile){
+			java.io.File sdCard = Environment.getExternalStorageDirectory();
+	      	java.io.File directory = new java.io.File (sdCard.getAbsolutePath() + "/Cubbyhole");
+	      	java.io.File file = new java.io.File(directory, mfile.getName());
+	      	return file;
+	  }
+	    
+	  public static java.io.File UrlToFile(Context ctx, File mfile){
+	
+		  HttpClient httpclient = new DefaultHttpClient();
+	      HttpGet httpget = new HttpGet(Utils.FILE+"preview"+"/"+mfile.getId()+"?hash="+Utils.HASH_DL);
+	      
+	      httpget.setHeader(X_API_KEY, getUserFromSharedPreferences(ctx).getToken());
+	
+	      try {
+				
+	      	HttpResponse response = httpclient.execute(httpget);
+	      	InputStream is = response.getEntity().getContent();
+	      	
+	      	java.io.File folder = new java.io.File(Environment.getExternalStorageDirectory() + "/Cubbyhole");
+	      	boolean success = true;
+	      	if (!folder.exists()) {
+	      	    success = folder.mkdir();
+	      	}
+	      	if (success) {
+	      		FileOutputStream fos = new FileOutputStream(new java.io.File(folder, mfile.getName()));
+	      		
+	      		int read = 0;
+	          	byte[] buffer = new byte[32768];
+	          	while( (read = is.read(buffer)) > 0) {
+	          	  fos.write(buffer, 0, read);
+	          	  
+	          	}
+	
+	          	fos.close();
+	          	is.close();
+	          	
+	          	return GetFileFromStorage(ctx, mfile);
+	          	
+	      	} else {
+	      		return null;
+	      	}
+	      	
+	
+			} catch (ClientProtocolException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+	      	return null;
+	    	
+	    }
+    
+    public static Drawable UrlToDrawable(Context ctx, File mfile) {
+    	
+    	URL url;
+		try {
+			url = new URL(Utils.FILE+"preview"+"/"+mfile.getId()+"?hash="+Utils.HASH_DL);
+			 try {
+		            InputStream is = (InputStream) url.getContent();
+		            Drawable d = Drawable.createFromStream(is, mfile.getName());
+		            return d;
+		        } catch (Exception e) {
+		        	e.printStackTrace();
+		            return null;
+		        }
+			 
+		} catch (MalformedURLException e1) {
+			e1.printStackTrace();
+			return null;
+		}
+    }
+    
     /*
      *  Delete
      */
@@ -126,6 +227,94 @@ public class Utils {
     }
     
     /*
+     *  Add
+     */
+    
+    public static void AddFolder(Context ctx, List<NameValuePair> pairs){
+    	
+    	HttpClient httpclient = new DefaultHttpClient();
+        HttpPost httpost = new HttpPost(ADD_FOLDER);
+        
+        httpost.setHeader(X_API_KEY, getUserFromSharedPreferences(ctx).getToken());
+
+        try {
+			
+        	httpost.setEntity(new UrlEncodedFormEntity(pairs));
+        	HttpResponse response = httpclient.execute(httpost);
+			
+		} catch (ClientProtocolException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+    	
+    }
+    
+    
+    @SuppressWarnings("deprecation")
+	public static void AddFile(Context ctx, List<NameValuePair> pairs) throws ClientProtocolException, IOException{
+    	
+    	    java.io.File file = new java.io.File(Environment.getExternalStorageDirectory() + java.io.File.separator +pairs.get(0).getValue());
+    	    file.createNewFile();
+    	    FileBody fileBody = new FileBody(file);
+
+    	    if(file.exists()){
+    	    	  	HttpClient client = new DefaultHttpClient();
+    	    	    HttpPost post = new HttpPost(ADD_FILE);
+    	    	    post.setHeader("enctype", "multipart/form-data");
+    	    	    post.setHeader(X_API_KEY, getUserFromSharedPreferences(ctx).getToken());
+    	    	    
+    	    	    MultipartEntityBuilder multipartEntity = MultipartEntityBuilder.create();
+    	    	    multipartEntity.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+    	    	    multipartEntity.addPart("file",fileBody);
+    	    	    for(NameValuePair pair : pairs){
+    	    	    	if (pair.getValue() != "null"){
+    	    	    		 multipartEntity.addPart(pair.getName(), new StringBody(pair.getValue()));
+    	    	    	}
+    	    	    }
+    	    	    post.setEntity(multipartEntity.build());
+    	    	    
+    	    	    HttpResponse response = client.execute(post);
+    	    	    file.delete();
+
+    	    	    String responseBody = EntityUtils.toString(response.getEntity());
+    	    	    Log.v("multiPartPost HTTP Response", responseBody);
+    	    }
+    	
+    }
+    
+    
+    @SuppressWarnings("deprecation")
+   	public static void AddImage(java.io.File file, Context ctx, List<NameValuePair> pairs) throws ClientProtocolException, IOException{
+       	
+       	    FileBody fileBody = new FileBody(file);
+
+       	    if(file.exists()){
+       	    	  HttpClient client = new DefaultHttpClient();
+       	    	    HttpPost post = new HttpPost(ADD_FILE);
+       	    	    post.setHeader("enctype", "multipart/form-data");
+       	    	    post.setHeader(X_API_KEY, getUserFromSharedPreferences(ctx).getToken());
+       	    	    
+       	    	    MultipartEntityBuilder multipartEntity = MultipartEntityBuilder.create();
+       	    	    multipartEntity.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+       	    	    multipartEntity.addPart("file",fileBody);
+       	    	    for(NameValuePair pair : pairs){
+       	    	    	if (pair.getValue() != "null"){
+       	    	    		 multipartEntity.addPart(pair.getName(), new StringBody(pair.getValue()));
+       	    	    	}
+       	    	    }
+       	    	    post.setEntity(multipartEntity.build());
+       	    	    
+       	    	    HttpResponse response = client.execute(post);
+       	    	    file.delete();
+
+       	    	    String responseBody = EntityUtils.toString(response.getEntity());
+       	    	    Log.v("multiPartPost HTTP Response", responseBody);
+       	    }
+       	
+       }
+    
+    /*
      *  Update
      */
     
@@ -153,13 +342,7 @@ public class Utils {
     public static void UpdateFile(Context ctx, File file, List<NameValuePair> pairs){
     	
     	HttpClient httpclient = new DefaultHttpClient();
-    	
         HttpPost httppost = new HttpPost(UPDATE_FILE+file.getId());
-        
-        for (NameValuePair data : pairs){
-        	System.out.println("name : "+data.getName()+" value : "+data.getValue());
-        }
-        
         httppost.setHeader(X_API_KEY, getUserFromSharedPreferences(ctx).getToken());
 
         try {
@@ -639,8 +822,8 @@ public class Utils {
 
     public static final int QUICKACTION_ID_DELETE 	= 1;
     public static final int QUICKACTION_ID_RENAME   = 2;
-    public static final int QUICKACTION_ID_COPY   = 3;
-    public static final int QUICKACTION_ID_MOVE   = 4;
+    public static final int QUICKACTION_ID_MANAGE   = 3;
+    public static final int QUICKACTION_ID_MOVE   	= 4;
     
     /** CONNECTIVITY **/
     /** ************ **/
@@ -666,7 +849,7 @@ public class Utils {
 
     /** PICTURES **/
     /** ******* **/
-
+    
     public static int GetScreenWidth(Context context) {
         DisplayMetrics displaymetrics = new DisplayMetrics();
         ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE))
@@ -850,4 +1033,57 @@ public class Utils {
         home.runOnUiThread(setErrorMessage);
 
     }
+    
+    /**
+     *  Data
+     */
+    
+    public static void OpenFile(Activity ctx, java.io.File file){
+	    MimeTypeMap myMime = MimeTypeMap.getSingleton();
+	
+	    Intent newIntent = new Intent(android.content.Intent.ACTION_VIEW);
+	
+	    String mimeType = myMime.getMimeTypeFromExtension(fileExt(file.toString()).substring(1));
+	    newIntent.setDataAndType(Uri.fromFile(file),mimeType);
+	    //newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+	    try {
+	    	ctx.startActivityForResult(newIntent, Utils.INTENT_OPEN);
+	    } catch (android.content.ActivityNotFoundException e) {
+	       Utils.DisplayToastHome(ctx, "Aucune application ne peut ouvrir ce type de fichier..");
+	    }
+    }
+    
+    public static String fileExt(String url) {
+        if (url.indexOf("?")>-1) {
+            url = url.substring(0,url.indexOf("?"));
+        }
+        if (url.lastIndexOf(".") == -1) {
+            return null;
+        } else {
+            String ext = url.substring(url.lastIndexOf(".") );
+            if (ext.indexOf("%")>-1) {
+                ext = ext.substring(0,ext.indexOf("%"));
+            }
+            if (ext.indexOf("/")>-1) {
+                ext = ext.substring(0,ext.indexOf("/"));
+            }
+            return ext.toLowerCase();
+
+        }
+    }
+    
+    public static String GetRealPathFromURI(Context ctx, Uri contentUri) {
+  		String[] proj = { MediaStore.Images.Media.DATA };
+  		
+  		CursorLoader cursorLoader = new CursorLoader(
+  		          ctx, 
+  		          contentUri, proj, null, null, null);        
+  		Cursor cursor = cursorLoader.loadInBackground();
+  		
+  		int column_index = 
+  				cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+  		cursor.moveToFirst();
+  		return cursor.getString(column_index);	
+  	}
+    
 }
