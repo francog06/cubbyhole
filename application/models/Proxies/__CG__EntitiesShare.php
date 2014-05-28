@@ -99,22 +99,10 @@ class Share extends \Entities\Share implements \Doctrine\ORM\Proxy\Proxy
         return parent::getOwner();
     }
 
-    public function addUser(\Entities\User $users)
+    public function setUsers(\Doctrine\Common\Collections\ArrayCollection $users)
     {
         $this->__load();
-        return parent::addUser($users);
-    }
-
-    public function removeUser(\Entities\User $users)
-    {
-        $this->__load();
-        return parent::removeUser($users);
-    }
-
-    public function getUsers()
-    {
-        $this->__load();
-        return parent::getUsers();
+        return parent::setUsers($users);
     }
 
     public function setRead($read)
@@ -141,10 +129,40 @@ class Share extends \Entities\Share implements \Doctrine\ORM\Proxy\Proxy
         return parent::getWrite();
     }
 
+    public function setUser(\Entities\User $user = NULL)
+    {
+        $this->__load();
+        return parent::setUser($user);
+    }
+
+    public function getUser()
+    {
+        $this->__load();
+        return parent::getUser();
+    }
+
+    public function jsonSerialize()
+    {
+        $this->__load();
+        return parent::jsonSerialize();
+    }
+
+    public function setIsWritable($isWritable)
+    {
+        $this->__load();
+        return parent::setIsWritable($isWritable);
+    }
+
+    public function getIsWritable()
+    {
+        $this->__load();
+        return parent::getIsWritable();
+    }
+
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'date', 'read', 'write', 'folder', 'file', 'owner', 'users');
+        return array('__isInitialized__', 'id', 'date', 'is_writable', 'user', 'owner', 'folder', 'file');
     }
 
     public function __clone()

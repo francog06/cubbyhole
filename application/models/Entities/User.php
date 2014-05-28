@@ -448,11 +448,40 @@ class User implements \JsonSerializable
     /**
     * Update key
     *
-    * @return 
+    * @return void
     */
     public function updateKey() {
         $ci =& get_instance();
         $ci->db->update('keys', array('level' => $this->getIsAdmin() ? 1 : 0), array('user_id' => $this->getId()));
+    }
+
+    /**
+     * Get user by email
+     * 
+     * @return Entities\User
+     */
+    public static function getByEmail($email)
+    {
+        if (empty($email) || is_null($email)) {
+            return null;
+        }
+
+        $ci =& get_instance();
+        $query = $ci->doctrine->em->createQueryBuilder()
+                    ->add('select', 'u')
+                    ->add('from', 'Entities\User u')
+                    ->add('where', 'u.email = :email')
+                    ->setParameter('email', $email)
+                    ->getQuery();
+
+        try {
+            $user = $query->getSingleResult();
+        } catch (Doctrine\ORM\NoResultException $e) {
+            return null;
+        } catch (Exception $e) {
+            return null;
+        }
+        return $user;
     }
 
     /**

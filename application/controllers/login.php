@@ -139,7 +139,7 @@ class Login extends CI_Controller {
 			$this->email->to($user->getEmail());
 			$this->email->from('registration@cubbyhole.name');
 			$this->email->subject('Votre inscription sur Cubbyhole');
-			$this->email->message($this->load->view('layouts/main', array('user' => $user, 'view' => 'email/registration'), TRUE));
+			$this->email->message($this->load->view('layouts/email', array('user' => $user, 'view' => 'email/registration'), TRUE));
 			$this->email->send();
 
 			$this->session->set_flashdata('message', 'Successfull registration.');
