@@ -111,18 +111,6 @@ class Folder extends \Entities\Folder implements \Doctrine\ORM\Proxy\Proxy
         return parent::getAccessKey();
     }
 
-    public function setShare(\Entities\Share $share = NULL)
-    {
-        $this->__load();
-        return parent::setShare($share);
-    }
-
-    public function getShare()
-    {
-        $this->__load();
-        return parent::getShare();
-    }
-
     public function addFile(\Entities\File $files)
     {
         $this->__load();
@@ -183,16 +171,40 @@ class Folder extends \Entities\Folder implements \Doctrine\ORM\Proxy\Proxy
         return parent::getParent();
     }
 
+    public function recursiveShare()
+    {
+        $this->__load();
+        return parent::recursiveShare();
+    }
+
     public function jsonSerialize()
     {
         $this->__load();
         return parent::jsonSerialize();
     }
 
+    public function addShare(\Entities\Share $shares)
+    {
+        $this->__load();
+        return parent::addShare($shares);
+    }
+
+    public function removeShare(\Entities\Share $shares)
+    {
+        $this->__load();
+        return parent::removeShare($shares);
+    }
+
+    public function getShares()
+    {
+        $this->__load();
+        return parent::getShares();
+    }
+
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'name', 'creation_date', 'last_update_date', 'is_public', 'access_key', 'share', 'files', 'folders', 'user', 'parent');
+        return array('__isInitialized__', 'id', 'name', 'creation_date', 'last_update_date', 'is_public', 'access_key', 'files', 'folders', 'shares', 'user', 'parent');
     }
 
     public function __clone()

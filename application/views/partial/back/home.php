@@ -629,6 +629,7 @@
                     <div class="row">
                         <div class="col-md-6" style="border-right:1px dotted #ccc">
                             <h4>Avec tout le monde</h4>
+                            <br>
                             <div class="btn-group" data-toggle="buttons">
                               <label class="btn btn-default" id="shared_y">
                                 <input type="radio" name="shared"> Oui
@@ -657,7 +658,27 @@
                         </div>
                         <div class="col-md-6">
                             <h4>Avec un autre utilisateur</h4>
-
+                            <br>
+                            <form id="shareUser">
+                            <div class="row">
+                                <label class="col-sm-3 control-label">E-mail</label>
+                                <div class="col-sm-8">
+                                    <input class="form-control" type="text" id="shareEmail" name="shareEmail" Placeholder="E-mail de l'utilisateur à inviter" />
+                                </div>
+                            </div>
+                            <br>
+                            <div class="row">
+                                <label class="col-sm-3 control-label">Permission </label>
+                                <div class="col-sm-8">
+                                <input type="hidden" name="shareFile" id="shareFile" />
+                                <input type="hidden" name="shareFolder" id="shareFolder" />
+                                    <select class="form-control" name="permission">
+                                      <option value="0">Lecture seulement</option>
+                                      <option value="1">Lecture + Modification/Suppression</option>
+                                    </select>
+                                </div>
+                            </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -778,7 +799,7 @@ function getRoot(){
                                     <td class="drag"><a href="javascript:getFolder('+result.data.folders[loop_folder].id+')"><span class="sprite '+sprite+'"></span>'+result.data.folders[loop_folder].name+'</a></td>\
                                     <td class="drag" data-value="a'+type+'">'+type+'</td>\
                                     <td class="drag">'+result.data.folders[loop_folder].last_update_date.date+'</td>\
-                                    <td style="width:175px;"><div style="display:none">\
+                                    <td style="width:255px;"><div style="display:none">\
                                         <button type="button" class="btn btn-xs btn-warning partager"><span class="glyphicon glyphicon-link"></span> Partager</button>\
                                         <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..." data-fname="'+result.data.folders[loop_folder].name+'"><span class="glyphicon glyphicon-pencil"></span> Editer</button> \
                                         <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span> Supprimer</button></div>\
@@ -828,7 +849,7 @@ function getRoot(){
                                     <td class="drag"><a href="javascript:getFile('+result.data.files[loop_file].id+', '+result.data.files[loop_file].access_key+')"><span class="fileSprite '+sprite+'"></span>'+result.data.files[loop_file].name+'</a></td>\
                                     <td class="drag">'+type+'</td>\
                                     <td class="drag">'+result.data.files[loop_file].last_update_date.date+'</td>\
-                                    <td style="width:235px;"><div style="display:none">\
+                                    <td style="width:255px;"><div style="display:none">\
                                         <button type="button" class="btn btn-xs btn-warning partager"><span class="glyphicon glyphicon-link"></span> Partager</button>\
                                         <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..." data-fname="'+result.data.files[loop_file].name+'"><span class="glyphicon glyphicon-pencil"></span> Editer</button> \
                                         <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span> Supprimer</button></div>\
