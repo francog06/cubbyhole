@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -32,7 +33,9 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.nostra13.universalimageloader.cache.memory.impl.FIFOLimitedMemoryCache;
 import com.supinfo.cubbyhole.mobileapp.R;
 import com.supinfo.cubbyhole.mobileapp.adapters.GenericListAdapter;
 import com.supinfo.cubbyhole.mobileapp.adapters.MoveListAdapter;
@@ -42,8 +45,10 @@ import com.supinfo.cubbyhole.mobileapp.models.File;
 import com.supinfo.cubbyhole.mobileapp.models.Folder;
 import com.supinfo.cubbyhole.mobileapp.quickactions.ActionItem;
 import com.supinfo.cubbyhole.mobileapp.quickactions.AlertDialogIntentChooser;
+import com.supinfo.cubbyhole.mobileapp.quickactions.DirectoryChooserDialog;
 import com.supinfo.cubbyhole.mobileapp.quickactions.QuickAction;
 import com.supinfo.cubbyhole.mobileapp.utils.Data;
+import com.supinfo.cubbyhole.mobileapp.utils.FileIO;
 import com.supinfo.cubbyhole.mobileapp.utils.Utils;
 
 import java.io.FileInputStream;
@@ -81,9 +86,8 @@ public class Home extends ActionBarActivity implements OnRefreshListener{
     private	PullToRefreshLayout mPullToRefreshLayout;
     public static Object itemSelected = null;
     
-    private String selectedImagePath;
-    private String filemanagerstring;
-	  
+    private String m_chosenDir = "";
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -97,17 +101,19 @@ public class Home extends ActionBarActivity implements OnRefreshListener{
          */
 
         // item.setSticky permet de desactiver le dismiss de la dialog apres le clic sur l'item
-        ActionItem moveItem 	= new ActionItem(Utils.QUICKACTION_ID_MOVE, "Déplacer", getResources().getDrawable(R.drawable.dark_rename));
-        ActionItem manageItem 	= new ActionItem(Utils.QUICKACTION_ID_MANAGE, "Gérer", getResources().getDrawable(R.drawable.dark_rename));
+        ActionItem exportItem 	= new ActionItem(Utils.QUICKACTION_ID_EXPORT, "Exporter", getResources().getDrawable(R.drawable.dark_rename));
+        ActionItem moveItem 		= new ActionItem(Utils.QUICKACTION_ID_MOVE, "Déplacer", getResources().getDrawable(R.drawable.dark_rename));
+        ActionItem manageItem 	= new ActionItem(Utils.QUICKACTION_ID_MANAGE, "Partager", getResources().getDrawable(R.drawable.dark_rename));
         ActionItem renameItem 	= new ActionItem(Utils.QUICKACTION_ID_RENAME, "Renommer", getResources().getDrawable(R.drawable.dark_rename));
-        ActionItem deleteItem 	= new ActionItem(Utils.QUICKACTION_ID_DELETE, "Supprimer", getResources().getDrawable(R.drawable.dark_delete));
+       // ActionItem deleteItem 	= new ActionItem(Utils.QUICKACTION_ID_DELETE, "Supprimer", getResources().getDrawable(R.drawable.dark_delete));
 
         quickAction = new QuickAction(this, QuickAction.HORIZONTAL);
 
+        quickAction.addActionItem(exportItem);
         quickAction.addActionItem(manageItem);
         quickAction.addActionItem(moveItem);
         quickAction.addActionItem(renameItem);
-        quickAction.addActionItem(deleteItem);
+        //quickAction.addActionItem(deleteItem);
 
         /*
          *  List
@@ -134,13 +140,36 @@ public class Home extends ActionBarActivity implements OnRefreshListener{
         SetHandlers();
     }
 
-    private void SetHandlers(){
+    		private void SetHandlers(){
     	
-    	quickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
+    		quickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
             @Override
             public void onItemClick(QuickAction source, int pos, int actionId) {
 
                 ActionItem actionItem = quickAction.getActionItem(pos);
+                
+                /*
+                 *  Export
+                 */
+                
+                if (actionId == Utils.QUICKACTION_ID_EXPORT) {
+                	
+                	DirectoryChooserDialog directoryChooserDialog = 
+                    new DirectoryChooserDialog(Home.this, 
+                        new DirectoryChooserDialog.ChosenDirectoryListener() 
+                    {
+                        @Override
+                        public void onChosenDir(String chosenDir) 
+                        {
+                            new ExportFile(Home.this, chosenDir, (File) itemSelected).execute();
+                            
+                        }
+                    }); 
+                    directoryChooserDialog.setNewFolderEnabled(true);
+                    directoryChooserDialog.chooseDirectory(m_chosenDir);
+                    
+                }
+                
                 
                 /*
                  *  Manage
@@ -355,7 +384,7 @@ public class Home extends ActionBarActivity implements OnRefreshListener{
         });
     
     	
-    	 list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+    	 	list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
              @Override
              public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
 
@@ -370,7 +399,7 @@ public class Home extends ActionBarActivity implements OnRefreshListener{
                      File fileSelected = (File) list.getAdapter().getItem(position);
                      itemSelected = fileSelected;
                      // Telechargement du fichier depuis le webservice et affichage
-                     new DownloadFile(Home.this, fileSelected).execute();
+                     new OpenFile(Home.this, fileSelected).execute();
 
                  }else if (list.getAdapter().getItem(position) instanceof Back){
 
@@ -497,7 +526,6 @@ public class Home extends ActionBarActivity implements OnRefreshListener{
               			
               			List<NameValuePair> pairs = new ArrayList<NameValuePair>();
               			if (!value.trim().isEmpty() && !value.contains(".") && !value.contains("!") && !value.contains("//") && !value.contains("#")){
-              				System.out.println("good");
             				pairs.add(new BasicNameValuePair("name", value));
             				pairs.add(new BasicNameValuePair("user_id", String.valueOf(Utils.getUserFromSharedPreferences(Home.this).getId())));
             				if (Data.currentFolder == null){
@@ -525,21 +553,25 @@ public class Home extends ActionBarActivity implements OnRefreshListener{
                 return true;
             
             case R.id.action_upload:
-            	
-            	/*if (Build.VERSION.SDK_INT <19){
-            	    Intent intent = new Intent(); 
-            	    intent.setType("image/*");
-            	    intent.setAction(Intent.ACTION_GET_CONTENT);
-            	    startActivityForResult(Intent.createChooser(intent, "Selectionnez une application"),0);
+            	/*
+            	if (Build.VERSION.SDK_INT <19){
+            	 	Intent intent = new Intent(Intent.ACTION_PICK, 
+    				Images.Media.EXTERNAL_CONTENT_URI);
+    				startActivityForResult(intent, Utils.INTENT_UPLOAD);
             	} else {
-            	    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-            	    intent.addCategory(Intent.CATEGORY_OPENABLE);
-            	    intent.setType("image/*");
-            	    startActivityForResult(intent, 1);
+            		Intent intent = new Intent(Intent.ACTION_PICK, 
+            		Images.Media.EXTERNAL_CONTENT_URI);
+            		startActivityForResult(intent, Utils.INTENT_UPLOAD);
             	}*/
-            	Intent intent = new Intent(Intent.ACTION_PICK, 
-						Images.Media.EXTERNAL_CONTENT_URI);
-				startActivityForResult(intent, Utils.INTENT_UPLOAD);
+
+            	Intent target = com.ipaulpro.afilechooser.utils.FileUtils.createGetContentIntent();
+                Intent intent = Intent.createChooser(
+                        target, "Choisissez un fichier");
+                try {
+                    startActivityForResult(intent, Utils.INTENT_AFILECHOOSER);
+                } catch (ActivityNotFoundException e) {
+                }
+                
             	return true;
             	
             default:
@@ -547,24 +579,53 @@ public class Home extends ActionBarActivity implements OnRefreshListener{
         }
     }
     
+    @SuppressLint("NewApi")
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     	System.out.println("request code : "+requestCode+" result code : "+resultCode);
     	
     	//if (resultCode != Activity.RESULT_OK) return;
     	//if (null == data) return;
-        
-    	if (requestCode == Utils.INTENT_UPLOAD) {
+    	
+        if (requestCode == Utils.INTENT_AFILECHOOSER){
+        	
+        		Uri uri = data.getData();
+        		try {
+                
+            //	String path = com.ipaulpro.afilechooser.utils.FileUtils.getPath(this, uri);
+            	java.io.File file = com.ipaulpro.afilechooser.utils.FileUtils.getFile(this, uri);
+            	
+    			if (file.exists()){
+    				List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+    				
+    				pairs.add(new BasicNameValuePair("name", file.getName()));
+    				pairs.add(new BasicNameValuePair("user_id", String.valueOf(Utils.getUserFromSharedPreferences(Home.this).getId())));
+    				if (Data.currentFolder == null){
+    					pairs.add(new BasicNameValuePair("folder_id", "null"));
+    				}else{
+    					pairs.add(new BasicNameValuePair("folder_id", String.valueOf(Data.currentFolder.getId())));
+    				}
+    				
+    				new AddImage(file, this, pairs).execute();
+    			}
+            } catch (Exception e) {
+                Log.e("Onactivityresult Home Intent Afilechooser", "File select error", e);
+            }
+        	
+        }/*
+        else if (requestCode == Utils.INTENT_UPLOAD) {
     		
-	    	//Uri return from external activity
+    		try {
+    			
 			Uri orgUri = data.getData();
-			//path converted from Uri
-			String convertedPath = Utils.GetRealPathFromURI(this, orgUri);
-			//Uri convert back again from path
-			Uri uriFromPath = Uri.fromFile(new java.io.File(convertedPath));
+			String convertedPath = Utils.GetRealPathFromURI2(this, orgUri);
+			System.out.println("path : "+convertedPath);
 			
 			java.io.File file = new java.io.File(convertedPath);
-			 List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+			
+			if (file.exists()){
+				List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+				
 				pairs.add(new BasicNameValuePair("name", file.getName()));
 				pairs.add(new BasicNameValuePair("user_id", String.valueOf(Utils.getUserFromSharedPreferences(Home.this).getId())));
 				if (Data.currentFolder == null){
@@ -572,15 +633,78 @@ public class Home extends ActionBarActivity implements OnRefreshListener{
 				}else{
 					pairs.add(new BasicNameValuePair("folder_id", String.valueOf(Data.currentFolder.getId())));
 				}
-			new AddImage(file, this, pairs).execute();
+				
+				new AddImage(file, this, pairs).execute();
+			}else{
+				Utils.DisplayToastHome(Home.this, "Ce fichier est indisponible, merci de réessayer avec un fichier valide.");
+			}
 			
-    	}else if (requestCode == Utils.INTENT_DETAIL){
+    		}catch (Exception e){}
+			
+    	}else if (requestCode == Utils.INTENT_UPLOAD_KIKKAT) { // ne fonctionne pas
+
+    		try {
+    				
+    				String filePath = Utils.GetRealPathFromURI2(this, data.getData());
+    				String fileName = filePath.substring(filePath.lastIndexOf('/')+1, filePath.length());
+
+    				 Uri originalUri = data.getData();
+    			      int takeFlags = data.getFlags()
+    			                & (Intent.FLAG_GRANT_READ_URI_PERMISSION
+    			                | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+    			        // Check for the freshest data.
+    			     getContentResolver().takePersistableUriPermission(originalUri, takeFlags);
+    			        
+    				java.io.File tempFile = new java.io.File(this.getFilesDir().getAbsolutePath(), fileName);
+    	            tempFile.createNewFile();
+    	            InputStream in = new FileInputStream(filePath);
+    	            OutputStream out = this.getContentResolver().openOutputStream(originalUri);
+    	            org.apache.commons.io.IOUtils.copy(in, out);
+
+    	            //Now fetch the new URI 
+        	        Uri newUri = Uri.fromFile(tempFile);
+        	        String convertedPath = Utils.GetRealPathFromURI2(this, newUri);
+        			System.out.println("path : "+convertedPath);
+        			
+        			java.io.File file = new java.io.File(convertedPath);
+        			
+        			if (file.exists()){
+        				List<NameValuePair> pairs = new 	ArrayList<NameValuePair>();
+        				
+        				pairs.add(new BasicNameValuePair("name", file.getName()));
+        				pairs.add(new BasicNameValuePair("user_id", String.valueOf(Utils.getUserFromSharedPreferences(Home.this).getId())));
+        				if (Data.currentFolder == null){
+        					pairs.add(new BasicNameValuePair("folder_id", "null"));
+        				}else{
+        					pairs.add(new BasicNameValuePair("folder_id", String.valueOf(Data.currentFolder.getId())));
+        				}
+        				
+        				new AddImage(file, this, pairs).execute();
+        				
+        			}else{
+        				Utils.DisplayToastHome(Home.this, "Ce fichier est indisponible, merci de réessayer avec un fichier valide.");
+        			}
+    	            
+    	        } catch (Exception e) {                           
+    	        	e.printStackTrace();
+    	        }
+    	}*/
+    	else if (requestCode == Utils.INTENT_DETAIL){
     		
     		
     		
     	}else if (requestCode == Utils.INTENT_OPEN){
     		
-    	}
+    	 	java.io.File sdCard = Environment.getExternalStorageDirectory();
+    	    java.io.File directory = new java.io.File (sdCard.getAbsolutePath() + "/Cubbyhole/Cache");
+    	      	
+    	    	try {
+    				FileUtils.cleanDirectory(directory);
+    			} catch (IOException e) {
+    				e.printStackTrace();
+    			} 
+    		}
+    	
     }
     
     @Override
@@ -588,13 +712,13 @@ public class Home extends ActionBarActivity implements OnRefreshListener{
     	super.onDestroy();
     	
     	java.io.File sdCard = Environment.getExternalStorageDirectory();
-      	java.io.File directory = new java.io.File (sdCard.getAbsolutePath() + "/Cubbyhole");
-      	
-    	try {
-			FileUtils.cleanDirectory(directory);
-		} catch (IOException e) {
-			e.printStackTrace();
-		} 
+	    java.io.File directory = new java.io.File (sdCard.getAbsolutePath() + "/Cubbyhole/Cache");
+	      	
+	    	try {
+				FileUtils.cleanDirectory(directory);
+			} catch (IOException e) {
+				e.printStackTrace();
+			} 
     }
     
     private void shareContent(String update) {
@@ -609,22 +733,24 @@ public class Home extends ActionBarActivity implements OnRefreshListener{
      *
      */
     
-    public class DownloadFile extends AsyncTask<Void, Integer, java.io.File> {
+    public class ExportFile extends AsyncTask<Void, Integer, java.io.File> {
 
         private Context ctx;
         private File file;
+        private String pathToSave;
         private  ProgressDialog ringProgressDialog;
         
-        public DownloadFile(Context ctx, File file) {
+        public ExportFile(Context ctx, String pathToSave, File file) {
             this.ctx = ctx;
             this.file = file;
+            this.pathToSave = pathToSave;
         }
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
             
-            ringProgressDialog = ProgressDialog.show(ctx, "Veuillez patienter...", "Téléchargement du fichier en cours..", true);
+            ringProgressDialog = ProgressDialog.show(ctx, "Veuillez patienter...", "Export du fichier en cours..", true);
             ringProgressDialog.setCancelable(true);
                     new Thread(new Runnable() {
                         @Override
@@ -642,7 +768,7 @@ public class Home extends ActionBarActivity implements OnRefreshListener{
         @Override
         protected java.io.File doInBackground(Void... params) {
         	
-        	return Utils.UrlToFile(this.ctx, this.file);
+        		return Utils.UrlToFile(ctx, pathToSave, file);
         	
         }
 
@@ -653,9 +779,63 @@ public class Home extends ActionBarActivity implements OnRefreshListener{
             ringProgressDialog.dismiss();
             
             if (file != null){
-            	 Utils.OpenFile(Home.this, file);
+            	Utils.DisplayToastHome(this.ctx, "Le fichier a été exporté avec succès!");
+	        }else{
+	        		Utils.DisplayToastHome(this.ctx, "Un problème est survenu, merci de réessayer ultérieurement.");
+	        }
+            
+        }
+
+    }
+    
+    
+    
+    public class OpenFile extends AsyncTask<Void, Integer, java.io.File> {
+
+        private Context ctx;
+        private File file;
+        private  ProgressDialog ringProgressDialog;
+        
+        public OpenFile(Context ctx, File file) {
+            this.ctx = ctx;
+            this.file = file;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            
+            ringProgressDialog = ProgressDialog.show(ctx, "Veuillez patienter...", "Récupération du fichier en cours..", true);
+            ringProgressDialog.setCancelable(true);
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                            } catch (Exception e) {
+             
+                            }
+                        }
+                    }).start();
+
+
+        }
+        
+        @Override
+        protected java.io.File doInBackground(Void... params) {
+        	
+        		return Utils.UrlToFileCache(this.ctx, this.file);
+        }
+
+        @Override
+        protected void onPostExecute(java.io.File file) {
+            super.onPostExecute(file);
+            
+            ringProgressDialog.dismiss();
+            
+           if (file != null){
+            	 	Utils.OpenFile(Home.this, file);
             }else{
-            	Utils.DisplayToastHome(this.ctx, "La récupération du fichier a échouée, merci de vérifier votre connexion internet.");
+            		Utils.DisplayToastHome(this.ctx, "La récupération du fichier a échouée, merci de vérifier votre connexion internet.");
             }
             
         }
@@ -733,7 +913,7 @@ public class Home extends ActionBarActivity implements OnRefreshListener{
         protected Integer doInBackground(Void... params) {
 
         		try {
-					Utils.AddImage(this.file ,this.ctx, pairs);
+        					Utils.AddImage(this.file ,this.ctx, pairs);
 				} catch (ClientProtocolException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
@@ -748,8 +928,8 @@ public class Home extends ActionBarActivity implements OnRefreshListener{
         protected void onPostExecute(Integer i) {
             super.onPostExecute(i);
 
-        	pb.setVisibility(View.GONE);
-            RefreshView();
+        		pb.setVisibility(View.GONE);
+        		RefreshView();
         }
 
     }
@@ -792,6 +972,63 @@ public class Home extends ActionBarActivity implements OnRefreshListener{
 
             itemSelected = null;
         	pb.setVisibility(View.GONE);
+            RefreshView();
+        }
+
+    }
+    
+    public class UpdateFileTxt extends AsyncTask<Void, Integer, Integer> {
+
+        private Context ctx;
+        private File file;
+        private java.io.File fileTxt;
+        private int id;
+        private  ProgressDialog ringProgressDialog;
+        
+        public UpdateFileTxt(Context ctx, File file, java.io.File fileTxt) {
+            this.ctx = ctx;
+            this.file = file;
+            this.fileTxt = fileTxt;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            
+            ringProgressDialog = ProgressDialog.show(ctx, "Veuillez patienter...", "Actualisation du fichier en cours..", true);
+            ringProgressDialog.setCancelable(true);
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                            } catch (Exception e) {
+             
+                            }
+                        }
+                    }).start();
+        }
+        
+        @Override
+        protected Integer doInBackground(Void... params) {
+
+        		try {
+					Utils.UpdateFileTxt(ctx, file, fileTxt);
+				} catch (ClientProtocolException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+        	
+        	return 1;
+        	
+        }
+
+        @Override
+        protected void onPostExecute(Integer i) {
+            super.onPostExecute(i);
+
+            itemSelected = null;
+            ringProgressDialog.dismiss();
             RefreshView();
         }
 
