@@ -72,8 +72,11 @@ class Share extends REST_Controller {
         $email = $this->mandatory_value('email', 'post');
         $write = $this->mandatory_value('write', 'post');
 
-
-        $user = Entities\User::getByEmail($email);
+        try {
+            $user = Entities\User::getByEmail($email);
+        } catch (Exception $e) {
+            $this->response(array('error' => true, 'message' => 'User not found', 'data' => $data), 404);
+        }
         if (is_null($user)) {
             $this->response(array('error' => true, 'message' => 'User not found', 'data' => $data), 404);
         }
