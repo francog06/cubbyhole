@@ -5,36 +5,36 @@
 	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
 	<false/>
 	<key>IDESourceControlProjectIdentifier</key>
-	<string>D21B3CF7-FBED-426C-8FFE-7D18E5C20363</string>
+	<string>C6A49199-C3B5-4855-ADCC-888A6DD05F2A</string>
 	<key>IDESourceControlProjectName</key>
 	<string>Cubbyhole</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
-		<key>AA298634-290C-4817-8E8C-AF178DE3EF2C</key>
-		<string>https://github.com/francog06/cubbyhole.git</string>
+		<key>BA7BEFE0-9BAA-4017-AD0B-ADC98EBBB6AA</key>
+		<string>https://github.com/watcheur/cubbyhole.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
 	<string>iOS_App/Cubbyhole/Cubbyhole.xcodeproj/project.xcworkspace</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
-		<key>AA298634-290C-4817-8E8C-AF178DE3EF2C</key>
+		<key>BA7BEFE0-9BAA-4017-AD0B-ADC98EBBB6AA</key>
 		<string>../../../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
-	<string>https://github.com/francog06/cubbyhole.git</string>
+	<string>https://github.com/watcheur/cubbyhole.git</string>
 	<key>IDESourceControlProjectVersion</key>
 	<integer>110</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>AA298634-290C-4817-8E8C-AF178DE3EF2C</string>
+	<string>BA7BEFE0-9BAA-4017-AD0B-ADC98EBBB6AA</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>AA298634-290C-4817-8E8C-AF178DE3EF2C</string>
+			<string>BA7BEFE0-9BAA-4017-AD0B-ADC98EBBB6AA</string>
 			<key>IDESourceControlWCCName</key>
-			<string>cubbyhole</string>
+			<string>Cubbyhole</string>
 		</dict>
 	</array>
 </dict>

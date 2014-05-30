@@ -49,7 +49,7 @@ Entities\User:
       mappedBy: user
       cascade: ["persist", "merge", "remove"]
       onDelete: CASCADE
-    shared:
+    shares:
       targetEntity: Share
       mappedBy: owner
       cascade: ["persist", "merge", "remove"]

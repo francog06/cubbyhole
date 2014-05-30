@@ -2,9 +2,9 @@
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
 		<item value="263" key="DIALOG_WIDTH"/>
-		<item value="202" key="DIALOG_Y_ORIGIN"/>
+		<item value="344" key="DIALOG_Y_ORIGIN"/>
 		<item value="399" key="DIALOG_HEIGHT"/>
-		<item value="1070" key="DIALOG_X_ORIGIN"/>
+		<item value="1177" key="DIALOG_X_ORIGIN"/>
 		<item value="1|Lucida Grande|11.0|0|COCOA|1|LucidaGrande" key="DIALOG_FONT_NAME"/>
 	</section>
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
@@ -13,18 +13,19 @@
 		<item value="false" key="casesensitive"/>
 		<item value="false" key="incremental"/>
 		<item value="false" key="wholeword"/>
-		<item value="PullToRefreshListView" key="selection"/>
+		<item value="provider" key="selection"/>
 		<list key="findhistory">
-			<item value="PullToRefreshListView"/>
-			<item value="mPullToRefreshLayout"/>
-			<item value="GetData"/>
-			<item value="//"/>
-			<item value="Data.currentArray"/>
-			<item value="DATA_ROOT"/>
-			<item value="UPDATE_FILE"/>
-			<item value="/api/file/update/"/>
+			<item value="provider"/>
+			<item value="INTENT_UPLOAD_KIKKAT"/>
+			<item value="fileName"/>
+			<item value="temp_image"/>
+			<item value="temp"/>
+			<item value="du fichier a"/>
+			<item value="la recuperation"/>
+			<item value="preview"/>
 		</list>
 		<list key="replacehistory">
+			<item value="§"/>
 		</list>
 	</section>
 </section>

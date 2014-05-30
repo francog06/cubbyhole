@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Entities\Share
  */
-class Share
+class Share implements \JsonSerializable
 {
     /**
      * @var integer $id
@@ -40,18 +40,12 @@ class Share
     private $user;
 
     /**
-     * @var boolean $read
+     * @var boolean $is_writable
      */
-    private $read;
-
-    /**
-     * @var boolean $write
-     */
-    private $write;
+    private $is_writable;
 
     public function __construct()
     {
-        $this->users = new \Doctrine\Common\Collections\ArrayCollection();
     }
     
     /**
@@ -153,61 +147,6 @@ class Share
     }
 
     /**
-     * Set users
-     * 
-     * @param \Doctrine\Common\Collections\ArrayCollection
-     * @return Share
-     */
-    public function setUsers(\Doctrine\Common\Collections\ArrayCollection $users)
-    {
-        $this->users = $users;
-    }
-
-    /**
-     * Set read
-     *
-     * @param boolean $read
-     * @return Share
-     */
-    public function setRead($read)
-    {
-        $this->read = $read;
-        return $this;
-    }
-
-    /**
-     * Get read
-     *
-     * @return boolean 
-     */
-    public function getRead()
-    {
-        return $this->read;
-    }
-
-    /**
-     * Set write
-     *
-     * @param boolean $write
-     * @return Share
-     */
-    public function setWrite($write)
-    {
-        $this->write = $write;
-        return $this;
-    }
-
-    /**
-     * Get write
-     *
-     * @return boolean 
-     */
-    public function getWrite()
-    {
-        return $this->write;
-    }
-
-    /**
      * Set user
      *
      * @param Entities\User $user
@@ -235,7 +174,7 @@ class Share
      * @return public object
      */
     public function jsonSerialize() {
-        $excludes = [];
+        $excludes = ["user", "owner"];
         $json = [];
 
         foreach ($this as $key => $value) {
@@ -254,13 +193,11 @@ class Share
                     $json[$key] = $value;
             }
         }
+
+        $json["owner"] = array('id' => $this->owner->getId(), 'email' => $this->owner->getEmail());
+        $json["user"] = array('id' => $this->user->getId(), 'email' => $this->user->getEmail());
         return $json;
     }
-    /**
-     * @var boolean $is_writable
-     */
-    private $is_writable;
-
 
     /**
      * Set is_writable

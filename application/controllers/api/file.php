@@ -22,6 +22,21 @@ class File extends REST_Controller {
 		$this->methods['preview_get']['key'] = FALSE;
 	}
 
+	public function shares_get($id = null) {
+		$data = new StdClass();
+		if (is_null($id)) {
+			$this->response(array('error' => true, 'message' => 'id not defined.', 'data' => $data), 400);
+		}
+
+		$file = $this->doctrine->em->find('Entities\File', (int)$id);
+		if (is_null($file)) {
+			$this->response(array('error' => true, 'message' => 'file not found', 'data' => $data), 404);
+		}
+
+		$data->shares = $file->getShares()->toArray();
+		$this->response(array('error' => false, 'message' => 'Successfully retrieved file details.', 'data' => $data), 200);
+	}
+
 	public function preview_get($id = null) {
 		$specialHash = "ab14d0415c485464a187d5a9c97cc27c";
 
