@@ -188,7 +188,12 @@ public class QuickAction extends PopupWindows implements OnDismissListener {
 		
 		container.setFocusable(true);
 		container.setClickable(true);
-			 
+		
+		
+		/*
+		 * 
+		 *  Separateur entre item
+		
 		if (mOrientation == HORIZONTAL && mChildPos != 0) {
             View separator = mInflater.inflate(R.layout.horiz_separator, null);
             
@@ -201,6 +206,7 @@ public class QuickAction extends PopupWindows implements OnDismissListener {
             
             mInsertPos++;
         }
+		*/
 		
 		mTrack.addView(container, mInsertPos);
 		

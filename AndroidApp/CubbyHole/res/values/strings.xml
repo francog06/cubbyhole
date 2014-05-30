@@ -22,7 +22,10 @@
     <color name="bleuciel">#C8E1EF</color>
     <color name="bleucieldark">#A9D0E2</color>
     <color name="cubbyhole">#64C7ED</color>
-
+	<color name="tranparentgreylight">#07000000</color>
+    <color name="tranparentgrey">#35000000</color>
+	<color name="greyCool">#E0D8CC</color>
+    
     <!-- Strings -->
     <string name="error_loginblank">Merci de spécifier votre adresse mail et votre mot de passe..</string>
     <string name="error_login">Récupération des données utilisateur impossible. Merci de vérifier votre adresse mail et mot de passe..</string>
