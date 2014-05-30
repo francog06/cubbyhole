@@ -33,6 +33,9 @@ class File extends REST_Controller {
 			$this->response(array('error' => true, 'message' => 'file not found', 'data' => $data), 404);
 		}
 
+		if ($file->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL)
+			$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
+
 		$data->shares = $file->getShares()->toArray();
 		$this->response(array('error' => false, 'message' => 'Successfully retrieved file details.', 'data' => $data), 200);
 	}

@@ -19,6 +19,9 @@ class Folder extends REST_Controller {
 			$this->response(array('error' => true, 'message' => 'folder not found', 'data' => $data), 404);
 		}
 
+		if ($folder->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL)
+			$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
+
 		$data->shares = $folder->getShares()->toArray();
 		$this->response(array('error' => false, 'message' => 'Successfully retrieved folder details.', 'data' => $data), 200);
 	}
