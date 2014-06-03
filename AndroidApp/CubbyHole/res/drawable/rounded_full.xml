@@ -8,7 +8,7 @@
   	android:topRightRadius="13dp"/>
     <stroke
         android:width="2dp"
-        android:color="@color/white"/>
+        android:color="@color/black"/>
     <solid
         android:color="@color/white"/>
 </shape>

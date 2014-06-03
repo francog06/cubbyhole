@@ -1,65 +1,6 @@
 package com.supinfo.cubbyhole.mobileapp.activities;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.ProgressDialog;
-import android.content.ActivityNotFoundException;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.database.Cursor;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.provider.MediaStore.Images;
-import android.support.v4.content.CursorLoader;
-import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.Window;
-import android.webkit.MimeTypeMap;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import com.nostra13.universalimageloader.cache.memory.impl.FIFOLimitedMemoryCache;
-import com.supinfo.cubbyhole.mobileapp.R;
-import com.supinfo.cubbyhole.mobileapp.adapters.GenericListAdapter;
-import com.supinfo.cubbyhole.mobileapp.adapters.MoveListAdapter;
-import com.supinfo.cubbyhole.mobileapp.models.Back;
-import com.supinfo.cubbyhole.mobileapp.models.Empty;
-import com.supinfo.cubbyhole.mobileapp.models.File;
-import com.supinfo.cubbyhole.mobileapp.models.Folder;
-import com.supinfo.cubbyhole.mobileapp.quickactions.ActionItem;
-import com.supinfo.cubbyhole.mobileapp.quickactions.AlertDialogIntentChooser;
-import com.supinfo.cubbyhole.mobileapp.quickactions.DirectoryChooserDialog;
-import com.supinfo.cubbyhole.mobileapp.quickactions.QuickAction;
-import com.supinfo.cubbyhole.mobileapp.utils.Data;
-import com.supinfo.cubbyhole.mobileapp.utils.FileIO;
-import com.supinfo.cubbyhole.mobileapp.utils.Utils;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,12 +12,52 @@ import org.apache.http.message.BasicNameValuePair;
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Environment;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.view.ActionMode;
+import android.util.Log;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.ProgressBar;
+
+import com.supinfo.cubbyhole.mobileapp.R;
+import com.supinfo.cubbyhole.mobileapp.adapters.GenericListAdapter;
+import com.supinfo.cubbyhole.mobileapp.adapters.MoveListAdapter;
+import com.supinfo.cubbyhole.mobileapp.models.Back;
+import com.supinfo.cubbyhole.mobileapp.models.Empty;
+import com.supinfo.cubbyhole.mobileapp.models.File;
+import com.supinfo.cubbyhole.mobileapp.models.Folder;
+import com.supinfo.cubbyhole.mobileapp.quickactions.ActionItem;
+import com.supinfo.cubbyhole.mobileapp.quickactions.DirectoryChooserDialog;
+import com.supinfo.cubbyhole.mobileapp.quickactions.QuickAction;
+import com.supinfo.cubbyhole.mobileapp.utils.Data;
+import com.supinfo.cubbyhole.mobileapp.utils.Utils;
 
 /**
  * Created by anthonyvialleton on 04/04/14.
  */
 
-public class Home extends ActionBarActivity implements OnRefreshListener{
+public class Home extends ActionBarActivity implements OnRefreshListener {
 
     private ProgressBar pb;
     private ListView list;
@@ -87,6 +68,8 @@ public class Home extends ActionBarActivity implements OnRefreshListener{
     public static Object itemSelected = null;
     
     private String m_chosenDir = "";
+    
+    private ActionMode mActionMode = null;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,7 +105,7 @@ public class Home extends ActionBarActivity implements OnRefreshListener{
         pb = (ProgressBar)findViewById(R.id.home_pb);
         list = (ListView)findViewById(R.id.home_list);
         mPullToRefreshLayout = (PullToRefreshLayout) findViewById(R.id.ptr_layout);
-
+        
         // Instanciation du pulltorefresh
         ActionBarPullToRefresh.from(this)
                 .allChildrenArePullable()
@@ -161,7 +144,7 @@ public class Home extends ActionBarActivity implements OnRefreshListener{
                         @Override
                         public void onChosenDir(String chosenDir) 
                         {
-                            new ExportFile(Home.this, chosenDir, (File) itemSelected).execute();
+                            new DownloadFile(Home.this, chosenDir, (File) itemSelected).execute();
                             
                         }
                     }); 
@@ -426,17 +409,25 @@ public class Home extends ActionBarActivity implements OnRefreshListener{
                      Folder folderSelected = (Folder) list.getAdapter().getItem(position);
                      itemSelected = (Object) folderSelected;
                      
-                     quickAction.show(view);
-                     quickAction.setAnimStyle(QuickAction.ANIM_REFLECT);
-
+                  /*   if (mActionMode != null) {
+                         return false;
+                     }
+                     // Start the CAB using the ActionMode.Callback defined above
+                     mActionMode = startSupportActionMode(mActionModeCallback);
+                     view.setSelected(true);*/
+                     
                  }else if (list.getAdapter().getItem(position) instanceof File){
 
                      File fileSelected = (File) list.getAdapter().getItem(position);
                      itemSelected = (Object) fileSelected;
                      
-                     quickAction.show(view);
-                     quickAction.setAnimStyle(QuickAction.ANIM_REFLECT);
-
+                     /*   if (mActionMode != null) {
+                     return false;
+                 }
+                 // Start the CAB using the ActionMode.Callback defined above
+                 mActionMode = startSupportActionMode(mActionModeCallback);
+                 view.setSelected(true);*/
+                     
                  }
             	 return true;
              }
@@ -585,13 +576,12 @@ public class Home extends ActionBarActivity implements OnRefreshListener{
     	System.out.println("request code : "+requestCode+" result code : "+resultCode);
     	
     	//if (resultCode != Activity.RESULT_OK) return;
-    	//if (null == data) return;
+    		if (null == data) return;
     	
         if (requestCode == Utils.INTENT_AFILECHOOSER){
-        	
-        		Uri uri = data.getData();
         		try {
-                
+        			
+        			Uri uri = data.getData();
             //	String path = com.ipaulpro.afilechooser.utils.FileUtils.getPath(this, uri);
             	java.io.File file = com.ipaulpro.afilechooser.utils.FileUtils.getFile(this, uri);
             	
@@ -611,7 +601,6 @@ public class Home extends ActionBarActivity implements OnRefreshListener{
             } catch (Exception e) {
                 Log.e("Onactivityresult Home Intent Afilechooser", "File select error", e);
             }
-        	
         }/*
         else if (requestCode == Utils.INTENT_UPLOAD) {
     		
@@ -733,14 +722,14 @@ public class Home extends ActionBarActivity implements OnRefreshListener{
      *
      */
     
-    public class ExportFile extends AsyncTask<Void, Integer, java.io.File> {
+    public class DownloadFile extends AsyncTask<Void, Integer, java.io.File> {
 
         private Context ctx;
         private File file;
         private String pathToSave;
         private  ProgressDialog ringProgressDialog;
         
-        public ExportFile(Context ctx, String pathToSave, File file) {
+        public DownloadFile(Context ctx, String pathToSave, File file) {
             this.ctx = ctx;
             this.file = file;
             this.pathToSave = pathToSave;
@@ -768,7 +757,7 @@ public class Home extends ActionBarActivity implements OnRefreshListener{
         @Override
         protected java.io.File doInBackground(Void... params) {
         	
-        		return Utils.UrlToFile(ctx, pathToSave, file);
+        		return Utils.UrlToFileDownload(ctx, pathToSave, file);
         	
         }
 
@@ -1150,12 +1139,49 @@ public class Home extends ActionBarActivity implements OnRefreshListener{
 		}
 		
     }
-    
+
 	@Override
 	public void onRefreshStarted(View view) {
-		
-		RefreshView();
+		// TODO Auto-generated method stub
 		
 	}
+    
+	private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
+	    
+	    @Override
+	    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+	        // Inflate a menu resource providing context menu items
+	        MenuInflater inflater = mode.getMenuInflater();
+	        inflater.inflate(R.menu.contextual_menu, menu);
+	        return true;
+	    }
 
+	    // Called each time the action mode is shown. Always called after onCreateActionMode, but
+	    // may be called multiple times if the mode is invalidated.
+	    @Override
+	    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+	        return false; // Return false if nothing is done
+	    }
+
+	    // Called when the user selects a contextual menu item
+	    @Override
+	    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+	        switch (item.getItemId()) {
+	            case R.id.context_rename:
+	                mode.finish();
+	                return true;
+	            default:
+	                return false;
+	        }
+	    }
+
+	    // Called when the user exits the action mode
+	    @Override
+	    public void onDestroyActionMode(ActionMode mode) {
+	        mActionMode = null;
+	    }
+		
+	};
+	
+	
 }
