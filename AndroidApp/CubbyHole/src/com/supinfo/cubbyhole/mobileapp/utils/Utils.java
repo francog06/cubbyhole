@@ -84,12 +84,10 @@ public class Utils {
     /** API FOLDER/FILES **/
     /** **************** **/
 	
-	public static final int INTENT_UPLOAD = 0;
 	public static final int INTENT_DETAIL = 1;
 	public static final int INTENT_OPEN = 2;
-	public static final int INTENT_UPLOAD_KIKKAT = 3;
-	public static final int INTENT_AFILECHOOSER = 4;
-	public static final int INTENT_MANAGEPERMISSIONS = 5;
+	public static final int INTENT_AFILECHOOSER = 3;
+	public static final int INTENT_MANAGEPERMISSIONS = 4;
 	
 	public static final String JSON_FOLDER_NAME = "name";
 	public static final String JSON_FOLDER_LASTUPDATE = "last_update_date";

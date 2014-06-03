@@ -1,32 +1,33 @@
 package com.supinfo.cubbyhole.mobileapp.activities;
 
-import org.json.JSONObject;
+import android.animation.Animator;
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
+import android.view.Gravity;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.Switch;
+import android.widget.TextView;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.ImageLoader.ImageContainer;
+import com.android.volley.toolbox.ImageLoader.ImageListener;
+import com.android.volley.toolbox.NetworkImageView;
+import com.android.volley.toolbox.Volley;
 import com.supinfo.cubbyhole.mobileapp.R;
 import com.supinfo.cubbyhole.mobileapp.models.File;
 import com.supinfo.cubbyhole.mobileapp.models.Folder;
 import com.supinfo.cubbyhole.mobileapp.utils.BitmapLruCache;
 import com.supinfo.cubbyhole.mobileapp.utils.Utils;
-
-import android.content.Intent;
-import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.Switch;
-import android.widget.TextView;
-
-import com.android.volley.Request;
-import com.android.volley.Request.Method;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response.ErrorListener;
-import com.android.volley.Response.Listener;
-import com.android.volley.toolbox.ImageLoader;
-import com.android.volley.toolbox.NetworkImageView;
-import com.android.volley.toolbox.Volley;
 
 public class DetailActivity extends ActionBarActivity {
 
@@ -45,6 +46,11 @@ public class DetailActivity extends ActionBarActivity {
 	private RequestQueue mRequestQueue;
 	private ImageLoader imageLoader;
 
+	LinearLayout.LayoutParams networkImageViewLayoutParams = new LinearLayout.LayoutParams(170, 150);
+	
+    private Animator mCurrentAnimator;
+    private int mShortAnimationDuration;
+    
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -87,11 +93,13 @@ public class DetailActivity extends ActionBarActivity {
 		}else{
 			finish();
 		}
-
 	}
 
 	private void SetupComponents(){
 		networkImageView = (NetworkImageView) findViewById(R.id.detail_networkImageView);
+		networkImageViewLayoutParams.gravity = Gravity.CENTER;
+		networkImageView.setDefaultImageResId(R.drawable.cubby_noimage);
+		networkImageView.setErrorImageResId(R.drawable.cubby_noimage);
 		detail_itemCreationDate_tv = (TextView) findViewById(R.id.detail_itemCreationDate_tv);
 		detail_itemLastUpdateDate_tv = (TextView) findViewById(R.id.detail_itemLastUpdateDate_tv);
 		detail_itemSize_tv = (TextView) findViewById(R.id.detail_itemSize_tv);
@@ -119,15 +127,26 @@ public class DetailActivity extends ActionBarActivity {
 		super.onResume();
 	}
 
+	private void shareContent(String sharingMessage) {
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TEXT, sharingMessage);
+        startActivity(Intent.createChooser(intent, "Partager ce fichier"));
+    }
 
-
+	/*
+	 *  Asynctask
+	 */
+	
+	
+	
 	/*
 	 *  Folder
 	 */
 
 	private void SetupFolder(){
-		
-		networkImageView.setVisibility(View.GONE);
+
+		networkImageView.setLayoutParams(networkImageViewLayoutParams);
 		detail_isPublic_switch.setVisibility(View.GONE);
 		detail_share_btn.setVisibility(View.GONE);
 		detail_itemSize_tv.setVisibility(View.GONE);
@@ -168,11 +187,25 @@ public class DetailActivity extends ActionBarActivity {
 			imageLoader = new ImageLoader(mRequestQueue, new BitmapLruCache(
 					BitmapLruCache.getDefaultLruCacheSize()));
 			//String url = Utils.FILE+"synchronize"+"/"+currentFile.getId()+"?hash="+Utils.HASH_DL;
-			String url = "http://img.photobucket.com/albums/v420/BlackChaos65/Heilosoverlayupdated.png";
-			networkImageView.setImageUrl(url, imageLoader);
+			String url = "http://img.photobucket.com/albums/v420/BlackChaos65/Heilosoverlayupdated.";
 			
+			networkImageView.setImageUrl(url, imageLoader, new ImageListener() {
+				@Override
+				public void onErrorResponse(VolleyError error) {
+					networkImageView.setLayoutParams(networkImageViewLayoutParams);
+					
+					error.printStackTrace();
+				}
+				
+				@Override
+				public void onResponse(ImageContainer response, boolean isImmediate) {
+					// isImmediate == true - taken from cache
+		            // isImmediate == false - successfully loaded from server
+				}
+			});
+
 		}else{
-			networkImageView.setVisibility(View.GONE);
+			networkImageView.setLayoutParams(networkImageViewLayoutParams);
 		}
 
 		// Date de creation
@@ -189,9 +222,31 @@ public class DetailActivity extends ActionBarActivity {
 		if (!currentFile.getIsPublic()){
 			detail_share_btn.setVisibility(View.GONE);
 		}
+		detail_isPublic_switch.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				if (isChecked){
+					// Asynctask uptade files
+					detail_share_btn.setVisibility(View.VISIBLE);
+					
+				}else{
+					// Asynctask update file
+					detail_share_btn.setVisibility(View.GONE);
+				}
+			}
+		});
 		
-		// Manage
-		detail_manage_btn.setOnClickListener(new OnClickListener() {
+		// Partage
+		detail_share_btn.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+					shareContent("°° CubbyHole Information °°\n "+Utils.getUserFromSharedPreferences(DetailActivity.this).getEmail()+" souhaite télécharger un "
+							+ "fichier avec vous! Ce fichier est téléchargeable via l'url suivante : "+" http://deeddopkzodedk.com");
+			}
+		});
+		
+		// Gerer -> liste d'User avec permissions
+ 		detail_manage_btn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				

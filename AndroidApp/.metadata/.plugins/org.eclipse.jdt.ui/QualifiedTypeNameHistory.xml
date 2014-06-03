@@ -1,18 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <qualifiedTypeNameHistroy>
-<fullyQualifiedTypeName name="android.widget.ListAdapter"/>
-<fullyQualifiedTypeName name="android.view.ViewGroup"/>
-<fullyQualifiedTypeName name="com.supinfo.cubbyhole.mobileapp.quickactions.AlertDialogIntentChooser"/>
-<fullyQualifiedTypeName name="com.supinfo.cubbyhole.mobileapp.activities.Home.AddData"/>
-<fullyQualifiedTypeName name="android.provider.MediaStore"/>
-<fullyQualifiedTypeName name="android.database.Cursor"/>
-<fullyQualifiedTypeName name="com.supinfo.cubbyhole.mobileapp.activities.Home.AddImage"/>
-<fullyQualifiedTypeName name="java.io.Serializable"/>
-<fullyQualifiedTypeName name="android.R"/>
 <fullyQualifiedTypeName name="android.R.layout"/>
 <fullyQualifiedTypeName name="com.supinfo.cubbyhole.mobileapp.models.Folder"/>
 <fullyQualifiedTypeName name="android.view.MenuItem"/>
-<fullyQualifiedTypeName name="com.supinfo.cubbyhole.mobileapp.activities.DetailActivity"/>
 <fullyQualifiedTypeName name="com.supinfo.cubbyhole.mobileapp.activities.Home.UpdateData"/>
 <fullyQualifiedTypeName name="java.util.ArrayList"/>
 <fullyQualifiedTypeName name="android.content.ActivityNotFoundException"/>
@@ -43,7 +33,6 @@
 <fullyQualifiedTypeName name="android.view.View"/>
 <fullyQualifiedTypeName name="android.widget.TextView"/>
 <fullyQualifiedTypeName name="android.widget.Switch"/>
-<fullyQualifiedTypeName name="android.view.View.OnClickListener"/>
 <fullyQualifiedTypeName name="com.android.volley.Request"/>
 <fullyQualifiedTypeName name="com.android.volley.Response.Listener"/>
 <fullyQualifiedTypeName name="org.json.JSONObject"/>
@@ -53,11 +42,22 @@
 <fullyQualifiedTypeName name="android.view.MenuInflater"/>
 <fullyQualifiedTypeName name="android.support.v7.app.ActionBarActivity"/>
 <fullyQualifiedTypeName name="android.widget.ListView"/>
-<fullyQualifiedTypeName name="com.supinfo.cubbyhole.mobileapp.R.id"/>
 <fullyQualifiedTypeName name="android.widget.ArrayAdapter"/>
 <fullyQualifiedTypeName name="android.support.v7.view.ActionMode"/>
 <fullyQualifiedTypeName name="android.view.ContextMenu"/>
 <fullyQualifiedTypeName name="android.view.ContextMenu.ContextMenuInfo"/>
 <fullyQualifiedTypeName name="android.support.v7.internal.widget.AdapterViewICS.AdapterContextMenuInfo"/>
 <fullyQualifiedTypeName name="android.widget.AdapterView.AdapterContextMenuInfo"/>
+<fullyQualifiedTypeName name="com.supinfo.cubbyhole.mobileapp.activities.Home.GetData"/>
+<fullyQualifiedTypeName name="com.supinfo.cubbyhole.mobileapp.R.id"/>
+<fullyQualifiedTypeName name="android.view.ViewGroup.LayoutParams"/>
+<fullyQualifiedTypeName name="android.widget.LinearLayout"/>
+<fullyQualifiedTypeName name="android.widget.LinearLayout.LayoutParams"/>
+<fullyQualifiedTypeName name="android.view.Gravity"/>
+<fullyQualifiedTypeName name="android.animation.Animator"/>
+<fullyQualifiedTypeName name="com.supinfo.cubbyhole.mobileapp.R.drawable"/>
+<fullyQualifiedTypeName name="com.android.volley.toolbox.ImageLoader.ImageListener"/>
+<fullyQualifiedTypeName name="android.view.View.OnClickListener"/>
+<fullyQualifiedTypeName name="android.widget.CompoundButton.OnCheckedChangeListener"/>
+<fullyQualifiedTypeName name="com.supinfo.cubbyhole.mobileapp.activities.DetailActivity"/>
 </qualifiedTypeNameHistroy>

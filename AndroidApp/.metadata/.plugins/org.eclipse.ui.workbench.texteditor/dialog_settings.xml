@@ -13,16 +13,16 @@
 		<item value="true" key="casesensitive"/>
 		<item value="false" key="incremental"/>
 		<item value="false" key="wholeword"/>
-		<item value="actionMode" key="selection"/>
+		<item value="detail_share_btn" key="selection"/>
 		<list key="findhistory">
-			<item value="actionMode"/>
-			<item value="actionModeCloseButtonStyleactionModeCloseButtonStyle"/>
-			<item value="actionModeCloseButtonStyle"/>
-			<item value="actionModeCloseDrawable"/>
-			<item value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;"/>
-			<item value="mActionMode"/>
-			<item value="ActionMode"/>
-			<item value="onCreate"/>
+			<item value="detail_share_btn"/>
+			<item value="detail_isPublic_switch"/>
+			<item value="mImageListener"/>
+			<item value="setImageUrl"/>
+			<item value="loadImageIfNecessary"/>
+			<item value="onResponse"/>
+			<item value="onresponse"/>
+			<item value="detail"/>
 		</list>
 		<list key="replacehistory">
 			<item value="§"/>

@@ -62,14 +62,11 @@ public class Home extends ActionBarActivity implements OnRefreshListener {
     private ProgressBar pb;
     private ListView list;
     private GenericListAdapter listAdapter;
-    private QuickAction quickAction;
     
     private	PullToRefreshLayout mPullToRefreshLayout;
     public static Object itemSelected = null;
     
     private String m_chosenDir = "";
-    
-    private ActionMode mActionMode = null;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,30 +77,12 @@ public class Home extends ActionBarActivity implements OnRefreshListener {
         getSupportActionBar().setTitle(Utils.getUserFromSharedPreferences(this).getEmail());
 
         /*
-         *  QuickActions
-         */
-
-        // item.setSticky permet de desactiver le dismiss de la dialog apres le clic sur l'item
-        ActionItem exportItem 	= new ActionItem(Utils.QUICKACTION_ID_EXPORT, "Exporter", getResources().getDrawable(R.drawable.dark_rename));
-        ActionItem moveItem 		= new ActionItem(Utils.QUICKACTION_ID_MOVE, "Déplacer", getResources().getDrawable(R.drawable.dark_rename));
-        ActionItem manageItem 	= new ActionItem(Utils.QUICKACTION_ID_MANAGE, "Partager", getResources().getDrawable(R.drawable.dark_rename));
-        ActionItem renameItem 	= new ActionItem(Utils.QUICKACTION_ID_RENAME, "Renommer", getResources().getDrawable(R.drawable.dark_rename));
-       // ActionItem deleteItem 	= new ActionItem(Utils.QUICKACTION_ID_DELETE, "Supprimer", getResources().getDrawable(R.drawable.dark_delete));
-
-        quickAction = new QuickAction(this, QuickAction.HORIZONTAL);
-
-        quickAction.addActionItem(exportItem);
-        quickAction.addActionItem(manageItem);
-        quickAction.addActionItem(moveItem);
-        quickAction.addActionItem(renameItem);
-        //quickAction.addActionItem(deleteItem);
-
-        /*
          *  List
          */
 
         pb = (ProgressBar)findViewById(R.id.home_pb);
         list = (ListView)findViewById(R.id.home_list);
+        registerForContextMenu(list);
         mPullToRefreshLayout = (PullToRefreshLayout) findViewById(R.id.ptr_layout);
         
         // Instanciation du pulltorefresh
@@ -123,249 +102,269 @@ public class Home extends ActionBarActivity implements OnRefreshListener {
         SetHandlers();
     }
 
-    		private void SetHandlers(){
-    	
-    		quickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
-            @Override
-            public void onItemClick(QuickAction source, int pos, int actionId) {
-
-                ActionItem actionItem = quickAction.getActionItem(pos);
-                
-                /*
-                 *  Export
-                 */
-                
-                if (actionId == Utils.QUICKACTION_ID_EXPORT) {
-                	
-                	DirectoryChooserDialog directoryChooserDialog = 
-                    new DirectoryChooserDialog(Home.this, 
-                        new DirectoryChooserDialog.ChosenDirectoryListener() 
-                    {
-                        @Override
-                        public void onChosenDir(String chosenDir) 
-                        {
-                            new DownloadFile(Home.this, chosenDir, (File) itemSelected).execute();
-                            
-                        }
-                    }); 
-                    directoryChooserDialog.setNewFolderEnabled(true);
-                    directoryChooserDialog.chooseDirectory(m_chosenDir);
-                    
-                }
-                
-                
-                /*
-                 *  Manage
-                 */
-                
-                if (actionId == Utils.QUICKACTION_ID_MANAGE) {
-                		Intent intent_to_detail = new Intent(Home.this, DetailActivity.class);
-                        startActivityForResult(intent_to_detail, Utils.INTENT_DETAIL);
-                }
-                
-                /*
-                 * 	Rename
-                 */
-                
-                if (actionId == Utils.QUICKACTION_ID_RENAME) {
-                	
-                	if (itemSelected != null && itemSelected instanceof Folder){
-                		
-                		AlertDialog.Builder alert = new AlertDialog.Builder(Home.this);
-                		alert.setTitle("Edition du dossier");
-                		alert.setMessage("Merci de spécifier un nouveau nom pour ce dossier :");
-                		final EditText input = new EditText(Home.this);
-                		alert.setView(input);
-                		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                		public void onClick(DialogInterface dialog, int whichButton) {
-
-                			String value = input.getText().toString();
-                			
-                			if (!value.trim().isEmpty()){
-
-                				final Folder folderSelected = (Folder)itemSelected;
-                				folderSelected.setName(input.getText().toString());
-                				
-                				List<NameValuePair> pairs = new ArrayList<NameValuePair>();
-                	        	pairs.add(new BasicNameValuePair(Utils.JSON_FOLDER_NAME, folderSelected.getName()));
-                	        	pairs.add(new BasicNameValuePair(Utils.JSON_FOLDER_ISPUBLIC, folderSelected.getIsPublic().toString()));
-                	        	pairs.add(new BasicNameValuePair(Utils.JSON_FOLDER_LASTUPDATE, folderSelected.getLastUpdateDate().toString()));
-                				
-                    			new UpdateData(Home.this, folderSelected, pairs).execute();
-                			
-                			}else{
-                				Utils.DisplayToastHome(Home.this, "Le champs nom ne peut pas etre vide..");
-                			}
-                			
-                		}
-                		});
-                		alert.setNegativeButton("Annuler", new DialogInterface.OnClickListener() {
-                		  public void onClick(DialogInterface dialog, int whichButton) {
-                		  }
-                		});
-                		alert.show();
-                		
-                	}else if (itemSelected != null && itemSelected instanceof File){
-                		
-                		AlertDialog.Builder alert = new AlertDialog.Builder(Home.this);
-                		alert.setTitle("Edition du fichier");
-                		alert.setMessage("Merci de spécifier un nouveau nom pour ce fichier :");
-                		final EditText input = new EditText(Home.this);
-                		alert.setView(input);
-                		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                		public void onClick(DialogInterface dialog, int whichButton) {
-
-                			String value = input.getText().toString();
-                			
-                			if (!value.trim().isEmpty()){
-
-                				final File fileSelected = (File)itemSelected;
-                				fileSelected.setName((Utils.GetNewFileNameWithExtension(fileSelected.getName(), input.getText().toString())));
-                				
-                				List<NameValuePair> pairs = new ArrayList<NameValuePair>();
-                	        	pairs.add(new BasicNameValuePair(Utils.JSON_FOLDER_NAME, fileSelected.getName()));
-                	        	pairs.add(new BasicNameValuePair(Utils.JSON_FOLDER_ISPUBLIC, fileSelected.getIsPublic().toString()));
-                	        	pairs.add(new BasicNameValuePair(Utils.JSON_FOLDER_LASTUPDATE, fileSelected.getLastUpdateDate().toString()));
-                	        	pairs.add(new BasicNameValuePair(Utils.JSON_FILE_PUBLICLINKPATH,fileSelected.getPublicLinkPath()));
-                	        	pairs.add(new BasicNameValuePair(Utils.JSON_FILE_SIZE, fileSelected.getSize().toString()));
-                				
-                    			new UpdateData(Home.this, fileSelected, pairs).execute();
-                			
-                			}else{
-                				Utils.DisplayToastHome(Home.this, "Le champs nom ne peut pas etre vide..");
-                			}
-                			
-                		}
-                		});
-                		alert.setNegativeButton("Annuler", new DialogInterface.OnClickListener() {
-                		  public void onClick(DialogInterface dialog, int whichButton) {
-                		  }
-                		});
-                		alert.show();
-                		
-                	}
-                	
-                }
-                /*
-                 *  Delete
-                 */
-                
-                else if (actionId == Utils.QUICKACTION_ID_DELETE) {
-
-                	if (itemSelected != null && itemSelected instanceof Folder){
-
-                		new DeleteData(Home.this, itemSelected).execute();
-                		
-                	}else if (itemSelected != null && itemSelected instanceof File){
-                		
-                		new DeleteData(Home.this, itemSelected).execute();
-                		
-                	}
-                	
-                }
-                
-                /*
-                 *  Move
-                 */
-
-                else if (actionId == Utils.QUICKACTION_ID_MOVE){
-
-                	if (itemSelected != null && itemSelected instanceof Folder){
-                		
-                		final AlertDialog alertDialog = new AlertDialog.Builder(Home.this).create();
-                        LayoutInflater inflater = getLayoutInflater();
-                        View convertView = (View) inflater.inflate(R.layout.listview_move, null);
-                        alertDialog.setTitle("Déplacer le dossier vers");
-                        final ListView lv = (ListView) convertView.findViewById(R.id.move_lv);
-                        
-                        List<Folder> folderItems = new ArrayList<Folder>();
-                        for(Object obj : Data.currentArray){
-                        	if (obj instanceof Back){
-                        		Folder backFolder = new Folder();
-                        		backFolder.setName("Dossier précédent");
-                        		backFolder.setId(Data.currentFolder.getParentID());
-                        		folderItems.add(backFolder);
-                        	}else if (obj instanceof Folder){
-                        		folderItems.add((Folder)obj);
-                        	}
-                        }
-                        
-                        MoveListAdapter moveListAdapter = new MoveListAdapter(Home.this, R.layout.listview_move, folderItems);
-                        lv.setAdapter(moveListAdapter);
-                        
-                        lv.setOnItemClickListener(new OnItemClickListener()
-                        {
-                            @Override
-                            public void onItemClick(AdapterView<?> adapter, View v, int position,
-                                  long id) 
-                            {
-                            	Folder folderSelected = (Folder)lv.getAdapter().getItem(position);
-
-                            	List<NameValuePair> pairs = new ArrayList<NameValuePair>();
-                            	if (folderSelected.getId() == -1){
-                            		pairs.add(new BasicNameValuePair("folder_id", "null"));
-                            	}else{
-                            		pairs.add(new BasicNameValuePair("folder_id", Integer.toString(folderSelected.getId())));
-                            	}
-                				
-                    			new UpdateData(Home.this, itemSelected, pairs).execute();
-                    			alertDialog.dismiss();
-                            }
-                         });
-                        
-                        alertDialog.setView(convertView);
-                        alertDialog.show();
-                		
-                	}else if (itemSelected != null && itemSelected instanceof File){
-                		
-                		final AlertDialog alertDialog = new AlertDialog.Builder(Home.this).create();
-                        LayoutInflater inflater = getLayoutInflater();
-                        View convertView = (View) inflater.inflate(R.layout.listview_move, null);
-                        alertDialog.setTitle("Déplacer le fichier vers");
-                        final ListView lv = (ListView) convertView.findViewById(R.id.move_lv);
-                        
-                        List<Folder> folderItems = new ArrayList<Folder>();
-                        for(Object obj : Data.currentArray){
-                        	if (obj instanceof Back){
-                        		Folder backFolder = new Folder();
-                        		backFolder.setName("Dossier précédent");
-                        		backFolder.setId(Data.currentFolder.getParentID());
-                        		folderItems.add(backFolder);
-                        	}else if (obj instanceof Folder){
-                        		folderItems.add((Folder)obj);
-                        	}
-                        }
-                        
-                        lv.setOnItemClickListener(new OnItemClickListener()
-                        {
-                            @Override
-                            public void onItemClick(AdapterView<?> adapter, View v, int position,
-                                  long id) 
-                            {
-                            	Folder folderSelected = (Folder)lv.getAdapter().getItem(position);
-                            	
-                            	List<NameValuePair> pairs = new ArrayList<NameValuePair>();
-                            	if (folderSelected.getId() == -1){
-                            		pairs.add(new BasicNameValuePair("folder_id", "null"));
-                            	}else{
-                            		pairs.add(new BasicNameValuePair("folder_id", Integer.toString(folderSelected.getId())));
-                            	}
-                            	
-                    			new UpdateData(Home.this, itemSelected, pairs).execute();
-                    			alertDialog.dismiss();
-                            }
-                         });
-                        
-                        MoveListAdapter moveListAdapter = new MoveListAdapter(Home.this, R.layout.listview_move, folderItems);
-                        lv.setAdapter(moveListAdapter);
-                        alertDialog.setView(convertView);
-                        alertDialog.show();
-	                	
-                	}
-                }
-            }
-        });
+    @Override
+	public void onCreateContextMenu(ContextMenu menu, View v,
+	                                ContextMenuInfo menuInfo) {
+	    super.onCreateContextMenu(menu, v, menuInfo);
+	    
+	    AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
+	    MenuInflater inflater = getMenuInflater();
+	    
+	    if (list.getAdapter().getItem(info.position) instanceof Folder){
+	    	 	inflater.inflate(R.menu.contextual_menu_folder, menu);
+        }else if (list.getAdapter().getItem(info.position) instanceof File){
+        		inflater.inflate(R.menu.contextual_menu_file, menu);
+        }
+	    
+	}
     
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+        
+        Folder folderSelected = null;
+        File fileSelected = null;
+        
+        if (list.getAdapter().getItem(info.position) instanceof Folder){
+
+            folderSelected = (Folder) list.getAdapter().getItem(info.position);
+            itemSelected = (Object) folderSelected;
+            
+        }else if (list.getAdapter().getItem(info.position) instanceof File){
+
+            fileSelected = (File) list.getAdapter().getItem(info.position);
+            itemSelected = (Object) fileSelected;
+        }
+        
+        switch (item.getItemId()) {
+        			// File
+            case R.id.context_file_rename:
+            	if (itemSelected != null){
+            		AlertDialog.Builder alert = new AlertDialog.Builder(Home.this);
+            		alert.setTitle("Edition du fichier");
+            		alert.setMessage("Merci de spécifier un nouveau nom pour ce fichier :");
+            		final EditText input = new EditText(Home.this);
+            		alert.setView(input);
+            		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            		public void onClick(DialogInterface dialog, int whichButton) {
+
+            			String value = input.getText().toString();
+            			
+            			if (!value.trim().isEmpty()){
+
+            				final File fileSelected = (File)itemSelected;
+            				fileSelected.setName((Utils.GetNewFileNameWithExtension(fileSelected.getName(), input.getText().toString())));
+            				
+            				List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+            	        	pairs.add(new BasicNameValuePair(Utils.JSON_FOLDER_NAME, fileSelected.getName()));
+            	        	pairs.add(new BasicNameValuePair(Utils.JSON_FOLDER_ISPUBLIC, fileSelected.getIsPublic().toString()));
+            	        	pairs.add(new BasicNameValuePair(Utils.JSON_FOLDER_LASTUPDATE, fileSelected.getLastUpdateDate().toString()));
+            	        	pairs.add(new BasicNameValuePair(Utils.JSON_FILE_PUBLICLINKPATH,fileSelected.getPublicLinkPath()));
+            	        	pairs.add(new BasicNameValuePair(Utils.JSON_FILE_SIZE, fileSelected.getSize().toString()));
+            				
+                			new UpdateData(Home.this, fileSelected, pairs).execute();
+            			
+            			}else{
+            				Utils.DisplayToastHome(Home.this, "Le champs nom ne peut pas etre vide..");
+            			}
+            			
+            		}
+            		});
+            		alert.setNegativeButton("Annuler", new DialogInterface.OnClickListener() {
+            		  public void onClick(DialogInterface dialog, int whichButton) {
+            		  }
+            		});
+            		alert.show();
+            		
+            	}
+            		return true;
+                
+            case R.id.context_file_move:
+	            	if (itemSelected != null){
+		            	final AlertDialog alertDialog = new AlertDialog.Builder(Home.this).create();
+		                LayoutInflater inflater = getLayoutInflater();
+		                View convertView = (View) inflater.inflate(R.layout.listview_move, null);
+		                alertDialog.setTitle("Déplacer le fichier vers");
+		                final ListView lv = (ListView) convertView.findViewById(R.id.move_lv);
+		                
+		                List<Folder> folderItems = new ArrayList<Folder>();
+		                for(Object obj : Data.currentArray){
+		                	if (obj instanceof Back){
+		                		Folder backFolder = new Folder();
+		                		backFolder.setName("Dossier précédent");
+		                		backFolder.setId(Data.currentFolder.getParentID());
+		                		folderItems.add(backFolder);
+		                	}else if (obj instanceof Folder){
+		                		folderItems.add((Folder)obj);
+		                	}
+		                }
+		                
+		                lv.setOnItemClickListener(new OnItemClickListener()
+		                {
+		                    @Override
+		                    public void onItemClick(AdapterView<?> adapter, View v, int position,
+		                          long id) 
+		                    {
+		                    	Folder folderSelected = (Folder)lv.getAdapter().getItem(position);
+		                    	
+		                    	List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+		                    	if (folderSelected.getId() == -1){
+		                    		pairs.add(new BasicNameValuePair("folder_id", "null"));
+		                    	}else{
+		                    		pairs.add(new BasicNameValuePair("folder_id", Integer.toString(folderSelected.getId())));
+		                    	}
+		                    	
+		            			new UpdateData(Home.this, itemSelected, pairs).execute();
+		            			alertDialog.dismiss();
+		                    }
+		                 });
+		                
+		                MoveListAdapter moveListAdapter = new MoveListAdapter(Home.this, R.layout.listview_move, folderItems);
+		                lv.setAdapter(moveListAdapter);
+		                alertDialog.setView(convertView);
+		                alertDialog.show();
+	            	}
+            		return true;
+                
+            case R.id.context_file_export:
+	            	if (itemSelected != null){
+	             	DirectoryChooserDialog directoryChooserDialog = 
+	                new DirectoryChooserDialog(Home.this, 
+	                    new DirectoryChooserDialog.ChosenDirectoryListener() 
+	                {
+	                    @Override
+	                    public void onChosenDir(String chosenDir) 
+	                    {
+	                        new DownloadFile(Home.this, chosenDir, (File) itemSelected).execute();
+	                    }
+	                }); 
+	                directoryChooserDialog.setNewFolderEnabled(true);
+	                directoryChooserDialog.chooseDirectory(m_chosenDir);
+	            	}
+                return true;
+                
+            case R.id.context_file_share:
+	            	if (itemSelected != null){
+	            		Intent intent_to_detail = new Intent(Home.this, DetailActivity.class);
+	            		startActivityForResult(intent_to_detail, Utils.INTENT_DETAIL);
+	            	}
+                return true;
+                
+            case R.id.context_file_delete:
+            	if (itemSelected != null){
+            		new DeleteData(Home.this, itemSelected).execute();
+            	}
+                return true;
+
+                // Folder
+            case R.id.context_folder_rename:
+            	if (itemSelected != null){
+            		
+            		AlertDialog.Builder alert = new AlertDialog.Builder(Home.this);
+            		alert.setTitle("Edition du dossier");
+            		alert.setMessage("Merci de spécifier un nouveau nom pour ce dossier :");
+            		final EditText input = new EditText(Home.this);
+            		alert.setView(input);
+            		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            		public void onClick(DialogInterface dialog, int whichButton) {
+
+            			String value = input.getText().toString();
+            			
+            			if (!value.trim().isEmpty()){
+
+            				final Folder folderSelected = (Folder)itemSelected;
+            				folderSelected.setName(input.getText().toString());
+            				
+            				List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+            	        	pairs.add(new BasicNameValuePair(Utils.JSON_FOLDER_NAME, folderSelected.getName()));
+            	        	pairs.add(new BasicNameValuePair(Utils.JSON_FOLDER_ISPUBLIC, folderSelected.getIsPublic().toString()));
+            	        	pairs.add(new BasicNameValuePair(Utils.JSON_FOLDER_LASTUPDATE, folderSelected.getLastUpdateDate().toString()));
+            				
+                			new UpdateData(Home.this, folderSelected, pairs).execute();
+            			
+            			}else{
+            				Utils.DisplayToastHome(Home.this, "Le champs nom ne peut pas etre vide..");
+            			}
+            			
+            		}
+            		});
+            		alert.setNegativeButton("Annuler", new DialogInterface.OnClickListener() {
+            		  public void onClick(DialogInterface dialog, int whichButton) {
+            		  }
+            		});
+            		alert.show();
+            		
+            	}
+            		return true;
+                
+            case R.id.context_folder_move:
+	            	if (itemSelected != null){
+		            	final AlertDialog alertDialog2 = new AlertDialog.Builder(Home.this).create();
+		                LayoutInflater inflater2 = getLayoutInflater();
+		                View convertView2 = (View) inflater2.inflate(R.layout.listview_move, null);
+		                alertDialog2.setTitle("Déplacer le dossier vers");
+		                final ListView lv2 = (ListView) convertView2.findViewById(R.id.move_lv);
+		                
+		                List<Folder> folderItems2 = new ArrayList<Folder>();
+		                for(Object obj : Data.currentArray){
+		                	if (obj instanceof Back){
+		                		Folder backFolder = new Folder();
+		                		backFolder.setName("Dossier précédent");
+		                		backFolder.setId(Data.currentFolder.getParentID());
+		                		folderItems2.add(backFolder);
+		                	}else if (obj instanceof Folder){
+		                		folderItems2.add((Folder)obj);
+		                	}
+		                }
+		                
+		                MoveListAdapter moveListAdapter2 = new MoveListAdapter(Home.this, R.layout.listview_move, folderItems2);
+		                lv2.setAdapter(moveListAdapter2);
+		                
+		                lv2.setOnItemClickListener(new OnItemClickListener()
+		                {
+		                    @Override
+		                    public void onItemClick(AdapterView<?> adapter, View v, int position,
+		                          long id) 
+		                    {
+		                    	Folder folderSelected = (Folder)lv2.getAdapter().getItem(position);
+		
+		                    	List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+		                    	if (folderSelected.getId() == -1){
+		                    		pairs.add(new BasicNameValuePair("folder_id", "null"));
+		                    	}else{
+		                    		pairs.add(new BasicNameValuePair("folder_id", Integer.toString(folderSelected.getId())));
+		                    	}
+		        				
+		            			new UpdateData(Home.this, itemSelected, pairs).execute();
+		            			alertDialog2.dismiss();
+		                    }
+		                 });
+		                
+		                alertDialog2.setView(convertView2);
+		                alertDialog2.show();
+	            	}
+                return true;
+            
+            case R.id.context_folder_share:
+	            	if (itemSelected != null){
+	            		Intent intent_to_detail2 = new Intent(Home.this, DetailActivity.class);
+	            		startActivityForResult(intent_to_detail2, Utils.INTENT_DETAIL);
+	            	}
+                return true;
+                
+            case R.id.context_folder_delete:
+	            	if (itemSelected != null){
+	            		new DeleteData(Home.this, itemSelected).execute();
+	            	}
+            		return true;
+                
+            default:
+                return super.onContextItemSelected(item);
+        }
+    }
+    
+    
+    	private void SetHandlers(){
     	
     	 	list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
              @Override
@@ -400,39 +399,6 @@ public class Home extends ActionBarActivity implements OnRefreshListener {
              }
          });
 
-         list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-             @Override
-             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long l) {
-
-                 if (list.getAdapter().getItem(position) instanceof Folder){
-
-                     Folder folderSelected = (Folder) list.getAdapter().getItem(position);
-                     itemSelected = (Object) folderSelected;
-                     
-                  /*   if (mActionMode != null) {
-                         return false;
-                     }
-                     // Start the CAB using the ActionMode.Callback defined above
-                     mActionMode = startSupportActionMode(mActionModeCallback);
-                     view.setSelected(true);*/
-                     
-                 }else if (list.getAdapter().getItem(position) instanceof File){
-
-                     File fileSelected = (File) list.getAdapter().getItem(position);
-                     itemSelected = (Object) fileSelected;
-                     
-                     /*   if (mActionMode != null) {
-                     return false;
-                 }
-                 // Start the CAB using the ActionMode.Callback defined above
-                 mActionMode = startSupportActionMode(mActionModeCallback);
-                 view.setSelected(true);*/
-                     
-                 }
-            	 return true;
-             }
-         });
-    	
     }
     
     @Override
@@ -544,16 +510,6 @@ public class Home extends ActionBarActivity implements OnRefreshListener {
                 return true;
             
             case R.id.action_upload:
-            	/*
-            	if (Build.VERSION.SDK_INT <19){
-            	 	Intent intent = new Intent(Intent.ACTION_PICK, 
-    				Images.Media.EXTERNAL_CONTENT_URI);
-    				startActivityForResult(intent, Utils.INTENT_UPLOAD);
-            	} else {
-            		Intent intent = new Intent(Intent.ACTION_PICK, 
-            		Images.Media.EXTERNAL_CONTENT_URI);
-            		startActivityForResult(intent, Utils.INTENT_UPLOAD);
-            	}*/
 
             	Intent target = com.ipaulpro.afilechooser.utils.FileUtils.createGetContentIntent();
                 Intent intent = Intent.createChooser(
@@ -601,87 +557,8 @@ public class Home extends ActionBarActivity implements OnRefreshListener {
             } catch (Exception e) {
                 Log.e("Onactivityresult Home Intent Afilechooser", "File select error", e);
             }
-        }/*
-        else if (requestCode == Utils.INTENT_UPLOAD) {
-    		
-    		try {
-    			
-			Uri orgUri = data.getData();
-			String convertedPath = Utils.GetRealPathFromURI2(this, orgUri);
-			System.out.println("path : "+convertedPath);
-			
-			java.io.File file = new java.io.File(convertedPath);
-			
-			if (file.exists()){
-				List<NameValuePair> pairs = new ArrayList<NameValuePair>();
-				
-				pairs.add(new BasicNameValuePair("name", file.getName()));
-				pairs.add(new BasicNameValuePair("user_id", String.valueOf(Utils.getUserFromSharedPreferences(Home.this).getId())));
-				if (Data.currentFolder == null){
-					pairs.add(new BasicNameValuePair("folder_id", "null"));
-				}else{
-					pairs.add(new BasicNameValuePair("folder_id", String.valueOf(Data.currentFolder.getId())));
-				}
-				
-				new AddImage(file, this, pairs).execute();
-			}else{
-				Utils.DisplayToastHome(Home.this, "Ce fichier est indisponible, merci de réessayer avec un fichier valide.");
-			}
-			
-    		}catch (Exception e){}
-			
-    	}else if (requestCode == Utils.INTENT_UPLOAD_KIKKAT) { // ne fonctionne pas
-
-    		try {
-    				
-    				String filePath = Utils.GetRealPathFromURI2(this, data.getData());
-    				String fileName = filePath.substring(filePath.lastIndexOf('/')+1, filePath.length());
-
-    				 Uri originalUri = data.getData();
-    			      int takeFlags = data.getFlags()
-    			                & (Intent.FLAG_GRANT_READ_URI_PERMISSION
-    			                | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-    			        // Check for the freshest data.
-    			     getContentResolver().takePersistableUriPermission(originalUri, takeFlags);
-    			        
-    				java.io.File tempFile = new java.io.File(this.getFilesDir().getAbsolutePath(), fileName);
-    	            tempFile.createNewFile();
-    	            InputStream in = new FileInputStream(filePath);
-    	            OutputStream out = this.getContentResolver().openOutputStream(originalUri);
-    	            org.apache.commons.io.IOUtils.copy(in, out);
-
-    	            //Now fetch the new URI 
-        	        Uri newUri = Uri.fromFile(tempFile);
-        	        String convertedPath = Utils.GetRealPathFromURI2(this, newUri);
-        			System.out.println("path : "+convertedPath);
-        			
-        			java.io.File file = new java.io.File(convertedPath);
-        			
-        			if (file.exists()){
-        				List<NameValuePair> pairs = new 	ArrayList<NameValuePair>();
-        				
-        				pairs.add(new BasicNameValuePair("name", file.getName()));
-        				pairs.add(new BasicNameValuePair("user_id", String.valueOf(Utils.getUserFromSharedPreferences(Home.this).getId())));
-        				if (Data.currentFolder == null){
-        					pairs.add(new BasicNameValuePair("folder_id", "null"));
-        				}else{
-        					pairs.add(new BasicNameValuePair("folder_id", String.valueOf(Data.currentFolder.getId())));
-        				}
-        				
-        				new AddImage(file, this, pairs).execute();
-        				
-        			}else{
-        				Utils.DisplayToastHome(Home.this, "Ce fichier est indisponible, merci de réessayer avec un fichier valide.");
-        			}
-    	            
-    	        } catch (Exception e) {                           
-    	        	e.printStackTrace();
-    	        }
-    	}*/
-    	else if (requestCode == Utils.INTENT_DETAIL){
-    		
-    		
-    		
+        }else if (requestCode == Utils.INTENT_DETAIL){
+        	// 
     	}else if (requestCode == Utils.INTENT_OPEN){
     		
     	 	java.io.File sdCard = Environment.getExternalStorageDirectory();
@@ -708,13 +585,6 @@ public class Home extends ActionBarActivity implements OnRefreshListener {
 			} catch (IOException e) {
 				e.printStackTrace();
 			} 
-    }
-    
-    private void shareContent(String update) {
-        Intent intent = new Intent(Intent.ACTION_SEND);
-        intent.setType("text/plain");
-        intent.putExtra(Intent.EXTRA_TEXT, update);
-        startActivity(Intent.createChooser(intent, "Partager ce fichier"));
     }
     
     /**
@@ -1142,46 +1012,7 @@ public class Home extends ActionBarActivity implements OnRefreshListener {
 
 	@Override
 	public void onRefreshStarted(View view) {
-		// TODO Auto-generated method stub
-		
+		RefreshView();
 	}
     
-	private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
-	    
-	    @Override
-	    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-	        // Inflate a menu resource providing context menu items
-	        MenuInflater inflater = mode.getMenuInflater();
-	        inflater.inflate(R.menu.contextual_menu, menu);
-	        return true;
-	    }
-
-	    // Called each time the action mode is shown. Always called after onCreateActionMode, but
-	    // may be called multiple times if the mode is invalidated.
-	    @Override
-	    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-	        return false; // Return false if nothing is done
-	    }
-
-	    // Called when the user selects a contextual menu item
-	    @Override
-	    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-	        switch (item.getItemId()) {
-	            case R.id.context_rename:
-	                mode.finish();
-	                return true;
-	            default:
-	                return false;
-	        }
-	    }
-
-	    // Called when the user exits the action mode
-	    @Override
-	    public void onDestroyActionMode(ActionMode mode) {
-	        mActionMode = null;
-	    }
-		
-	};
-	
-	
 }

@@ -2,41 +2,41 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     
     <item
-        android:id="@+id/context_rename"
+        android:id="@+id/context_file_rename"
         android:icon="@drawable/cubby_noimage"
-        android:title=""
+        android:title="Renommer"
         android:showAsAction="always"
         >
     </item>
 
     <item
-        android:id="@+id/context_move"
+        android:id="@+id/context_file_move"
         android:icon="@drawable/cubby_download"
-        android:title=""
+        android:title="Deplacer"
          android:showAsAction="always"
        >
     </item>
     
     <item
-        android:id="@+id/context_export"
+        android:id="@+id/context_file_export"
         android:icon="@drawable/cubby_file"
-        android:title=""
+        android:title="Exporter"
          android:showAsAction="always"
        >
     </item>
     
     <item
-        android:id="@+id/context_share"
+        android:id="@+id/context_file_share"
         android:icon="@drawable/cubby_download"
-        android:title=""
+        android:title="Partager"
          android:showAsAction="always"
        >
     </item>
     
     <item
-        android:id="@+id/context_delete"
+        android:id="@+id/context_file_delete"
         android:icon="@drawable/cubby_delete"
-        android:title=""
+        android:title="Supprimer"
          android:showAsAction="always"
         >
     </item>
