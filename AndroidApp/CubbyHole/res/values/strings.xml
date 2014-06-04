@@ -5,7 +5,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Deconnexion</string>
 
-
     <!-- Colors -->
     <color name="transparent">#00000000</color>
     <color name="green">#9ec42b</color>

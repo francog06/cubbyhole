@@ -1,0 +1,7 @@
+package com.supinfo.cubbyhole.mobileapp.activities;
+
+import android.support.v7.app.ActionBarActivity;
+
+public class Homy extends ActionBarActivity {
+
+}

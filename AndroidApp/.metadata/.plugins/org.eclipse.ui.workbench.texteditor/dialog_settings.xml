@@ -10,19 +10,19 @@
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
 		<item value="true" key="wrap"/>
 		<item value="false" key="isRegEx"/>
-		<item value="false" key="casesensitive"/>
+		<item value="true" key="casesensitive"/>
 		<item value="false" key="incremental"/>
 		<item value="false" key="wholeword"/>
-		<item value="provider" key="selection"/>
+		<item value="detail_share_btn" key="selection"/>
 		<list key="findhistory">
-			<item value="provider"/>
-			<item value="INTENT_UPLOAD_KIKKAT"/>
-			<item value="fileName"/>
-			<item value="temp_image"/>
-			<item value="temp"/>
-			<item value="du fichier a"/>
-			<item value="la recuperation"/>
-			<item value="preview"/>
+			<item value="detail_share_btn"/>
+			<item value="detail_isPublic_switch"/>
+			<item value="mImageListener"/>
+			<item value="setImageUrl"/>
+			<item value="loadImageIfNecessary"/>
+			<item value="onResponse"/>
+			<item value="onresponse"/>
+			<item value="detail"/>
 		</list>
 		<list key="replacehistory">
 			<item value="§"/>

@@ -59,6 +59,11 @@ class User implements \JsonSerializable
      */
     private $shared_with_me;
 
+    /**
+     * @var \Doctrine\Common\Collections\ArrayCollection
+     */
+    private $shares;
+
     public function __construct()
     {
         $this->plan_historys = new \Doctrine\Common\Collections\ArrayCollection();
@@ -447,6 +452,38 @@ class User implements \JsonSerializable
     }
 
     /**
+     * Add shares
+     *
+     * @param Entities\Share $shares
+     * @return User
+     */
+    public function addShare(\Entities\Share $shares)
+    {
+        $this->shares[] = $shares;
+        return $this;
+    }
+
+    /**
+     * Remove shares
+     *
+     * @param Entities\Share $shares
+     */
+    public function removeShare(\Entities\Share $shares)
+    {
+        $this->shares->removeElement($shares);
+    }
+
+    /**
+     * Get shares
+     *
+     * @return Doctrine\Common\Collections\Collection 
+     */
+    public function getShares()
+    {
+        return $this->shares;
+    }
+
+    /**
      * JSON serialize
      * 
      * @return public object
@@ -479,42 +516,5 @@ class User implements \JsonSerializable
         }
         $json['activePlanHistory'] = self::getActivePlanHistory();
         return $json;
-    }
-    /**
-     * @var \Doctrine\Common\Collections\ArrayCollection
-     */
-    private $shares;
-
-
-    /**
-     * Add shares
-     *
-     * @param Entities\Share $shares
-     * @return User
-     */
-    public function addShare(\Entities\Share $shares)
-    {
-        $this->shares[] = $shares;
-        return $this;
-    }
-
-    /**
-     * Remove shares
-     *
-     * @param Entities\Share $shares
-     */
-    public function removeShare(\Entities\Share $shares)
-    {
-        $this->shares->removeElement($shares);
-    }
-
-    /**
-     * Get shares
-     *
-     * @return Doctrine\Common\Collections\Collection 
-     */
-    public function getShares()
-    {
-        return $this->shares;
     }
 }

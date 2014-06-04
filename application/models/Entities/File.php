@@ -64,6 +64,11 @@ class File implements \JsonSerializable
      */
     private $folder;
 
+    /**
+     * @var \Doctrine\Common\Collections\ArrayCollection
+     */
+    private $shares;
+
     public function __construct()
     {
         $this->data_histories = new \Doctrine\Common\Collections\ArrayCollection();
@@ -309,35 +314,6 @@ class File implements \JsonSerializable
         return $this->folder;
     }
 
-    /**
-     * JSON serialize
-     * 
-     * @return public object
-     */
-    public function jsonSerialize() {
-        $excludes = ["user", "folder", "data_histories", "shares"];
-        $json = [];
-        foreach ($this as $key => $value) {
-            if (!in_array($key, $excludes)) {
-                if (is_object($value) && strstr(get_class($value), 'Doctrine') !== false) {
-                    $collectionJson = array();
-                    foreach ($value->getKeys() as $collectionKey) {
-                        $collectionJson[] = $value->current();
-                        $value->next();
-                    }
-                    $json[$key] = $collectionJson;
-                }
-                else
-                    $json[$key] = $value;
-            }
-        }
-        return $json;
-    }
-    /**
-     * @var \Doctrine\Common\Collections\ArrayCollection
-     */
-    private $shares;
-
 
     /**
      * Add shares
@@ -369,5 +345,30 @@ class File implements \JsonSerializable
     public function getShares()
     {
         return $this->shares;
+    }
+
+    /**
+     * JSON serialize
+     * 
+     * @return public object
+     */
+    public function jsonSerialize() {
+        $excludes = ["user", "folder", "data_histories", "shares"];
+        $json = [];
+        foreach ($this as $key => $value) {
+            if (!in_array($key, $excludes)) {
+                if (is_object($value) && strstr(get_class($value), 'Doctrine') !== false) {
+                    $collectionJson = array();
+                    foreach ($value->getKeys() as $collectionKey) {
+                        $collectionJson[] = $value->current();
+                        $value->next();
+                    }
+                    $json[$key] = $collectionJson;
+                }
+                else
+                    $json[$key] = $value;
+            }
+        }
+        return $json;
     }
 }
