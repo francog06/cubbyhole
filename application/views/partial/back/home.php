@@ -771,19 +771,14 @@
 
 function getFile(id){
     if(id > 0){
-        var $preparingFileModal = $("#loadingModal");
-        preparingFileModal.modal("show");
- 
-        $.fileDownload("/api/file/download/"+id, {
-            data:{"X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"},
-            successCallback: function (url) {
-                $preparingFileModal.modal('hide');
-            },
-            failCallback: function (responseHtml, url) {
-                $preparingFileModal.modal('hide');
-                alert("problem when downloading your file");
-            }
-        });
+        
+        var $preparingFileModal  = $('#loadingModal');
+        $preparingFileModal.modal("show");
+        $.fileDownload("/api/file/download/"+id+"?X-API-KEY=<?= $this->session->userdata('user_token'); ?>",{
+            successCallback: function (url) { $preparingFileModal.modal("hide"); }
+        })
+            .done(function(){alert("test");$preparingFileModal.modal("hide");})
+            .fail(function(){alert("fuck"); $preparingFileModal.modal("hide");});
         return false; 
     }
 }
