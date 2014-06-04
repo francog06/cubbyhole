@@ -962,6 +962,10 @@ function getRoot(){
                                     }else{
                                          $("div.resultShare").append('<div class="alert alert-danger fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
                                     }
+                                },
+                                error: function(result) {
+                                    $("#loadingModal").modal("hide");
+                                    $("div.resultShare").append('<div class="alert alert-danger fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
                                 }
                             })
                         });
@@ -1052,6 +1056,10 @@ function getRoot(){
                                     }else{
                                          $("div.resultShare").append('<div class="alert alert-danger fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
                                     }
+                                },
+                                error: function(result) {
+                                    $("#loadingModal").modal("hide");
+                                    $("div.resultShare").append('<div class="alert alert-danger fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
                                 }
                             })
                         });
@@ -1354,6 +1362,10 @@ function getFolder(id){
                                     }else{
                                          $("div.resultShare").append('<div class="alert alert-danger fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
                                     }
+                                },
+                                error: function(result) {
+                                    $("#loadingModal").modal("hide");
+                                    $("div.resultShare").append('<div class="alert alert-danger fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
                                 }
                             })
                         });
@@ -1444,6 +1456,10 @@ function getFolder(id){
                                     }else{
                                          $("div.resultShare").append('<div class="alert alert-danger fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
                                     }
+                                },
+                                error: function(result) {
+                                    $("#loadingModal").modal("hide");
+                                    $("div.resultShare").append('<div class="alert alert-danger fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
                                 }
                             })
                         });
