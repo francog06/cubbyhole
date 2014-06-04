@@ -177,12 +177,6 @@ class File extends \Entities\File implements \Doctrine\ORM\Proxy\Proxy
         return parent::getFolder();
     }
 
-    public function jsonSerialize()
-    {
-        $this->__load();
-        return parent::jsonSerialize();
-    }
-
     public function addShare(\Entities\Share $shares)
     {
         $this->__load();
@@ -199,6 +193,12 @@ class File extends \Entities\File implements \Doctrine\ORM\Proxy\Proxy
     {
         $this->__load();
         return parent::getShares();
+    }
+
+    public function jsonSerialize()
+    {
+        $this->__load();
+        return parent::jsonSerialize();
     }
 
 

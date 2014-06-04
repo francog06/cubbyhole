@@ -169,6 +169,92 @@ class Share implements \JsonSerializable
     }
 
     /**
+     * Set is_writable
+     *
+     * @param boolean $isWritable
+     * @return Share
+     */
+    public function setIsWritable($isWritable)
+    {
+        $this->is_writable = $isWritable;
+        return $this;
+    }
+
+    /**
+     * Get is_writable
+     *
+     * @return boolean 
+     */
+    public function getIsWritable()
+    {
+        return $this->is_writable;
+    }
+
+    /**
+     * Get if file is already shared
+     * 
+     * @param entity id, email, type
+     * @return boolean
+     */
+    public static function entityAlreadyShared($entity_id, $user_id, $type = "file") {
+        if (method_exists(get_class(), $type . "AlreadyShared"))
+            return self::{$type . "AlreadyShared"}($entity_id, $user_id);
+        else
+            throw new Exception("Type not allowed.", 1);
+            
+    }
+
+    /**
+     * Know if file already shared to this email
+     * 
+     *  @return boolean
+     */
+    public static function fileAlreadyShared($file_id, $user_id) {
+        $ci =& get_instance();
+        $query = $ci->doctrine->em->createQueryBuilder()
+                    ->add('select', 's')
+                    ->add('from', 'Entities\Share s')
+                    ->add('where', 's.user_id = :user_id AND s.file_id = :file_id')
+                    ->setParameter('user_id', $user_id)
+                    ->setParameter('file_id', $file_id)
+                    ->getQuery();
+
+        try {
+            $share = $query->getSingleResult();
+        } catch (Doctrine\ORM\NoResultException $e) {
+            return false;
+        } catch (Exception $e) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Know if folder already shared to this email
+     * 
+     *  @return boolean
+     */
+    public static function folderAlreadyShared($folder_id, $user_id) {
+        $ci =& get_instance();
+        $query = $ci->doctrine->em->createQueryBuilder()
+                    ->add('select', 's')
+                    ->add('from', 'Entities\Share s')
+                    ->add('where', 's.user_id = :user_id AND s.folder_id = :folder_id')
+                    ->setParameter('user_id', $user_id)
+                    ->setParameter('folder_id', $folder_id)
+                    ->getQuery();
+
+        try {
+            $share = $query->getSingleResult();
+        } catch (Doctrine\ORM\NoResultException $e) {
+            return false;
+        } catch (Exception $e) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * JSON serialize
      * 
      * @return public object
@@ -197,27 +283,5 @@ class Share implements \JsonSerializable
         $json["owner"] = array('id' => $this->owner->getId(), 'email' => $this->owner->getEmail());
         $json["user"] = array('id' => $this->user->getId(), 'email' => $this->user->getEmail());
         return $json;
-    }
-
-    /**
-     * Set is_writable
-     *
-     * @param boolean $isWritable
-     * @return Share
-     */
-    public function setIsWritable($isWritable)
-    {
-        $this->is_writable = $isWritable;
-        return $this;
-    }
-
-    /**
-     * Get is_writable
-     *
-     * @return boolean 
-     */
-    public function getIsWritable()
-    {
-        return $this->is_writable;
     }
 }

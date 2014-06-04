@@ -207,12 +207,6 @@ class User extends \Entities\User implements \Doctrine\ORM\Proxy\Proxy
         return parent::updateKey();
     }
 
-    public function jsonSerialize()
-    {
-        $this->__load();
-        return parent::jsonSerialize();
-    }
-
     public function addShare(\Entities\Share $shares)
     {
         $this->__load();
@@ -229,6 +223,12 @@ class User extends \Entities\User implements \Doctrine\ORM\Proxy\Proxy
     {
         $this->__load();
         return parent::getShares();
+    }
+
+    public function jsonSerialize()
+    {
+        $this->__load();
+        return parent::jsonSerialize();
     }
 
 
