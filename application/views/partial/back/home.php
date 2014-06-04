@@ -624,44 +624,79 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                 <h4 class="modal-title">Partager cet élément</h4>
             </div>
-            <form class="form-horizontal" role="form" method="post" id="formNewFolder">
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-6" style="border-right:1px dotted #ccc">
-                            <h4>Avec tout le monde</h4>
-                            <div class="btn-group" data-toggle="buttons">
-                              <label class="btn btn-default" id="shared_y">
-                                <input type="radio" name="shared"> Oui
-                              </label>
-                              <label class="btn btn-default" id="shared_n">
-                                <input type="radio" name="shared"> Non
-                              </label>
-                            </div>
-                            <script type="text/javascript">
-                                $("#shared_n").click(function(){ $("#publicPartage").fadeOut() });
-                                $("#shared_y").click(function(){ $("#publicPartage").fadeIn() });
-                            </script>
-                            <div id="publicPartage" class="row" style="margin-top:25px;">
-                                <label class="col-sm-2 control-label">Url</label>
-                                <div class="col-sm-9">
-                                    <input class="form-control" type="text" id="shareUrl" Placeholder="Generating..." value="" onclick="this.select();" />
-                                </div>
-                                <br><br><br>
-                                Partager sur mes réseaux
-                                <br>
-                                <a href="" id="mail"><span class="sprite mail"></span></a>
-                                <a href="" id="facebook"><span class="sprite facebook"></span></a>
-                                <a href="" id="twitter"><span class="sprite twitter"></span></a>
-                            </div>
-
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6" id="sharewithall" style="border-right:1px dotted #ccc">
+                        <h4>Avec tout le monde</h4>
+                        <div class="btn-group" data-toggle="buttons">
+                          <label class="btn btn-default" id="shared_y">
+                            <input type="radio" name="shared"> Oui
+                          </label>
+                          <label class="btn btn-default" id="shared_n">
+                            <input type="radio" name="shared"> Non
+                          </label>
                         </div>
-                        <div class="col-md-6">
-                            <h4>Avec un autre utilisateur</h4>
-
+                        <script type="text/javascript">
+                            $("#shared_n").click(function(){ $("#publicPartage").fadeOut() });
+                            $("#shared_y").click(function(){ $("#publicPartage").fadeIn() });
+                        </script>
+                        <div id="publicPartage" class="row" style="margin-top:25px;">
+                            <label class="col-sm-2 control-label">Url</label>
+                            <div class="col-sm-9">
+                                <input class="form-control" type="text" id="shareUrl" Placeholder="Generating..." value="" onclick="this.select();" />
+                            </div>
+                            <br><br><br>
+                            Partager sur mes réseaux
+                            <br>
+                            <a href="" id="mail"><span class="sprite mail"></span></a>
+                            <a href="" id="facebook"><span class="sprite facebook"></span></a>
+                            <a href="" id="twitter"><span class="sprite twitter"></span></a>
                         </div>
+
+                    </div>
+                    <div class="col-md-6">
+                        <h4>Avec un autre utilisateur</h4>
+                        <div class="resultShare"></div>
+                        <br>
+                        <form id="shareUser">
+                        <div class="row">
+                            <label class="col-sm-3 control-label">E-mail</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" type="text" id="shareEmail" name="shareEmail" Placeholder="E-mail de l'utilisateur à inviter" />
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <label class="col-sm-3 control-label">Permission </label>
+                            <div class="col-sm-8">
+                            <input type="hidden" name="shareFile" id="shareFile" />
+                            <input type="hidden" name="shareFolder" id="shareFolder" />
+                                <select class="form-control" id="permission" name="permission">
+                                  <option value="0">Lecture seulement</option>
+                                  <option value="1">Lecture + Modification/Suppression</option>
+                                </select>
+                            </div>
+                            <br />
+                        </div>
+                        <br>
+                        <div class="row">
+                            <button class="btn btn-info" type="submit">Enregistrer</button>
+                        </div>
+                        </form>
+                            <br>
+                            <table id="shareUsers" class="table table-condensed" style="width:90%;margin:0 auto;">
+                                <thead>
+                                    <tr>
+                                        <th>Utilisateur</th>
+                                        <th>Permission</th>
+                                        <th></th>
+                                    </tr>
+                                </thead> 
+                                <tbody></tbody>
+                            </table>
                     </div>
                 </div>
-            </form>
+            </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
@@ -778,8 +813,8 @@ function getRoot(){
                                     <td class="drag"><a href="javascript:getFolder('+result.data.folders[loop_folder].id+')"><span class="sprite '+sprite+'"></span>'+result.data.folders[loop_folder].name+'</a></td>\
                                     <td class="drag" data-value="a'+type+'">'+type+'</td>\
                                     <td class="drag">'+result.data.folders[loop_folder].last_update_date.date+'</td>\
-                                    <td style="width:175px;"><div style="display:none">\
-                                        <button type="button" class="btn btn-xs btn-warning partager"><span class="glyphicon glyphicon-link"></span> Partager</button>\
+                                    <td style="width:255px;"><div style="display:none">\
+                                        <button type="button" class="btn btn-xs btn-warning partagerFolder"><span class="glyphicon glyphicon-link"></span> Partager</button>\
                                         <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..." data-fname="'+result.data.folders[loop_folder].name+'"><span class="glyphicon glyphicon-pencil"></span> Editer</button> \
                                         <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span> Supprimer</button></div>\
                                     </td>\
@@ -828,7 +863,7 @@ function getRoot(){
                                     <td class="drag"><a href="javascript:getFile('+result.data.files[loop_file].id+', '+result.data.files[loop_file].access_key+')"><span class="fileSprite '+sprite+'"></span>'+result.data.files[loop_file].name+'</a></td>\
                                     <td class="drag">'+type+'</td>\
                                     <td class="drag">'+result.data.files[loop_file].last_update_date.date+'</td>\
-                                    <td style="width:235px;"><div style="display:none">\
+                                    <td style="width:255px;"><div style="display:none">\
                                         <button type="button" class="btn btn-xs btn-warning partager"><span class="glyphicon glyphicon-link"></span> Partager</button>\
                                         <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..." data-fname="'+result.data.files[loop_file].name+'"><span class="glyphicon glyphicon-pencil"></span> Editer</button> \
                                         <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span> Supprimer</button></div>\
@@ -859,9 +894,88 @@ function getRoot(){
                         $("#edit_folder_name").val($(this).attr("data-fname"));
                     });
                      //Click modal partage
+                    $("button.partagerFolder").click(function(){
+                        folderpartageid = $(this).parent().parent().parent().attr("data-id");
+                        $("#shareFolder").val(folderpartageid); 
+                        $("#sharewithall").css("display","none");
+                        $("#partageModal").modal("show");
+
+
+                        //List share user
+                        $.ajax({
+                            url:"/api/folder/details/"+folderpartageid+"/shares",
+                            type:"GET",
+                            headers:{
+                                "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+                            },
+                            success: function(result){
+                                for(var i in result.data.shares){
+                                    if(result.data.shares.hasOwnProperty(i)){
+                                        var write = result.data.shares[i].is_writable==true?"All":"Lecture seule";
+                                        $("#shareUsers tbody").append("\
+                                            <tr data-shareid='"+result.data.shares[i].id+"'>\
+                                                <td>"+result.data.shares[i].user.email+"</td>\
+                                                <td>"+write+"</td>\
+                                                <td><button class='btn btn-danger btn-xs supprimerShare'><span class='glyphicon glyphicon-trash'></span> Supprimer</button></td>\
+                                            </tr>\
+                                        ");
+                                    }
+                                }
+                                $(".supprimerShare").click(function(){
+                                    var parent = $(this).parent().parent();
+                                    $.ajax({
+                                    url:"/api/share/delete/"+$(this).parent().parent().attr("data-shareid"),
+                                    type:"DELETE",
+                                    headers:{
+                                        "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+                                    },
+                                    success: function(result) {
+                                        if(result.error == false){
+                                            $("div.resultShare").append('<div class="alert alert-success fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                                            $(parent).remove();
+                                        }
+                                        else{
+                                            $("div.result").append('<div class="alert alert-warning fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                                        }
+                                    }
+                                })
+                                });
+                            }
+                        });
+
+                        
+
+
+                        //Share With user
+                        $("#shareUser").submit(function(e){
+                           e.preventDefault();
+                           $.ajax({
+                                url:"/api/share/create",
+                                type:"POST",
+                                headers:{
+                                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+                                },
+                                data:{write:$("#permission").val(),email:$("#shareEmail").val(),folder:$("#shareFolder").val()},
+                                success: function(result) {
+                                    $("#loadingModal").modal("hide");
+                                    if(result.error == false){
+                                         $("div.resultShare").append('<div class="alert alert-success fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                                         document.location.href="/";
+                                    }else{
+                                         $("div.resultShare").append('<div class="alert alert-danger fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                                    }
+                                }
+                            })
+                        });
+
+
+                    });
+
                      $("button.partager").click(function(){
                         filepartageid = $(this).parent().parent().parent().attr("data-id");
                         filepartagekey = $(this).parent().parent().parent().attr("data-key");
+                        $("#sharewithall").css("display","block");
+                        $("#shareFile").val(filepartageid);
                         $("#shared_y, #shared_n").removeClass("active");
                         $("#partageModal").modal("show");
                         if($(this).parent().parent().parent().hasClass("shared")){
@@ -877,6 +991,74 @@ function getRoot(){
                             $("#publicPartage").attr("style",$("#publicPartage").attr("style")+";display:none;");
                         }
 
+                        //List share user
+                        $.ajax({
+                            url:"/api/file/details/"+filepartageid+"/shares",
+                            type:"GET",
+                            headers:{
+                                "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+                            },
+                            success: function(result){
+                                for(var i in result.data.shares){
+                                    if(result.data.shares.hasOwnProperty(i)){
+                                        var write = result.data.shares[i].is_writable==true?"All":"Lecture seule";
+                                        $("#shareUsers tbody").append("\
+                                            <tr data-shareid='"+result.data.shares[i].id+"'>\
+                                                <td>"+result.data.shares[i].user.email+"</td>\
+                                                <td>"+write+"</td>\
+                                                <td><button class='btn btn-danger btn-xs supprimerShare'><span class='glyphicon glyphicon-trash'></span> Supprimer</button></td>\
+                                            </tr>\
+                                        ");
+                                    }
+                                }
+                                $(".supprimerShare").click(function(){
+                                    var parent = $(this).parent().parent();
+                                    $.ajax({
+                                    url:"/api/share/delete/"+$(this).parent().parent().attr("data-shareid"),
+                                    type:"DELETE",
+                                    headers:{
+                                        "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+                                    },
+                                    success: function(result) {
+                                        if(result.error == false){
+                                            $("div.resultShare").append('<div class="alert alert-success fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                                            $(parent).remove();
+                                        }
+                                        else{
+                                            $("div.result").append('<div class="alert alert-warning fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                                        }
+                                    }
+                                })
+                                });
+                            }
+                        });
+
+                        
+
+
+                        //Share With user
+                        $("#shareUser").submit(function(e){
+                           e.preventDefault();
+                           $.ajax({
+                                url:"/api/share/create",
+                                type:"POST",
+                                headers:{
+                                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+                                },
+                                data:{write:$("#permission").val(),email:$("#shareEmail").val(),file:$("#shareFile").val()},
+                                success: function(result) {
+                                    $("#loadingModal").modal("hide");
+                                    if(result.error == false){
+                                         $("div.resultShare").append('<div class="alert alert-success fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                                         document.location.href="/";
+                                    }else{
+                                         $("div.resultShare").append('<div class="alert alert-danger fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                                    }
+                                }
+                            })
+                        });
+
+                        // Click sur le bouton OUI ou NON
                         $("#shared_y").click(function(){
                             $("#loadingModal").modal("show");
                             $.ajax({
@@ -914,6 +1096,7 @@ function getRoot(){
                     //refresh after close modal
                     $('#partageModal').on('hide.bs.modal', function (e) {
                       $("#refresh").click();
+                      $("#shareUsers tbody").html("");
                     })
                      //Click modal File edit
                      $("tr.file td div button.editer").click(function(){
@@ -1094,66 +1277,264 @@ function getFolder(id){
                 },function(){
                     $(this).find('td > div').css("display","none");
                 });
-$(document).ready(function(){
-    var rid;
-    // Click modal Folder edit
-     $("tr.folder td div button.editer").click(function(){
-        $("#editFolderModal").modal("show");
-        $("#edit_folder_id").val($(this).parent().parent().parent().attr("data-id"));
-        $("#edit_folder_name").val($(this).attr("data-fname"));
-    });
-     //Click modal partage
-     $("button.partager").click(function(){
-        $("#shared_y, #shared_n").removeClass("active");
-        $("#partageModal").modal("show");
-        if($(this).parent().parent().parent().hasClass("shared"))
-            $("#shared_y").addClass("active");
-        else 
-            $("#shared_n").addClass("active");
-    });
-     //Click modal File edit
-     $("tr.file td div button.editer").click(function(){
-        $("#editFileModal").modal("show");
-        $("#edit_file_id").val($(this).parent().parent().parent().attr("data-id"));
-        var fn = $(this).attr("data-fname");
-        var ext = fn.substr((~-fn.lastIndexOf(".") >>> 0) + 2);
-        if (ext == "gz") ext = "tar.gz"
-        ext = "."+ext;
-        fn = fn.replace(ext, "");
-        $("#edit_file_ext").html(ext);
-        $("#edit_file_name").val(fn);
-    });
-    $("button.supprimer").click(function(){
-            if($(this).parent().parent().parent().hasClass("file")){
-                rid = $(this).parent().parent().parent().attr('data-id');
-                var method = "file";
-            }
-            else if($(this).parent().parent().parent().hasClass("folder")){
-                rid = $(this).parent().parent().parent().attr('data-id');
-                var method = "folder";
-            }
+ $(document).ready(function(){
+                    var filepartageid,filepartagekey;
+                    // Click modal Folder edit
+                     $("tr.folder td div button.editer").click(function(){
+                        $("#editFolderModal").modal("show");
+                        $("#edit_folder_id").val($(this).parent().parent().parent().attr("data-id"));
+                        $("#edit_folder_name").val($(this).attr("data-fname"));
+                    });
+                     //Click modal partage
+                    $("button.partagerFolder").click(function(){
+                        folderpartageid = $(this).parent().parent().parent().attr("data-id");
+                        $("#shareFolder").val(folderpartageid); 
+                        $("#sharewithall").css("display","none");
+                        $("#partageModal").modal("show");
 
-            $.ajax({
-                url: '/api/'+method+'/remove/'+rid,
-                type: 'DELETE',
-                headers:{
-                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
-                },
-                success: function(result) {
-                    if(result.error == false){
-                        $("div.result").append('<div class="alert alert-success fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
-                        $("tr[data-id='"+rid+"']").remove();
-                    }
-                    else{
-                        $("div.result").append('<div class="alert alert-warning fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
-                    }
-                },
-                error: function(result) {
-                        $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">Erreur lors du delete.</p>');
-                }
-            });
-    });
-});
+
+                        //List share user
+                        $.ajax({
+                            url:"/api/folder/details/"+folderpartageid+"/shares",
+                            type:"GET",
+                            headers:{
+                                "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+                            },
+                            success: function(result){
+                                for(var i in result.data.shares){
+                                    if(result.data.shares.hasOwnProperty(i)){
+                                        var write = result.data.shares[i].is_writable==true?"All":"Lecture seule";
+                                        $("#shareUsers tbody").append("\
+                                            <tr data-shareid='"+result.data.shares[i].id+"'>\
+                                                <td>"+result.data.shares[i].user.email+"</td>\
+                                                <td>"+write+"</td>\
+                                                <td><button class='btn btn-danger btn-xs supprimerShare'><span class='glyphicon glyphicon-trash'></span> Supprimer</button></td>\
+                                            </tr>\
+                                        ");
+                                    }
+                                }
+                                $(".supprimerShare").click(function(){
+                                    var parent = $(this).parent().parent();
+                                    $.ajax({
+                                    url:"/api/share/delete/"+$(this).parent().parent().attr("data-shareid"),
+                                    type:"DELETE",
+                                    headers:{
+                                        "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+                                    },
+                                    success: function(result) {
+                                        if(result.error == false){
+                                            $("div.resultShare").append('<div class="alert alert-success fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                                            $(parent).remove();
+                                        }
+                                        else{
+                                            $("div.result").append('<div class="alert alert-warning fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                                        }
+                                    }
+                                })
+                                });
+                            }
+                        });
+
+                        
+
+
+                        //Share With user
+                        $("#shareUser").submit(function(e){
+                           e.preventDefault();
+                           $.ajax({
+                                url:"/api/share/create",
+                                type:"POST",
+                                headers:{
+                                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+                                },
+                                data:{write:$("#permission").val(),email:$("#shareEmail").val(),folder:$("#shareFolder").val()},
+                                success: function(result) {
+                                    $("#loadingModal").modal("hide");
+                                    if(result.error == false){
+                                         $("div.resultShare").append('<div class="alert alert-success fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                                         document.location.href="/";
+                                    }else{
+                                         $("div.resultShare").append('<div class="alert alert-danger fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                                    }
+                                }
+                            })
+                        });
+
+
+                    });
+
+                     $("button.partager").click(function(){
+                        filepartageid = $(this).parent().parent().parent().attr("data-id");
+                        filepartagekey = $(this).parent().parent().parent().attr("data-key");
+                        $("#sharewithall").css("display","block");
+                        $("#shareFile").val(filepartageid);
+                        $("#shared_y, #shared_n").removeClass("active");
+                        $("#partageModal").modal("show");
+                        if($(this).parent().parent().parent().hasClass("shared")){
+                            $("#shared_y").addClass("active");
+                            $("#publicPartage").fadeIn();
+                            $("#shareUrl").val("http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+filepartagekey);
+                            $("#facebook").attr("href","https://www.facebook.com/sharer/sharer.php?u=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+filepartagekey);
+                            $("#twitter").attr("href","http://twitter.com/intent/tweet/?url=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+filepartagekey+"&text=Télécharge ce fichier depuis Cubbyhole !");
+                            $("#mail").attr("href","mailto:?subject=Cubbyhole&body=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+filepartagekey+"&text=Télécharge ce fichier depuis Cubbyhole !");
+                        }
+                        else {
+                            $("#shared_n").addClass("active");
+                            $("#publicPartage").attr("style",$("#publicPartage").attr("style")+";display:none;");
+                        }
+
+                        //List share user
+                        $.ajax({
+                            url:"/api/file/details/"+filepartageid+"/shares",
+                            type:"GET",
+                            headers:{
+                                "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+                            },
+                            success: function(result){
+                                for(var i in result.data.shares){
+                                    if(result.data.shares.hasOwnProperty(i)){
+                                        var write = result.data.shares[i].is_writable==true?"All":"Lecture seule";
+                                        $("#shareUsers tbody").append("\
+                                            <tr data-shareid='"+result.data.shares[i].id+"'>\
+                                                <td>"+result.data.shares[i].user.email+"</td>\
+                                                <td>"+write+"</td>\
+                                                <td><button class='btn btn-danger btn-xs supprimerShare'><span class='glyphicon glyphicon-trash'></span> Supprimer</button></td>\
+                                            </tr>\
+                                        ");
+                                    }
+                                }
+                                $(".supprimerShare").click(function(){
+                                    var parent = $(this).parent().parent();
+                                    $.ajax({
+                                    url:"/api/share/delete/"+$(this).parent().parent().attr("data-shareid"),
+                                    type:"DELETE",
+                                    headers:{
+                                        "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+                                    },
+                                    success: function(result) {
+                                        if(result.error == false){
+                                            $("div.resultShare").append('<div class="alert alert-success fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                                            $(parent).remove();
+                                        }
+                                        else{
+                                            $("div.result").append('<div class="alert alert-warning fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                                        }
+                                    }
+                                })
+                                });
+                            }
+                        });
+
+                        
+
+
+                        //Share With user
+                        $("#shareUser").submit(function(e){
+                           e.preventDefault();
+                           $.ajax({
+                                url:"/api/share/create",
+                                type:"POST",
+                                headers:{
+                                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+                                },
+                                data:{write:$("#permission").val(),email:$("#shareEmail").val(),file:$("#shareFile").val()},
+                                success: function(result) {
+                                    $("#loadingModal").modal("hide");
+                                    if(result.error == false){
+                                         $("div.resultShare").append('<div class="alert alert-success fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                                         document.location.href="/";
+                                    }else{
+                                         $("div.resultShare").append('<div class="alert alert-danger fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                                    }
+                                }
+                            })
+                        });
+
+                        // Click sur le bouton OUI ou NON
+                        $("#shared_y").click(function(){
+                            $("#loadingModal").modal("show");
+                            $.ajax({
+                                url:"/api/file/update/"+filepartageid,
+                                type:"POST",
+                                headers:{
+                                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+                                },
+                                data:{is_public:true},
+                                success: function(result) {
+                                    $("#loadingModal").modal("hide");
+                                    if(result.error == false){
+                                        $("#shareUrl").val("http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+result.data.file.access_key);
+                                        $("#facebook").attr("href","https://www.facebook.com/sharer/sharer.php?u=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+result.data.file.access_key);
+                                        $("#twitter").attr("href","http://twitter.com/intent/tweet/?url=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+result.data.file.access_key+"&text=Télécharge ce fichier depuis Cubbyhole !");
+                                        $("#mail").attr("href","mailto:?subject=Cubbyhole&body=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+result.data.file.access_key+"&text=Télécharge ce fichier depuis Cubbyhole !");
+                                    }
+                                }
+                            })
+                        });
+                         $("#shared_n").click(function(){
+                            $.ajax({
+                                url:"/api/file/update/"+filepartageid,
+                                type:"POST",
+                                headers:{
+                                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+                                },
+                                data:{is_public:"0"},
+                                success: function(result) {
+
+                                }
+                            })
+                        });
+                    });
+                    //refresh after close modal
+                    $('#partageModal').on('hide.bs.modal', function (e) {
+                      $("#refresh").click();
+                      $("#shareUsers tbody").html("");
+                    })
+                     //Click modal File edit
+                     $("tr.file td div button.editer").click(function(){
+                        $("#editFileModal").modal("show");
+                        $("#edit_file_id").val($(this).parent().parent().parent().attr("data-id"));
+                        var fn = $(this).attr("data-fname");
+                        var ext = fn.substr((~-fn.lastIndexOf(".") >>> 0) + 2);
+                        if (ext == "gz") ext = "tar.gz"
+                        ext = "."+ext;
+                        fn = fn.replace(ext, "");
+                        $("#edit_file_ext").html(ext);
+                        $("#edit_file_name").val(fn);
+                    });
+                     // Click supprimer
+                     var rid;
+                    $("button.supprimer").click(function(){
+                            if($(this).parent().parent().parent().hasClass("file")){
+                                rid = $(this).parent().parent().parent().attr('data-id');
+                                var method = "file";
+                            }
+                            else if($(this).parent().parent().parent().hasClass("folder")){
+                                rid = $(this).parent().parent().parent().attr('data-id');
+                                var method = "folder";
+                            }
+
+                            $.ajax({
+                                url: '/api/'+method+'/remove/'+rid,
+                                type: 'DELETE',
+                                headers:{
+                                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+                                },
+                                success: function(result) {
+                                    if(result.error == false){
+                                        $("div.result").append('<div class="alert alert-success fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                                        $("tr[data-id='"+rid+"']").remove();
+                                    }
+                                    else{
+                                        $("div.result").append('<div class="alert alert-warning fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                                    }
+                                },
+                                error: function(result) {
+                                        $("div.result").append('<p class="bg-danger" style="padding: 5px 0px;">Erreur lors du delete.</p>');
+                                }
+                            });
+                    });
+                });
 
             },
             error: function(result) {

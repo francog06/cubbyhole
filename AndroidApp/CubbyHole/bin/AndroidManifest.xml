@@ -50,6 +50,9 @@
         <activity android:name="net.bgreco.DirectoryPicker"
             android:screenOrientation="portrait"/>
         
+         <activity android:name=".activities.ManagePersmissionsActivity"
+            android:screenOrientation="portrait"/>
+         
         <activity
             android:name="com.ipaulpro.afilechooser.FileChooserActivity"
             android:enabled="@bool/use_activity"
@@ -65,10 +68,10 @@
                 <data android:mimeType="*/*" />
             </intent-filter>
         </activity>
-        
+        <!--  
          <provider
             android:name="com.ianhanniballake.localstorage.LocalStorageProvider"
-            android:authorities="com.supinfo.localstorage.documents"
+            android:authorities="com.ianhanniballake.localstorage.localstorageprovider"
             android:enabled="true"
             android:exported="true"
             android:grantUriPermissions="true"
@@ -76,7 +79,7 @@
             <intent-filter>
                 <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
             </intent-filter>
-        </provider>
+        </provider>-->
         
 </application>
 

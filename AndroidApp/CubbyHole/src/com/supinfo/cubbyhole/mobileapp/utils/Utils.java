@@ -84,11 +84,10 @@ public class Utils {
     /** API FOLDER/FILES **/
     /** **************** **/
 	
-	public static final int INTENT_UPLOAD = 0;
 	public static final int INTENT_DETAIL = 1;
-	public static final int INTENT_AFILECHOOSER = 4;
 	public static final int INTENT_OPEN = 2;
-	public static final int INTENT_UPLOAD_KIKKAT = 3;
+	public static final int INTENT_AFILECHOOSER = 3;
+	public static final int INTENT_MANAGEPERMISSIONS = 4;
 	
 	public static final String JSON_FOLDER_NAME = "name";
 	public static final String JSON_FOLDER_LASTUPDATE = "last_update_date";
@@ -115,15 +114,6 @@ public class Utils {
      *  Download File
      */
     
-	  public static java.io.File GetFileFromStorageCache(Context ctx, File mfile){
-		  
-			java.io.File sdCard = Environment.getExternalStorageDirectory();
-	      	java.io.File directory = new java.io.File (sdCard.getAbsolutePath() + "/Cubbyhole/Cache");
-	      	java.io.File file = new java.io.File(directory, mfile.getName());
-	      	return file;
-	  
-	  }
-	  
 	  public static java.io.File GetFileFromStorage(Context ctx, String pathToSave, File mfile){
 		  
 	      	java.io.File directory = new java.io.File (pathToSave);
@@ -135,7 +125,7 @@ public class Utils {
 	  
 	  }
 	    
-	  public static java.io.File UrlToFile(Context ctx, String pathToSave, File mfile){
+	  public static java.io.File UrlToFileDownload(Context ctx, String pathToSave, File mfile){
 	
 		  HttpClient httpclient = new DefaultHttpClient();
 	      HttpGet httpget = new HttpGet(Utils.FILE+"synchronize"+"/"+mfile.getId()+"?hash="+Utils.HASH_DL);
@@ -161,6 +151,7 @@ public class Utils {
 	      		fos.flush();
 	      		fos.close();
 	      		fos.close();
+	      		is.close();
 
 	      		return GetFileFromStorage(ctx, pathToSave, mfile);
 	          	
@@ -171,6 +162,16 @@ public class Utils {
 			}
 	      	return null;
 	    	
+	  }
+	  
+	  public static java.io.File GetFileFromStorageCache(Context ctx, File mfile){
+		  
+			java.io.File sdCard = Environment.getExternalStorageDirectory();
+	      	java.io.File directory = new java.io.File(sdCard.getAbsolutePath() + "/Cubbyhole/Cache");
+	      	java.io.File file = new java.io.File(directory, mfile.getName());
+	      	
+	      	return file;
+	  
 	  }
 	  
 	  public static java.io.File UrlToFileCache(Context ctx, File mfile){
@@ -186,25 +187,29 @@ public class Utils {
 	      	InputStream is = response.getEntity().getContent();
 	      	
 	      	java.io.File folder = new java.io.File(Environment.getExternalStorageDirectory() + "/Cubbyhole/Cache");
+	      	
 	      	boolean success = true;
 	      	if (!folder.exists()) {
-	      	    success = folder.mkdir();
+	      	    success = folder.mkdirs();
+	      	    
 	      	}
 	      	if (success) {
 	      		FileOutputStream fos = new FileOutputStream(new java.io.File(folder, mfile.getName()));
-	      		
+
 	      		int read = 0;
-	          	byte[] buffer = new byte[32768];
-	          	while( (read = is.read(buffer)) > 0) {
+	          	byte[] buffer = new byte[5 * 1024];
+	          	
+	          	while( (read = is.read(buffer)) >= 0) {
 	          	  fos.write(buffer, 0, read);
-	          	  
 	          	}
-	
-	          	fos.close();
+	          	
+	      		fos.flush();
+	      		fos.close();
+	      		fos.close();
 	          	is.close();
 	          	
 	          	return GetFileFromStorageCache(ctx, mfile);
-	          	
+
 	      	} else {
 	      		return null;
 	      	}
@@ -342,11 +347,10 @@ public class Utils {
     @SuppressWarnings("deprecation")
    	public static void AddImage(java.io.File file, Context ctx, List<NameValuePair> pairs) throws ClientProtocolException, IOException{
        	
-       	    FileBody fileBody = new FileBody(file);
-
        	    if(file.exists()){
-       	    	
-       	    	  HttpClient client = new DefaultHttpClient();
+       	    		
+       	    		FileBody fileBody = new FileBody(file);
+       	    	  	HttpClient client = new DefaultHttpClient();
        	    	    HttpPost post = new HttpPost(ADD_FILE);
        	    	    post.setHeader("enctype", "multipart/form-data");
        	    	    post.setHeader(X_API_KEY, getUserFromSharedPreferences(ctx).getToken());
@@ -354,6 +358,7 @@ public class Utils {
        	    	    MultipartEntityBuilder multipartEntity = MultipartEntityBuilder.create();
        	    	    multipartEntity.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
        	    	    multipartEntity.addPart("file",fileBody);
+       	    	    
        	    	    for(NameValuePair pair : pairs){
        	    	    	if (pair.getValue() != "null"){
        	    	    		 multipartEntity.addPart(pair.getName(), new StringBody(pair.getValue()));
@@ -362,7 +367,6 @@ public class Utils {
        	    	    post.setEntity(multipartEntity.build());
        	    	    
        	    	    HttpResponse response = client.execute(post);
-       	    	    file.delete();
 
        	    	    String responseBody = EntityUtils.toString(response.getEntity());
        	    	    Log.v("multiPartPost HTTP Response", responseBody);
@@ -388,7 +392,7 @@ public class Utils {
         	httpput.setEntity(new UrlEncodedFormEntity(pairs));
         	
         	HttpResponse response = httpclient.execute(httpput);
-			
+					
 		} catch (ClientProtocolException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -397,13 +401,11 @@ public class Utils {
     	
     }
     
-    @SuppressWarnings("deprecation")
 	public static void UpdateFileTxt(Context ctx, File file, java.io.File fileTxt) throws ClientProtocolException, IOException{
     	
     	    FileBody fileBody = new FileBody(fileTxt);
 
     	    if(fileTxt.exists()){
-    	    	
     	    	
     	    	  	HttpClient client = new DefaultHttpClient();
     	    	    HttpPost post = new HttpPost(UPDATE_FILE+file.getId());
@@ -426,7 +428,7 @@ public class Utils {
     
     public static void UpdateFile(Context ctx, File file, List<NameValuePair> pairs){
     	
-    	HttpClient httpclient = new DefaultHttpClient();
+    		HttpClient httpclient = new DefaultHttpClient();
         HttpPost httppost = new HttpPost(UPDATE_FILE+file.getId());
         httppost.setHeader(X_API_KEY, getUserFromSharedPreferences(ctx).getToken());
 
@@ -1124,179 +1126,6 @@ public class Utils {
      *  Data
      */
     
-    public static void LaunchFile(Context ctx, File file){
-    	
-    	String url = Utils.FILE+"synchronize"+"/"+file.getId()+"?hash="+Utils.HASH_DL;
-    	String item_ext = fileExt(file.getName()).substring(1);
-    	
-    	System.out.println("item ext : "+item_ext);
-    	
-    	if (item_ext.equalsIgnoreCase("mp3") || 
-                item_ext.equalsIgnoreCase("m4a")||
-                item_ext.equalsIgnoreCase("mp4")) {
-
-               Intent i = new Intent();
-               i.setAction(android.content.Intent.ACTION_VIEW);
-               i.setDataAndType(Uri.parse(url), "audio/*");
-               
-           }
-
-       /*photo file selected*/
-       else if(item_ext.equalsIgnoreCase("jpeg") || 
-               item_ext.equalsIgnoreCase("jpg")  ||
-               item_ext.equalsIgnoreCase("png")  ||
-               item_ext.equalsIgnoreCase("gif")  || 
-               item_ext.equalsIgnoreCase("tiff")) {
-
-    	   			System.out.println("else jpg");
-    	   
-                   Intent picIntent = new Intent();
-                   picIntent.setAction(android.content.Intent.ACTION_VIEW);
-                   picIntent.setDataAndType(Uri.parse(url), "image/*");
-                   ctx.startActivity(picIntent);
-       }
-
-       /*video file selected--add more video formats*/
-       else if(item_ext.equalsIgnoreCase("m4v") || 
-               item_ext.equalsIgnoreCase("3gp") ||
-               item_ext.equalsIgnoreCase("wmv") || 
-               item_ext.equalsIgnoreCase("mp4") || 
-               item_ext.equalsIgnoreCase("ogg") ||
-               item_ext.equalsIgnoreCase("wav")) {
-
-                   Intent movieIntent = new Intent();
-                   movieIntent.setAction(android.content.Intent.ACTION_VIEW);
-                   movieIntent.setDataAndType(Uri.parse(url), "video/*");
-                   ctx.startActivity(movieIntent);
-       }
-
-       /*zip file */
-       else if(item_ext.equalsIgnoreCase("zip")) {
-/*
-               AlertDialog.Builder builder = new AlertDialog.Builder(this);
-               AlertDialog alert;
-               mZippedTarget = mFileMag.getCurrentDir() + "/" + item;
-               CharSequence[] option = {"Extract here", "Extract to..."};
-
-               builder.setTitle("Extract");
-               builder.setItems(option, new DialogInterface.OnClickListener() {
-
-                   public void onClick(DialogInterface dialog, int which) {
-                       switch(which) {
-                           case 0:
-                               String dir = mFileMag.getCurrentDir();
-                               mHandler.unZipFile(item, dir + "/");
-                               break;
-
-                           case 1:
-                               mDetailLabel.setText("Holding " + item + 
-                                                    " to extract");
-                               mHoldingZip = true;
-                               break;
-                       }
-                   }
-               });
-
-               alert = builder.create();
-               alert.show();*/
-       }
-
-       /* gzip files, this will be implemented later */
-       else if(item_ext.equalsIgnoreCase("gzip") ||
-               item_ext.equalsIgnoreCase("gz")) {
-
-       }
-
-       /*pdf file selected*/
-       else if(item_ext.equalsIgnoreCase("pdf")) {
-
-                   Intent pdfIntent = new Intent();
-                   pdfIntent.setAction(android.content.Intent.ACTION_VIEW);
-                   pdfIntent.setDataAndType(Uri.parse(url), 
-                                            "application/pdf");
-
-                   try {
-                       ctx.startActivity(pdfIntent);
-                   } catch (ActivityNotFoundException e) {
-                	   		DisplayToastHome(ctx, "Pas d'applications de lecture de PDF.");
-                   }
-       }
-
-       /*Android application file*/
-       else if(item_ext.equalsIgnoreCase("apk")){
-
-                   Intent apkIntent = new Intent();
-                   apkIntent.setAction(android.content.Intent.ACTION_VIEW);
-                   apkIntent.setDataAndType(Uri.parse(url), "application/vnd.android.package-archive");
-                   ctx.startActivity(apkIntent);
-       }
-
-       /* HTML file */
-       else if(item_ext.equalsIgnoreCase("html")) {
-
-                   Intent htmlIntent = new Intent();
-                   htmlIntent.setAction(android.content.Intent.ACTION_VIEW);
-                   htmlIntent.setDataAndType(Uri.parse(url), "text/html");
-
-                   try {
-                       ctx.startActivity(htmlIntent);
-                   } catch(ActivityNotFoundException e) {
-                    DisplayToastHome(ctx, "Aucune applicaton d'ouverture.");
-                   }
-       }
-
-       /* text file*/
-       else if(item_ext.equalsIgnoreCase("txt")) {
-
-    	   System.out.println("else txt");
-    	   
-                   Intent txtIntent = new Intent();
-                   txtIntent.setAction(android.content.Intent.ACTION_VIEW);
-                   txtIntent.setDataAndType(Uri.parse(url), "text/plain");
-
-                   try {
-                	   txtIntent.setType("text/*");
-                       ctx.startActivity(txtIntent);
-                   } catch(ActivityNotFoundException e) {
-                       txtIntent.setType("text/*");
-                       ctx.startActivity(txtIntent);
-                   }
-       }
-
-       /* generic intent */
-       else {
-                   Intent generic = new Intent();
-                   generic.setAction(android.content.Intent.ACTION_VIEW);
-                   generic.setDataAndType(Uri.parse(url), "text/plain");
-
-                   try {
-                       ctx.startActivity(generic);
-                   } catch(ActivityNotFoundException e) {
-                       Toast.makeText(ctx, "Sorry, couldn't find anything " +
-                                      "to open " + file.getName(), 
-                                      Toast.LENGTH_SHORT).show();
-                   }
-       }
-    }
-    
-    public static void OpenUrl(Activity ctx, File file){
-
-		String url = Utils.FILE+"synchronize"+"/"+file.getId()+"?hash="+Utils.HASH_DL;
-	
-	    MimeTypeMap myMime = MimeTypeMap.getSingleton();
-	    String mimeType = myMime.getMimeTypeFromExtension(fileExt(file.getName()).substring(1));
-	    Intent newIntent = new Intent(Intent.ACTION_VIEW);
-
-	    newIntent.setDataAndType(Uri.parse(url), mimeType);
-	    
-	    try {
-	    		ctx.startActivityForResult(newIntent, Utils.INTENT_OPEN);
-	    } catch (android.content.ActivityNotFoundException e) {
-	       Utils.DisplayToastHome(ctx, "Aucune application ne peut ouvrir ce type de fichier..");
-	    }
-	    
-    }
-
     public static void OpenFile(Activity ctx, java.io.File file){
     	
 	    MimeTypeMap myMime = MimeTypeMap.getSingleton();
@@ -1345,26 +1174,5 @@ public class Utils {
   		cursor.moveToFirst();
   		return cursor.getString(column_index);	
   	}
-    
-    public static String GetRealPathFromURI2(Context ctx, Uri uri) {
-            // just some safety built in 
-            if( uri == null ) {
-                // TODO perform some logging or show user feedback
-                return null;
-            }
-            // try to retrieve the image from the media store first
-            // this will only work for images selected from gallery
-            String[] projection = { MediaStore.Images.Media.DATA };
-            Cursor cursor = ctx.getContentResolver().query(uri, projection, null, null, null);
-            if( cursor != null ){
-                int column_index = cursor
-                .getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-                cursor.moveToFirst();
-                return cursor.getString(column_index);
-            }
-            // this is our fallback here
-            return uri.getPath();
-    }
-    
     
 }

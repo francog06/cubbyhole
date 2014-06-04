@@ -1,0 +1,277 @@
+package com.supinfo.cubbyhole.mobileapp.activities;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.AdapterView.OnItemClickListener;
+
+import com.supinfo.cubbyhole.mobileapp.R;
+import com.supinfo.cubbyhole.mobileapp.activities.Home.DeleteData;
+import com.supinfo.cubbyhole.mobileapp.activities.Home.DownloadFile;
+import com.supinfo.cubbyhole.mobileapp.activities.Home.UpdateData;
+import com.supinfo.cubbyhole.mobileapp.adapters.MoveListAdapter;
+import com.supinfo.cubbyhole.mobileapp.models.Back;
+import com.supinfo.cubbyhole.mobileapp.models.File;
+import com.supinfo.cubbyhole.mobileapp.models.Folder;
+import com.supinfo.cubbyhole.mobileapp.quickactions.ActionItem;
+import com.supinfo.cubbyhole.mobileapp.quickactions.DirectoryChooserDialog;
+import com.supinfo.cubbyhole.mobileapp.quickactions.QuickAction;
+import com.supinfo.cubbyhole.mobileapp.utils.Data;
+import com.supinfo.cubbyhole.mobileapp.utils.Utils;
+
+public class etts {
+
+	
+	quickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
+        @Override
+        public void onItemClick(QuickAction source, int pos, int actionId) {
+
+            ActionItem actionItem = quickAction.getActionItem(pos);
+            
+            /*
+             *  Export
+             */
+            
+            if (actionId == Utils.QUICKACTION_ID_EXPORT) {
+            	
+            	DirectoryChooserDialog directoryChooserDialog = 
+                new DirectoryChooserDialog(Home.this, 
+                    new DirectoryChooserDialog.ChosenDirectoryListener() 
+                {
+                    @Override
+                    public void onChosenDir(String chosenDir) 
+                    {
+                        new DownloadFile(Home.this, chosenDir, (File) itemSelected).execute();
+                        
+                    }
+                }); 
+                directoryChooserDialog.setNewFolderEnabled(true);
+                directoryChooserDialog.chooseDirectory(m_chosenDir);
+                
+            }
+            
+            
+            /*
+             *  Manage
+             */
+            
+            if (actionId == Utils.QUICKACTION_ID_MANAGE) {
+            		Intent intent_to_detail = new Intent(Home.this, DetailActivity.class);
+                    startActivityForResult(intent_to_detail, Utils.INTENT_DETAIL);
+            }
+            
+            /*
+             * 	Rename
+             */
+            
+            if (actionId == Utils.QUICKACTION_ID_RENAME) {
+            	
+            	if (itemSelected != null && itemSelected instanceof Folder){
+            		
+            		AlertDialog.Builder alert = new AlertDialog.Builder(Home.this);
+            		alert.setTitle("Edition du dossier");
+            		alert.setMessage("Merci de spécifier un nouveau nom pour ce dossier :");
+            		final EditText input = new EditText(Home.this);
+            		alert.setView(input);
+            		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            		public void onClick(DialogInterface dialog, int whichButton) {
+
+            			String value = input.getText().toString();
+            			
+            			if (!value.trim().isEmpty()){
+
+            				final Folder folderSelected = (Folder)itemSelected;
+            				folderSelected.setName(input.getText().toString());
+            				
+            				List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+            	        	pairs.add(new BasicNameValuePair(Utils.JSON_FOLDER_NAME, folderSelected.getName()));
+            	        	pairs.add(new BasicNameValuePair(Utils.JSON_FOLDER_ISPUBLIC, folderSelected.getIsPublic().toString()));
+            	        	pairs.add(new BasicNameValuePair(Utils.JSON_FOLDER_LASTUPDATE, folderSelected.getLastUpdateDate().toString()));
+            				
+                			new UpdateData(Home.this, folderSelected, pairs).execute();
+            			
+            			}else{
+            				Utils.DisplayToastHome(Home.this, "Le champs nom ne peut pas etre vide..");
+            			}
+            			
+            		}
+            		});
+            		alert.setNegativeButton("Annuler", new DialogInterface.OnClickListener() {
+            		  public void onClick(DialogInterface dialog, int whichButton) {
+            		  }
+            		});
+            		alert.show();
+            		
+            	}else if (itemSelected != null && itemSelected instanceof File){
+            		
+            		AlertDialog.Builder alert = new AlertDialog.Builder(Home.this);
+            		alert.setTitle("Edition du fichier");
+            		alert.setMessage("Merci de spécifier un nouveau nom pour ce fichier :");
+            		final EditText input = new EditText(Home.this);
+            		alert.setView(input);
+            		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            		public void onClick(DialogInterface dialog, int whichButton) {
+
+            			String value = input.getText().toString();
+            			
+            			if (!value.trim().isEmpty()){
+
+            				final File fileSelected = (File)itemSelected;
+            				fileSelected.setName((Utils.GetNewFileNameWithExtension(fileSelected.getName(), input.getText().toString())));
+            				
+            				List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+            	        	pairs.add(new BasicNameValuePair(Utils.JSON_FOLDER_NAME, fileSelected.getName()));
+            	        	pairs.add(new BasicNameValuePair(Utils.JSON_FOLDER_ISPUBLIC, fileSelected.getIsPublic().toString()));
+            	        	pairs.add(new BasicNameValuePair(Utils.JSON_FOLDER_LASTUPDATE, fileSelected.getLastUpdateDate().toString()));
+            	        	pairs.add(new BasicNameValuePair(Utils.JSON_FILE_PUBLICLINKPATH,fileSelected.getPublicLinkPath()));
+            	        	pairs.add(new BasicNameValuePair(Utils.JSON_FILE_SIZE, fileSelected.getSize().toString()));
+            				
+                			new UpdateData(Home.this, fileSelected, pairs).execute();
+            			
+            			}else{
+            				Utils.DisplayToastHome(Home.this, "Le champs nom ne peut pas etre vide..");
+            			}
+            			
+            		}
+            		});
+            		alert.setNegativeButton("Annuler", new DialogInterface.OnClickListener() {
+            		  public void onClick(DialogInterface dialog, int whichButton) {
+            		  }
+            		});
+            		alert.show();
+            		
+            	}
+            	
+            }
+            /*
+             *  Delete
+             */
+            
+            else if (actionId == Utils.QUICKACTION_ID_DELETE) {
+
+            	if (itemSelected != null && itemSelected instanceof Folder){
+
+            		new DeleteData(Home.this, itemSelected).execute();
+            		
+            	}else if (itemSelected != null && itemSelected instanceof File){
+            		
+            		new DeleteData(Home.this, itemSelected).execute();
+            		
+            	}
+            	
+            }
+            
+            /*
+             *  Move
+             */
+
+            else if (actionId == Utils.QUICKACTION_ID_MOVE){
+
+            	if (itemSelected != null && itemSelected instanceof Folder){
+            		
+            		final AlertDialog alertDialog = new AlertDialog.Builder(Home.this).create();
+                    LayoutInflater inflater = getLayoutInflater();
+                    View convertView = (View) inflater.inflate(R.layout.listview_move, null);
+                    alertDialog.setTitle("Déplacer le dossier vers");
+                    final ListView lv = (ListView) convertView.findViewById(R.id.move_lv);
+                    
+                    List<Folder> folderItems = new ArrayList<Folder>();
+                    for(Object obj : Data.currentArray){
+                    	if (obj instanceof Back){
+                    		Folder backFolder = new Folder();
+                    		backFolder.setName("Dossier précédent");
+                    		backFolder.setId(Data.currentFolder.getParentID());
+                    		folderItems.add(backFolder);
+                    	}else if (obj instanceof Folder){
+                    		folderItems.add((Folder)obj);
+                    	}
+                    }
+                    
+                    MoveListAdapter moveListAdapter = new MoveListAdapter(Home.this, R.layout.listview_move, folderItems);
+                    lv.setAdapter(moveListAdapter);
+                    
+                    lv.setOnItemClickListener(new OnItemClickListener()
+                    {
+                        @Override
+                        public void onItemClick(AdapterView<?> adapter, View v, int position,
+                              long id) 
+                        {
+                        	Folder folderSelected = (Folder)lv.getAdapter().getItem(position);
+
+                        	List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+                        	if (folderSelected.getId() == -1){
+                        		pairs.add(new BasicNameValuePair("folder_id", "null"));
+                        	}else{
+                        		pairs.add(new BasicNameValuePair("folder_id", Integer.toString(folderSelected.getId())));
+                        	}
+            				
+                			new UpdateData(Home.this, itemSelected, pairs).execute();
+                			alertDialog.dismiss();
+                        }
+                     });
+                    
+                    alertDialog.setView(convertView);
+                    alertDialog.show();
+            		
+            	}else if (itemSelected != null && itemSelected instanceof File){
+            		
+            		final AlertDialog alertDialog = new AlertDialog.Builder(Home.this).create();
+                    LayoutInflater inflater = getLayoutInflater();
+                    View convertView = (View) inflater.inflate(R.layout.listview_move, null);
+                    alertDialog.setTitle("Déplacer le fichier vers");
+                    final ListView lv = (ListView) convertView.findViewById(R.id.move_lv);
+                    
+                    List<Folder> folderItems = new ArrayList<Folder>();
+                    for(Object obj : Data.currentArray){
+                    	if (obj instanceof Back){
+                    		Folder backFolder = new Folder();
+                    		backFolder.setName("Dossier précédent");
+                    		backFolder.setId(Data.currentFolder.getParentID());
+                    		folderItems.add(backFolder);
+                    	}else if (obj instanceof Folder){
+                    		folderItems.add((Folder)obj);
+                    	}
+                    }
+                    
+                    lv.setOnItemClickListener(new OnItemClickListener()
+                    {
+                        @Override
+                        public void onItemClick(AdapterView<?> adapter, View v, int position,
+                              long id) 
+                        {
+                        	Folder folderSelected = (Folder)lv.getAdapter().getItem(position);
+                        	
+                        	List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+                        	if (folderSelected.getId() == -1){
+                        		pairs.add(new BasicNameValuePair("folder_id", "null"));
+                        	}else{
+                        		pairs.add(new BasicNameValuePair("folder_id", Integer.toString(folderSelected.getId())));
+                        	}
+                        	
+                			new UpdateData(Home.this, itemSelected, pairs).execute();
+                			alertDialog.dismiss();
+                        }
+                     });
+                    
+                    MoveListAdapter moveListAdapter = new MoveListAdapter(Home.this, R.layout.listview_move, folderItems);
+                    lv.setAdapter(moveListAdapter);
+                    alertDialog.setView(convertView);
+                    alertDialog.show();
+                	
+            	}
+            }
+        }
+    });
+	
+}
