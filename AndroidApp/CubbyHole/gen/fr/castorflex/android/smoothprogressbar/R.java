@@ -8,47 +8,47 @@ package fr.castorflex.android.smoothprogressbar;
 
 public final class R {
 	public static final class attr {
-		public static final int spbStyle = 0x7f010000;
-		public static final int spb_color = 0x7f010001;
-		public static final int spb_colors = 0x7f010009;
-		public static final int spb_interpolator = 0x7f010006;
-		public static final int spb_mirror_mode = 0x7f010008;
-		public static final int spb_reversed = 0x7f010007;
-		public static final int spb_sections_count = 0x7f010004;
-		public static final int spb_speed = 0x7f010005;
-		public static final int spb_stroke_separator_length = 0x7f010003;
-		public static final int spb_stroke_width = 0x7f010002;
+		public static final int spbStyle = 0x7f01006a;
+		public static final int spb_color = 0x7f01006b;
+		public static final int spb_colors = 0x7f010073;
+		public static final int spb_interpolator = 0x7f010070;
+		public static final int spb_mirror_mode = 0x7f010072;
+		public static final int spb_reversed = 0x7f010071;
+		public static final int spb_sections_count = 0x7f01006e;
+		public static final int spb_speed = 0x7f01006f;
+		public static final int spb_stroke_separator_length = 0x7f01006d;
+		public static final int spb_stroke_width = 0x7f01006c;
 	}
 	public static final class bool {
-		public static final int spb_default_mirror_mode = 0x7f060003;
-		public static final int spb_default_reversed = 0x7f060002;
+		public static final int spb_default_mirror_mode = 0x7f070009;
+		public static final int spb_default_reversed = 0x7f070008;
 	}
 	public static final class color {
-		public static final int spb_default_color = 0x7f0b0000;
+		public static final int spb_default_color = 0x7f080005;
 	}
 	public static final class dimen {
-		public static final int spb_default_stroke_separator_length = 0x7f070002;
-		public static final int spb_default_stroke_width = 0x7f070003;
+		public static final int spb_default_stroke_separator_length = 0x7f090013;
+		public static final int spb_default_stroke_width = 0x7f090014;
 	}
 	public static final class id {
-		public static final int spb_interpolator_accelerate = 0x7f0a0000;
-		public static final int spb_interpolator_acceleratedecelerate = 0x7f0a0002;
-		public static final int spb_interpolator_decelerate = 0x7f0a0003;
-		public static final int spb_interpolator_linear = 0x7f0a0001;
+		public static final int spb_interpolator_accelerate = 0x7f06001a;
+		public static final int spb_interpolator_acceleratedecelerate = 0x7f06001c;
+		public static final int spb_interpolator_decelerate = 0x7f06001d;
+		public static final int spb_interpolator_linear = 0x7f06001b;
 	}
 	public static final class integer {
-		public static final int spb_default_interpolator = 0x7f0c0001;
-		public static final int spb_default_sections_count = 0x7f0c0000;
+		public static final int spb_default_interpolator = 0x7f0a0002;
+		public static final int spb_default_sections_count = 0x7f0a0001;
 	}
 	public static final class string {
-		public static final int spb_default_speed = 0x7f080005;
+		public static final int spb_default_speed = 0x7f0b001c;
 	}
 	public static final class style {
-		public static final int SmoothProgressBar = 0x7f090002;
-		public static final int Theme_SmoothProgressBarDefaults = 0x7f090001;
+		public static final int SmoothProgressBar = 0x7f0c0085;
+		public static final int Theme_SmoothProgressBarDefaults = 0x7f0c0084;
 	}
 	public static final class styleable {
-		public static final int[] SmoothProgressBar = { 0x7f010000, 0x7f010001, 0x7f010002, 0x7f010003, 0x7f010004, 0x7f010005, 0x7f010006, 0x7f010007, 0x7f010008, 0x7f010009 };
+		public static final int[] SmoothProgressBar = { 0x7f01006a, 0x7f01006b, 0x7f01006c, 0x7f01006d, 0x7f01006e, 0x7f01006f, 0x7f010070, 0x7f010071, 0x7f010072, 0x7f010073 };
 		public static final int SmoothProgressBar_spbStyle = 0;
 		public static final int SmoothProgressBar_spb_color = 1;
 		public static final int SmoothProgressBar_spb_colors = 9;

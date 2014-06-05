@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.rdrei.android.dirchooser.DirectoryChooserActivity;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -165,7 +167,7 @@ public class Home extends ActionBarActivity implements OnRefreshListener {
                 			new UpdateData(Home.this, fileSelected, pairs).execute();
             			
             			}else{
-            				Utils.DisplayToastHome(Home.this, "Le champs nom ne peut pas etre vide..");
+            				Utils.DisplayToast(Home.this, "Le champs nom ne peut pas etre vide..");
             			}
             			
             		}
@@ -228,18 +230,27 @@ public class Home extends ActionBarActivity implements OnRefreshListener {
                 
             case R.id.context_file_export:
 	            	if (itemSelected != null){
-	             	DirectoryChooserDialog directoryChooserDialog = 
-	                new DirectoryChooserDialog(Home.this, 
-	                    new DirectoryChooserDialog.ChosenDirectoryListener() 
-	                {
-	                    @Override
-	                    public void onChosenDir(String chosenDir) 
-	                    {
-	                        new DownloadFile(Home.this, chosenDir, (File) itemSelected).execute();
-	                    }
-	                }); 
+	            		
+	            		final Intent chooserIntent = new Intent(
+                                Home.this,
+                                DirectoryChooserActivity.class);
+
+                        chooserIntent.putExtra(
+                                DirectoryChooserActivity.EXTRA_NEW_DIR_NAME,
+                                "Nouveau dossier");
+
+                        startActivityForResult(chooserIntent, Utils.INTENT_FOLDERCHOOSER);
+                        
+	             	/*DirectoryChooserDialog directoryChooserDialog = new DirectoryChooserDialog(Home.this, new DirectoryChooserDialog.ChosenDirectoryListener() 
+		                {
+		                    @Override
+		                    public void onChosenDir(String chosenDir) 
+		                    {
+		                        new ExportFile(Home.this, chosenDir, (File) itemSelected).execute();
+		                    }
+		                });
 	                directoryChooserDialog.setNewFolderEnabled(true);
-	                directoryChooserDialog.chooseDirectory(m_chosenDir);
+	                directoryChooserDialog.chooseDirectory(m_chosenDir);*/
 	            	}
                 return true;
                 
@@ -276,14 +287,14 @@ public class Home extends ActionBarActivity implements OnRefreshListener {
             				folderSelected.setName(input.getText().toString());
             				
             				List<NameValuePair> pairs = new ArrayList<NameValuePair>();
-            	        	pairs.add(new BasicNameValuePair(Utils.JSON_FOLDER_NAME, folderSelected.getName()));
-            	        	pairs.add(new BasicNameValuePair(Utils.JSON_FOLDER_ISPUBLIC, folderSelected.getIsPublic().toString()));
-            	        	pairs.add(new BasicNameValuePair(Utils.JSON_FOLDER_LASTUPDATE, folderSelected.getLastUpdateDate().toString()));
+	            	        	pairs.add(new BasicNameValuePair(Utils.JSON_FOLDER_NAME, folderSelected.getName()));
+	            	        	pairs.add(new BasicNameValuePair(Utils.JSON_FOLDER_ISPUBLIC, folderSelected.getIsPublic().toString()));
+	            	        	pairs.add(new BasicNameValuePair(Utils.JSON_FOLDER_LASTUPDATE, folderSelected.getLastUpdateDate().toString()));
             				
                 			new UpdateData(Home.this, folderSelected, pairs).execute();
             			
             			}else{
-            				Utils.DisplayToastHome(Home.this, "Le champs nom ne peut pas etre vide..");
+            				Utils.DisplayToast(Home.this, "Le champs nom ne peut pas etre vide..");
             			}
             			
             		}
@@ -455,7 +466,7 @@ public class Home extends ActionBarActivity implements OnRefreshListener {
             				}
             				new AddData(Home.this, new File(), pairs).execute();
             			}else{
-            				Utils.DisplayToastHome(Home.this, "Les caracteres : //!.#&* sont interdits pour la creation d'un fichier..");
+            				Utils.DisplayToast(Home.this, "Les caracteres : //!.#&* sont interdits pour la creation d'un fichier..");
             			}
             			
             		}
@@ -492,7 +503,7 @@ public class Home extends ActionBarActivity implements OnRefreshListener {
             				}
             				new AddData(Home.this, new Folder(), pairs).execute();
             			}else{
-            				Utils.DisplayToastHome(Home.this, "Les caracteres : //!.#&* sont interdits pour la creation d'un fichier..");
+            				Utils.DisplayToast(Home.this, "Les caracteres : //!.#&* sont interdits pour la creation d'un fichier..");
             			}
               			
               		}
@@ -558,7 +569,9 @@ public class Home extends ActionBarActivity implements OnRefreshListener {
                 Log.e("Onactivityresult Home Intent Afilechooser", "File select error", e);
             }
         }else if (requestCode == Utils.INTENT_DETAIL){
-        	// 
+        	
+        	RefreshViewBlock();
+        	
     	}else if (requestCode == Utils.INTENT_OPEN){
     		
     	 	java.io.File sdCard = Environment.getExternalStorageDirectory();
@@ -569,6 +582,14 @@ public class Home extends ActionBarActivity implements OnRefreshListener {
     			} catch (IOException e) {
     				e.printStackTrace();
     			} 
+    		}else if (requestCode ==  Utils.INTENT_FOLDERCHOOSER){
+    			
+    			 if (resultCode == DirectoryChooserActivity.RESULT_CODE_DIR_SELECTED) {
+    				 new ExportFile(Home.this, data.getStringExtra(DirectoryChooserActivity.RESULT_SELECTED_DIR), (File) itemSelected).execute();
+    	            } else {
+    	            		Utils.DisplayToast(Home.this, "Le chemin specifie n'est pas disponible, merci de reessayer ulterieurement.");
+    	            }
+    			
     		}
     	
     }
@@ -592,14 +613,14 @@ public class Home extends ActionBarActivity implements OnRefreshListener {
      *
      */
     
-    public class DownloadFile extends AsyncTask<Void, Integer, java.io.File> {
+    public class ExportFile extends AsyncTask<Void, Integer, java.io.File> {
 
         private Context ctx;
         private File file;
         private String pathToSave;
         private  ProgressDialog ringProgressDialog;
         
-        public DownloadFile(Context ctx, String pathToSave, File file) {
+        public ExportFile(Context ctx, String pathToSave, File file) {
             this.ctx = ctx;
             this.file = file;
             this.pathToSave = pathToSave;
@@ -610,24 +631,13 @@ public class Home extends ActionBarActivity implements OnRefreshListener {
             super.onPreExecute();
             
             ringProgressDialog = ProgressDialog.show(ctx, "Veuillez patienter...", "Export du fichier en cours..", true);
-            ringProgressDialog.setCancelable(true);
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                            } catch (Exception e) {
-             
-                            }
-                        }
-                    }).start();
-
-
+            ringProgressDialog.setCancelable(false);
         }
         
         @Override
         protected java.io.File doInBackground(Void... params) {
         	
-        		return Utils.UrlToFileDownload(ctx, pathToSave, file);
+        		return Utils.UrlToFileDownloadForExport(ctx, pathToSave, file);
         	
         }
 
@@ -638,9 +648,9 @@ public class Home extends ActionBarActivity implements OnRefreshListener {
             ringProgressDialog.dismiss();
             
             if (file != null){
-            	Utils.DisplayToastHome(this.ctx, "Le fichier a été exporté avec succès!");
+            	Utils.DisplayToast(this.ctx, "Le fichier a été exporté avec succès!");
 	        }else{
-	        		Utils.DisplayToastHome(this.ctx, "Un problème est survenu, merci de réessayer ultérieurement.");
+	        		Utils.DisplayToast(this.ctx, "Un problème est survenu, merci de réessayer ultérieurement.");
 	        }
             
         }
@@ -665,18 +675,7 @@ public class Home extends ActionBarActivity implements OnRefreshListener {
             super.onPreExecute();
             
             ringProgressDialog = ProgressDialog.show(ctx, "Veuillez patienter...", "Récupération du fichier en cours..", true);
-            ringProgressDialog.setCancelable(true);
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                            } catch (Exception e) {
-             
-                            }
-                        }
-                    }).start();
-
-
+            ringProgressDialog.setCancelable(false);
         }
         
         @Override
@@ -694,7 +693,7 @@ public class Home extends ActionBarActivity implements OnRefreshListener {
            if (file != null){
             	 	Utils.OpenFile(Home.this, file);
             }else{
-            		Utils.DisplayToastHome(this.ctx, "La récupération du fichier a échouée, merci de vérifier votre connexion internet.");
+            		Utils.DisplayToast(this.ctx, "La récupération du fichier a échouée, merci de vérifier votre connexion internet.");
             }
             
         }
@@ -830,8 +829,9 @@ public class Home extends ActionBarActivity implements OnRefreshListener {
             super.onPostExecute(i);
 
             itemSelected = null;
-        	pb.setVisibility(View.GONE);
+        		pb.setVisibility(View.GONE);
             RefreshView();
+            
         }
 
     }
@@ -855,16 +855,7 @@ public class Home extends ActionBarActivity implements OnRefreshListener {
             super.onPreExecute();
             
             ringProgressDialog = ProgressDialog.show(ctx, "Veuillez patienter...", "Actualisation du fichier en cours..", true);
-            ringProgressDialog.setCancelable(true);
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                            } catch (Exception e) {
-             
-                            }
-                        }
-                    }).start();
+            ringProgressDialog.setCancelable(false);
         }
         
         @Override
@@ -935,9 +926,10 @@ public class Home extends ActionBarActivity implements OnRefreshListener {
     
     private class GetData extends AsyncTask<Void, Integer, List<Object>> {
 
-        String url;
-        Context ctx;
-
+        private String url;
+        private Context ctx;
+        private ProgressDialog ringProgressDialog;
+        
         public GetData(Context ctx, String url) {
             this.url = url;
             this.ctx = ctx;
@@ -947,6 +939,10 @@ public class Home extends ActionBarActivity implements OnRefreshListener {
         protected void onPreExecute() {
             super.onPreExecute();
             pb.setVisibility(View.VISIBLE);
+            
+           // ringProgressDialog = ProgressDialog.show(ctx, "Veuillez patienter...", "Mise à jour en cours..", true);
+            //ringProgressDialog.setCancelable(false);
+            
         }
 
         protected List<Object> doInBackground(Void... params) {
@@ -990,6 +986,73 @@ public class Home extends ActionBarActivity implements OnRefreshListener {
             }
 
             if (pb!=null){pb.setVisibility(View.GONE);}
+            //ringProgressDialog.dismiss();
+            mPullToRefreshLayout.setRefreshComplete();
+        }
+
+    }
+    
+    private class GetDataBlock extends AsyncTask<Void, Integer, List<Object>> {
+
+        private String url;
+        private Context ctx;
+        private ProgressDialog ringProgressDialog;
+        
+        public GetDataBlock(Context ctx, String url) {
+            this.url = url;
+            this.ctx = ctx;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            
+            ringProgressDialog = ProgressDialog.show(ctx, "Veuillez patienter...", "Mise à jour en cours..", true);
+            ringProgressDialog.setCancelable(false);
+            
+        }
+
+        protected List<Object> doInBackground(Void... params) {
+
+            try {
+
+                return Utils.GetData(ctx, url);
+
+            } catch (Exception e) {
+                Log.w(getClass().getSimpleName(), "exception Connect : Json");
+                e.printStackTrace();
+                return null;
+            }
+}
+
+        @Override
+        protected void onPostExecute(List<Object> downloadedArray) {
+            super.onPostExecute(downloadedArray);
+
+            if (downloadedArray != null && downloadedArray.size() > 0){
+
+                if (listAdapter != null){
+                    listAdapter.clear();
+                    listAdapter.notifyDataSetChanged();
+                }
+                
+                Data.currentArray = downloadedArray;
+                
+                listAdapter = new GenericListAdapter(Home.this, R.layout.listview_item, downloadedArray);
+                list.setAdapter(listAdapter);
+                
+            }else{
+            	
+            	List<Object> emptyItemArray = new ArrayList<Object>();
+            	Empty emptyItem = new Empty("Aucun fichier.");
+            	emptyItemArray.add(emptyItem);
+            	
+            	listAdapter = new GenericListAdapter(Home.this, R.layout.listview_item, emptyItemArray);
+                list.setAdapter(listAdapter);
+            	
+            }
+
+            ringProgressDialog.dismiss();
             mPullToRefreshLayout.setRefreshComplete();
         }
 
@@ -1006,6 +1069,17 @@ public class Home extends ActionBarActivity implements OnRefreshListener {
 			new GetData(Home.this, Utils.DATA_ROOT).execute();
 		}else{
 			new GetData(Home.this, Utils.DATA_FOLDER+Data.currentFolder.getId()).execute();
+		}
+		
+    }
+
+    private void RefreshViewBlock(){
+    	
+    	// Le folder courant est le root
+		if (Data.currentFolder == null){
+			new GetDataBlock(Home.this, Utils.DATA_ROOT).execute();
+		}else{
+			new GetDataBlock(Home.this, Utils.DATA_FOLDER+Data.currentFolder.getId()).execute();
 		}
 		
     }

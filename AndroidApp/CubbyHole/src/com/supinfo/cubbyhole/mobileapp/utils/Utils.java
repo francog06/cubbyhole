@@ -76,9 +76,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import android.database.Cursor;
+
 /**
  * Created by anthonyvialleton on 04/04/14.
  */
+
 public class Utils {
 
     /** API FOLDER/FILES **/
@@ -88,6 +90,7 @@ public class Utils {
 	public static final int INTENT_OPEN = 2;
 	public static final int INTENT_AFILECHOOSER = 3;
 	public static final int INTENT_MANAGEPERMISSIONS = 4;
+	public static final int INTENT_FOLDERCHOOSER = 5;
 	
 	public static final String JSON_FOLDER_NAME = "name";
 	public static final String JSON_FOLDER_LASTUPDATE = "last_update_date";
@@ -107,8 +110,9 @@ public class Utils {
     
     public static final String HASH_DL = "ab14d0415c485464a187d5a9c97cc27c";
     public static final String FILE = "http://cubbyhole.name/api/file/"; 	// Preview : preview/ID?hash=
-    																										// DL avec quota : download/ID?hash=
+    																										// DL avec quota : download/ID?X-API-KEY=user
     																										// DL sans quota : synchronize/ID?hash=
+    																										// Public link : download/ID?AccessKey=file.accessKey
     
     /*
      *  Download File
@@ -125,11 +129,12 @@ public class Utils {
 	  
 	  }
 	    
-	  public static java.io.File UrlToFileDownload(Context ctx, String pathToSave, File mfile){
+	  public static java.io.File UrlToFileDownloadForExport(Context ctx, String pathToSave, File mfile){
 	
 		  HttpClient httpclient = new DefaultHttpClient();
-	      HttpGet httpget = new HttpGet(Utils.FILE+"synchronize"+"/"+mfile.getId()+"?hash="+Utils.HASH_DL);
-	      
+	      //HttpGet httpget = new HttpGet(Utils.FILE+"synchronize"+"/"+mfile.getId()+"?hash="+Utils.HASH_DL);
+		  HttpGet httpget = new HttpGet(Utils.FILE+"download"+"/"+mfile.getId()+"?X-API-KEY="+getUserFromSharedPreferences(ctx).getToken());
+		  System.out.println(Utils.FILE+"download"+"/"+mfile.getId()+"?X-API-KEY="+getUserFromSharedPreferences(ctx).getToken());
 	      httpget.setHeader(X_API_KEY, getUserFromSharedPreferences(ctx).getToken());
 	
 	      try {
@@ -250,7 +255,7 @@ public class Utils {
     
     public static void DeleteFolder(Context ctx, Folder folder){
     	 
-    	HttpClient httpclient = new DefaultHttpClient();
+    		HttpClient httpclient = new DefaultHttpClient();
         HttpDelete httpdelete = new HttpDelete(DELETE_FOLDER+folder.getId());
         
         httpdelete.setHeader(X_API_KEY, getUserFromSharedPreferences(ctx).getToken());
@@ -292,8 +297,8 @@ public class Utils {
     
     public static void AddFolder(Context ctx, List<NameValuePair> pairs){
     	
-    	HttpClient httpclient = new DefaultHttpClient();
-        HttpPost httpost = new HttpPost(ADD_FOLDER);
+    		HttpClient httpclient = new DefaultHttpClient();
+    		HttpPost httpost = new HttpPost(ADD_FOLDER);
         
         httpost.setHeader(X_API_KEY, getUserFromSharedPreferences(ctx).getToken());
 
@@ -380,9 +385,9 @@ public class Utils {
      *  Update
      */
     
-    public static void UpdateFolder(Context ctx, Folder folder, List<NameValuePair> pairs){
+    public static Boolean UpdateFolder(Context ctx, Folder folder, List<NameValuePair> pairs){
     	
-    	HttpClient httpclient = new DefaultHttpClient();
+    		HttpClient httpclient = new DefaultHttpClient();
         HttpPut httpput = new HttpPut(UPDATE_FOLDER+folder.getId());
         
         httpput.setHeader(X_API_KEY, getUserFromSharedPreferences(ctx).getToken());
@@ -390,14 +395,16 @@ public class Utils {
         try {
 			
         	httpput.setEntity(new UrlEncodedFormEntity(pairs));
-        	
         	HttpResponse response = httpclient.execute(httpput);
-					
-		} catch (ClientProtocolException e) {
+        	
+        	return true;
+        	
+		} catch (Exception e) {
+			
 			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+			return false;
+			
+		} 
     	
     }
     
@@ -426,24 +433,70 @@ public class Utils {
     	
     }
     
-    public static void UpdateFile(Context ctx, File file, List<NameValuePair> pairs){
+    public static File UpdateFile(Context ctx, File file, List<NameValuePair> pairs){
     	
     		HttpClient httpclient = new DefaultHttpClient();
-        HttpPost httppost = new HttpPost(UPDATE_FILE+file.getId());
-        httppost.setHeader(X_API_KEY, getUserFromSharedPreferences(ctx).getToken());
+    		HttpPost httppost = new HttpPost(UPDATE_FILE+file.getId());
+        
+    		httppost.setHeader(X_API_KEY, getUserFromSharedPreferences(ctx).getToken());
+    		File fileReturned = null;
+        
+	    		try {
+				
+		        	httppost.setEntity(new UrlEncodedFormEntity(pairs));
+		        	HttpResponse response = httpclient.execute(httppost);
+		        	
+		        	System.out.println("pairs value : "+pairs.get(0).getValue().toString());
+		        	
+		        	HttpEntity httpEntity = response.getEntity();
+		        	InputStream is = httpEntity.getContent();
+	
+	            try {
+	
+	                BufferedReader reader = new BufferedReader(new InputStreamReader(
+	                        is, "iso-8859-1"), 8);
+	                StringBuilder sb = new StringBuilder();
+	                String line = null;
+	                while ((line = reader.readLine()) != null) {
+	                    sb.append(line + "\n");
+	                }
+	                is.close();
+	                String json = sb.toString();
+	
+	                // Parsing du JSON de retour
+	                try {
 
-        try {
-			
-        	httppost.setEntity(new UrlEncodedFormEntity(pairs));
-        	
-        	HttpResponse response = httpclient.execute(httppost);
-			
-		} catch (ClientProtocolException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-    	
+	                		JSONObject jObj = new JSONObject(json);
+	                		JSONObject data = jObj.getJSONObject("data");
+	                		JSONObject jsonFile = data.getJSONObject("file");
+	                		
+	                		System.out.println("json obj update returned : "+jObj.toString());
+	                		
+	                		fileReturned = new File();
+	                		fileReturned.setId(jsonFile.getInt("id"));
+	                		fileReturned.setName(jsonFile.getString("name"));
+	                		fileReturned.setCreationDate(StringToDate(jsonFile.getJSONObject("creation_date").getString("date")));
+	                		fileReturned.setLastUpdateDate(StringToDate(jsonFile.getJSONObject("last_update_date").getString("date")));
+	                		fileReturned.setIsPublic(jsonFile.getBoolean("is_public"));
+	                		fileReturned.setAccessKey(jsonFile.getString("access_key"));
+	                		fileReturned.setSize(jsonFile.getDouble("size"));
+                         //fileReturned.setShare();
+	                		
+	                		return fileReturned;
+	                		
+	                }catch (Exception e){
+	                		e.printStackTrace();
+	                		return fileReturned;
+	                }
+	                
+			} catch (Exception e) {
+				e.printStackTrace();
+				return fileReturned;
+			} 
+	    	}catch (Exception e){
+	    		e.printStackTrace();
+	    		return fileReturned;
+	    	}
     }
     
     /*
@@ -503,8 +556,6 @@ public class Utils {
                                 folder.setName(JSONFolder.getString("name"));
                                 folder.setCreationDate(StringToDate(JSONFolder.getJSONObject("creation_date").getString("date")));
                                 folder.setLastUpdateDate(StringToDate(JSONFolder.getJSONObject("last_update_date").getString("date")));
-                                folder.setIsPublic(JSONFolder.getBoolean("is_public"));
-                                folder.setAccessKey(JSONFolder.getString("access_key"));
                                 //folder.setShare(JSONFolder.get());
                                 folder.setParentID(JSONFolder.optInt("parent", -1));
 
@@ -522,8 +573,6 @@ public class Utils {
                                 file.setName(JSONFile.getString("name"));
                                 file.setCreationDate(StringToDate(JSONFile.getJSONObject("creation_date").getString("date")));
                                 file.setLastUpdateDate(StringToDate(JSONFile.getJSONObject("last_update_date").getString("date")));
-                                file.setAbsolutePath(JSONFile.getString("absolute_path"));
-                                file.setPublicLinkPath(JSONFile.getString("public_link_path"));
                                 file.setIsPublic(JSONFile.getBoolean("is_public"));
                                 file.setAccessKey(JSONFile.getString("access_key"));
                                 file.setSize(JSONFile.getDouble("size"));
@@ -540,8 +589,6 @@ public class Utils {
                             vfolder.setName(jsonObject.getString("name"));
                             vfolder.setCreationDate(StringToDate(jsonObject.getJSONObject("creation_date").getString("date")));
                             vfolder.setLastUpdateDate(StringToDate(jsonObject.getJSONObject("last_update_date").getString("date")));
-                            vfolder.setIsPublic(jsonObject.getBoolean("is_public"));
-                            vfolder.setAccessKey(jsonObject.getString("access_key"));
                             //vfolder.setShare(jsonObject.get());
                             vfolder.setParentID(jsonObject.optInt("parent", -1));
                             Data.currentFolder = vfolder;
@@ -557,8 +604,6 @@ public class Utils {
                                 folder.setName(JSONFolder.getString("name"));
                                 folder.setCreationDate(StringToDate(JSONFolder.getJSONObject("creation_date").getString("date")));
                                 folder.setLastUpdateDate(StringToDate(JSONFolder.getJSONObject("last_update_date").getString("date")));
-                                folder.setIsPublic(JSONFolder.getBoolean("is_public"));
-                                folder.setAccessKey(JSONFolder.getString("access_key"));
                                 //folder.setShare(JSONFolder.get());
                                 folder.setParentID(JSONFolder.optInt("parent", -1));
 
@@ -577,7 +622,6 @@ public class Utils {
                                 file.setCreationDate(StringToDate(JSONFile.getJSONObject("creation_date").getString("date")));
                                 file.setLastUpdateDate(StringToDate(JSONFile.getJSONObject("last_update_date").getString("date")));
                                 file.setAbsolutePath(JSONFile.getString("absolute_path"));
-                                file.setPublicLinkPath(JSONFile.getString("public_link_path"));
                                 file.setIsPublic(JSONFile.getBoolean("is_public"));
                                 file.setAccessKey(JSONFile.getString("access_key"));
                                 file.setSize(JSONFile.getDouble("size"));
@@ -593,26 +637,26 @@ public class Utils {
                         return ArrayToObject(arrayFolders, arrayFiles, back);
 
                     } catch (JSONException e) {
-                        DisplayToastHome(ctx, "Error parsing data from JSON..");
+                        DisplayToast(ctx, "Error parsing data from JSON..");
                         Log.e("JSON Parser", "Error parsing data " + e.toString());
                         return null;
                     }
 
                 } catch (Exception e) {
-                    DisplayToastHome(ctx, "Error converting result from request..");
+                    DisplayToast(ctx, "Error converting result from request..");
                     Log.e("Buffer Error", "Error converting result " + e.toString());
                     return null;
                 }
 
 
             } catch (UnsupportedEncodingException e) {
-                DisplayToastHome(ctx, "Unsupported encoding error..");
+                DisplayToast(ctx, "Unsupported encoding error..");
                 e.printStackTrace();
                 return null;
             }
 
         } catch (Exception e) {
-            DisplayToastHome(ctx, ctx.getResources().getString(R.string.connection_error));
+            DisplayToast(ctx, ctx.getResources().getString(R.string.connection_error));
             e.printStackTrace();
             return null;
         }
@@ -1106,7 +1150,7 @@ public class Utils {
     *   Activity
     */
 
-    public static void DisplayToastHome(final Context ctx, final String message){
+    public static void DisplayToast(final Context ctx, final String message){
 
         Runnable setErrorMessage = new Runnable() {
             @Override
@@ -1117,9 +1161,8 @@ public class Utils {
                 toast.show();
             }
         };
-        Activity home = (Activity) ctx;
-        home.runOnUiThread(setErrorMessage);
-
+        Activity activity = (Activity) ctx;
+        activity.runOnUiThread(setErrorMessage);
     }
     
     /**
@@ -1132,12 +1175,17 @@ public class Utils {
 	
 	    Intent newIntent = new Intent(android.content.Intent.ACTION_VIEW);
 	    try {
-	    String mimeType = myMime.getMimeTypeFromExtension(fileExt(file.toString()).substring(1));
-	    newIntent.setDataAndType(Uri.fromFile(file),mimeType);
-	    
+	    	
+	    	if (file.toString().contains(".tar.gz")){
+	    		// application/x-gzip
+	    		newIntent.setDataAndType(Uri.fromFile(file),"application/x-gzip");
+	    	}else{
+	    		String mimeType = myMime.getMimeTypeFromExtension(fileExt(file.toString()).substring(1));
+	    		newIntent.setDataAndType(Uri.fromFile(file),mimeType);
+	    	}
 	    		ctx.startActivityForResult(newIntent, Utils.INTENT_OPEN);
 	    } catch (Exception e) {
-	       Utils.DisplayToastHome(ctx, "Aucune application ne peut ouvrir ce type de fichier..");
+	       Utils.DisplayToast(ctx, "Aucune application ne peut ouvrir ce type de fichier..");
 	    }
 	    
     }

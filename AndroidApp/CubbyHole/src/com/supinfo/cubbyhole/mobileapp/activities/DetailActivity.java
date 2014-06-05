@@ -1,7 +1,16 @@
 package com.supinfo.cubbyhole.mobileapp.activities;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+
 import android.animation.Animator;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Gravity;
@@ -37,20 +46,19 @@ public class DetailActivity extends ActionBarActivity {
 	private TextView detail_itemCreationDate_tv;
 	private TextView detail_itemLastUpdateDate_tv;
 	private TextView detail_itemSize_tv;
+	private LinearLayout detail_size_ll;
 	private Switch detail_isPublic_switch;
 	private Button detail_manage_btn;
 	private NetworkImageView networkImageView;
 	private Button detail_share_btn;
-	private ImageView line;
+	private ImageView line1;
+	private ImageView line2;
 	
 	private RequestQueue mRequestQueue;
 	private ImageLoader imageLoader;
-
-	LinearLayout.LayoutParams networkImageViewLayoutParams = new LinearLayout.LayoutParams(170, 150);
 	
-    private Animator mCurrentAnimator;
-    private int mShortAnimationDuration;
-    
+	private LinearLayout.LayoutParams networkImageViewLayoutParams = new LinearLayout.LayoutParams(170, 150);
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -96,17 +104,21 @@ public class DetailActivity extends ActionBarActivity {
 	}
 
 	private void SetupComponents(){
+		
 		networkImageView = (NetworkImageView) findViewById(R.id.detail_networkImageView);
 		networkImageViewLayoutParams.gravity = Gravity.CENTER;
 		networkImageView.setDefaultImageResId(R.drawable.cubby_noimage);
 		networkImageView.setErrorImageResId(R.drawable.cubby_noimage);
 		detail_itemCreationDate_tv = (TextView) findViewById(R.id.detail_itemCreationDate_tv);
 		detail_itemLastUpdateDate_tv = (TextView) findViewById(R.id.detail_itemLastUpdateDate_tv);
+		detail_size_ll = (LinearLayout) findViewById(R.id.detail_sizell);
 		detail_itemSize_tv = (TextView) findViewById(R.id.detail_itemSize_tv);
 		detail_manage_btn = (Button) findViewById(R.id.detail_manage_btn);
 		detail_isPublic_switch = (Switch) findViewById(R.id.detail_isPublic_switch);
 		detail_share_btn = (Button) findViewById(R.id.detail_share_btn);
-		line = (ImageView) findViewById(R.id.detail_line);
+		line1 = (ImageView) findViewById(R.id.detail_line1);
+		line2 = (ImageView) findViewById(R.id.detail_line2);
+		
 	}
 
 	@Override
@@ -128,18 +140,14 @@ public class DetailActivity extends ActionBarActivity {
 	}
 
 	private void shareContent(String sharingMessage) {
+		
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
         intent.putExtra(Intent.EXTRA_TEXT, sharingMessage);
         startActivity(Intent.createChooser(intent, "Partager ce fichier"));
-    }
+    
+	}
 
-	/*
-	 *  Asynctask
-	 */
-	
-	
-	
 	/*
 	 *  Folder
 	 */
@@ -149,8 +157,9 @@ public class DetailActivity extends ActionBarActivity {
 		networkImageView.setLayoutParams(networkImageViewLayoutParams);
 		detail_isPublic_switch.setVisibility(View.GONE);
 		detail_share_btn.setVisibility(View.GONE);
-		detail_itemSize_tv.setVisibility(View.GONE);
-		line.setVisibility(View.GONE);
+		detail_size_ll.setVisibility(View.GONE);
+		line1.setVisibility(View.GONE);
+		line2.setVisibility(View.GONE);
 		
 		// Date de creation
 		detail_itemCreationDate_tv.setText(Utils.DateToString(currentFolder.getCreationDate()));
@@ -176,7 +185,6 @@ public class DetailActivity extends ActionBarActivity {
 	 *  File
 	 */
 
-	
 	private void SetupFile(){
 
 		// Preview image
@@ -221,17 +229,26 @@ public class DetailActivity extends ActionBarActivity {
 		detail_isPublic_switch.setChecked(currentFile.getIsPublic());
 		if (!currentFile.getIsPublic()){
 			detail_share_btn.setVisibility(View.GONE);
+		}else{
+			detail_share_btn.setVisibility(View.VISIBLE);
 		}
+		
 		detail_isPublic_switch.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				
+				System.out.println("on swicth change event");
+				
 				if (isChecked){
-					// Asynctask uptade files
-					detail_share_btn.setVisibility(View.VISIBLE);
 					
-				}else{
-					// Asynctask update file
-					detail_share_btn.setVisibility(View.GONE);
+					// Asynctask updade
+					new UpdateFile(DetailActivity.this, currentFile, true).execute();
+					
+				}else if (!isChecked){
+					
+					// Asynctask update
+					new UpdateFile(DetailActivity.this, currentFile, false).execute();
+					
 				}
 			}
 		});
@@ -240,8 +257,8 @@ public class DetailActivity extends ActionBarActivity {
 		detail_share_btn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-					shareContent("°° CubbyHole Information °°\n "+Utils.getUserFromSharedPreferences(DetailActivity.this).getEmail()+" souhaite télécharger un "
-							+ "fichier avec vous! Ce fichier est téléchargeable via l'url suivante : "+" http://deeddopkzodedk.com");
+					shareContent("°° CubbyHole Information °°\n "+Utils.getUserFromSharedPreferences(DetailActivity.this).getEmail()+" souhaite partager un "
+							+ "fichier avec vous! Ce fichier est téléchargeable via l'url suivante : "+Utils.FILE+"download/"+currentFile.getId()+"?accessKey="+currentFile.getAccessKey());
 			}
 		});
 		
@@ -258,4 +275,60 @@ public class DetailActivity extends ActionBarActivity {
 		
 	}
 
+	/*
+	 *  Asynctask
+	 */
+	
+	public class UpdateFile extends AsyncTask<Void, Integer, File> {
+
+        private Context ctx;
+        private File file;
+        private ProgressDialog ringProgressDialog;
+        private Boolean isPublic;
+        
+        public UpdateFile(Context ctx, File file, Boolean isPublic) {
+            this.ctx = ctx;
+            this.file = file;
+            this.isPublic = isPublic;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            ringProgressDialog = ProgressDialog.show(ctx, "Veuillez patienter...", "Mise à jour en cours..", true);
+            ringProgressDialog.setCancelable(false);
+        }
+        
+        @Override
+        protected File doInBackground(Void... params) {
+        	
+        		List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+        	
+        		String strPublic = isPublic ? "1" : "0";
+        		pairs.add(new BasicNameValuePair(Utils.JSON_FOLDER_ISPUBLIC, strPublic));
+        		return Utils.UpdateFile(ctx, file, pairs);
+        	
+        }
+
+        @Override
+        protected void onPostExecute(File file) {
+            super.onPostExecute(file);
+            
+            ringProgressDialog.dismiss();
+            
+            if (file != null){
+		          currentFile = file;
+		          SetupFile();
+		          String message = currentFile.getIsPublic() ? "Le fichier est désormais publique et vous pouvez ainsi le partager à n'importe qui!" : "Le fichier n'est plus publique et son accès libre a ete supprimé.";
+		          Utils.DisplayToast(ctx, message);
+            }else{
+	            	SetupFile();
+	        		Utils.DisplayToast(ctx, "La mise à jour du fichier a échouée. Veuillez réessayer ultéireurement.");
+            }
+            
+        }
+    }
+	
+	
 }

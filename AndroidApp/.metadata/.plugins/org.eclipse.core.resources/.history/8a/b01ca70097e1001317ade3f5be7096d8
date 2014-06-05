@@ -1,7 +1,0 @@
-package com.supinfo.cubbyhole.mobileapp.activities;
-
-public class Test extends Activity{
-
-	
-	
-}

@@ -1,7 +1,0 @@
-package com.supinfo.cubbyhole.mobileapp.fragment;
-
-import ListFragment;
-
-public class RefreshListFragment extends ListFragment {
-
-}

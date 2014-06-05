@@ -3,26 +3,26 @@
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
 		<item value="263" key="DIALOG_WIDTH"/>
 		<item value="344" key="DIALOG_Y_ORIGIN"/>
-		<item value="399" key="DIALOG_HEIGHT"/>
 		<item value="1177" key="DIALOG_X_ORIGIN"/>
+		<item value="399" key="DIALOG_HEIGHT"/>
 		<item value="1|Lucida Grande|11.0|0|COCOA|1|LucidaGrande" key="DIALOG_FONT_NAME"/>
 	</section>
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
 		<item value="true" key="wrap"/>
+		<item value="false" key="casesensitive"/>
 		<item value="false" key="isRegEx"/>
-		<item value="true" key="casesensitive"/>
 		<item value="false" key="incremental"/>
 		<item value="false" key="wholeword"/>
-		<item value="detail_share_btn" key="selection"/>
+		<item value="GetData" key="selection"/>
 		<list key="findhistory">
-			<item value="detail_share_btn"/>
-			<item value="detail_isPublic_switch"/>
-			<item value="mImageListener"/>
-			<item value="setImageUrl"/>
-			<item value="loadImageIfNecessary"/>
-			<item value="onResponse"/>
-			<item value="onresponse"/>
-			<item value="detail"/>
+			<item value="getdata"/>
+			<item value="JSON_FILE_PUBLICLINKPATH"/>
+			<item value="public_link_path"/>
+			<item value="Update"/>
+			<item value="  new Thread(new Runnable() {"/>
+			<item value="Thread"/>
+			<item value="setCancelable"/>
+			<item value="dialog"/>
 		</list>
 		<list key="replacehistory">
 			<item value="§"/>
