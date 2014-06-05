@@ -20,6 +20,7 @@ class File extends REST_Controller {
 
 		$this->methods['download_get']['key'] = FALSE;
 		$this->methods['preview_get']['key'] = FALSE;
+		$this->methods['thumbnail_get']['key'] = FALSE;
 	}
 
 	public function shares_get($id = null) {
@@ -41,6 +42,7 @@ class File extends REST_Controller {
 	}
 
 	public function thumbnail_get($id = null) {
+		$data = new StdClass();
 		if (is_null($id)) {
 			$this->response(array('error' => true, 'message' => 'id not defined.', 'data' => $data), 400);
 		}
@@ -51,7 +53,37 @@ class File extends REST_Controller {
 		}
 
 		if ( file_exists($file->getAbsolutePath()) && is_file($file->getAbsolutePath()) ) {
-			imagethumb($file->getAbsolutePath(), NULL, 200, true);
+			$size = getimagesize($file->getAbsolutePath());
+			$source_image = false;
+
+		    switch($size["mime"]) {
+		    	case "image/jpeg":
+				case "image/jpeg":
+					$source_image = imagecreatefromjpeg($file->getAbsolutePath()); //jpeg file
+				break;
+				case "image/gif":
+					$source_image = imagecreatefromgif($file->getAbsolutePath()); //gif file
+				break;
+				case "image/png":
+					$source_image = imagecreatefrompng($file->getAbsolutePath()); //png file
+				break;
+				default: 
+					$source_image=false;
+				break;
+		    }
+
+		    if (!$source_image) {
+		    	$this->response(array('error' => true, 'message' => 'file not an image', 'data' => $data), 400);
+		    }
+
+			$width = imagesx($source_image);
+			$height = imagesy($source_image);
+			
+			$desired_height = floor($height * (200 / $width));
+			$virtual_image = imagecreatetruecolor(200, 200);
+			imagecopyresampled($virtual_image, $source_image, 0, 0, 0, 0, 200, 200, $width, $height);
+			header('Content-Type: ' . $size["mime"]);
+			imagejpeg($virtual_image, NULL, 100);
 		}
 		else {
 			$this->response(array('error' => true, 'message' => 'file not found (hard drive)', 'data' => $data), 404);
@@ -113,6 +145,13 @@ class File extends REST_Controller {
 			$this->response(array('error' => true, 'message' => 'file not found', 'data' => $data), 404);
 		}
 
+		$user = $this->rest->user;
+		$shares = $file->getShares()->filter(function($e) use($user) {
+			return $e->getUser() == $user;
+		});
+		if ($file->getUser() != $user && count($shares->toArray()) == 0)
+			$this->response(array('error' => true, 'message' => "Ceci n'est pas votre fichier et n'a pas été partagé avec vous.", 'data' => $data), 400);
+
 		if ( file_exists($file->getAbsolutePath()) && is_file($file->getAbsolutePath()) ) {
 		    $data = file_get_contents($file->getAbsolutePath());
 		    force_download($file->getName(), $data);
@@ -167,8 +206,12 @@ class File extends REST_Controller {
 				$user = $this->doctrine->em->find('Entities\User', (int)$row->user_id);
 				if (is_null($user))
 					$this->response(array('error' => true, 'message' => "User don't exist (APIKEY).", 'data' => $data), 400);
-				if ($file->getUser() != $user)
-					$this->response(array('error' => true, 'message' => "That's now your file", 'data' => $data), 400);
+
+				$shares = $file->getShares()->filter(function($e) use($user) {
+					return $e->getUser() == $user;
+				});
+				if ($file->getUser() != $user && count($shares->toArray()) == 0)
+					$this->response(array('error' => true, 'message' => "Ceci n'est pas votre fichier et n'a pas été partagé avec vous.", 'data' => $data), 400);
 			}
 		}
 		else {
@@ -185,9 +228,18 @@ class File extends REST_Controller {
 			}
 		}
 
-		/**
-		 * TODO: share
-		*/
+		$start_of_day = new DateTime("now", new DateTimeZone("Europe/Berlin")); $start_of_day->setTime(0, 0);
+		$end_of_day = new DateTime("now", new DateTimeZone("Europe/Berlin")); $end_of_day->setTime(23, 59);
+		$now = new DateTime("now", new DateTimeZone("Europe/Berlin"));
+		$downloads = $file->getDataHistories()->filter(function($e) use ($start_of_day, $end_of_day, $now) {
+			return ( $start_of_day->getTimestamp() < $now->getTimestamp() && $now->getTimestamp() < $end_of_day->getTimestamp() );
+		});
+
+		$totalDownloaded = count($downloads->toArray()) * $file->getSize(); // Mo
+		$planHistory = $file->getUser()->getActivePlanHistory();
+		if ($totalDownloaded + $file->getSize() > $planHistory->getPlan()->getDailyDataTransfert()) {
+			die("Vous ne pouvez pas télécharger ce fichier (Quotat dépassé)");
+		}
 
 		$DataHistory_ip = $this->input->ip_address();
 		$DataHistory_country = $this->visitor_country();
@@ -294,6 +346,8 @@ class File extends REST_Controller {
 			@rename($file->getAbsolutePath(), $uploadPath . basename($file->getAbsolutePath()));
 			$file->setAbsolutePath(realpath($uploadPath . basename($file->getAbsolutePath())));
 		}
+		else
+			$user = $this->rest->user;
 
 		if ( ($is_public = $this->post('is_public')) !== false ) {
 			$file->setIsPublic( $is_public == "0" ? false : true );

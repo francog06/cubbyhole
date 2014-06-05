@@ -154,7 +154,8 @@ class Folder extends REST_Controller {
 	public function user_root_get($user_id = null) {
 		$data = new StdClass();
 		$user = $this->rest->user;
-		if ( !is_null($user_id) && $this->rest->user->getId() != $user_id && $this->rest->level != ADMIN_KEY_LEVEL) {
+
+		if ( !is_null($user_id) && $user->getId() != $user_id && $this->rest->level != ADMIN_KEY_LEVEL) {
 			$this->response(array('error' => true, 'message' => "You're not allowed to do that.", 'data' => $data), 401);
 		}
 
@@ -182,8 +183,8 @@ class Folder extends REST_Controller {
         	$foldersRet[] = $folder;
         }
 
-        $data->files = $filesRet;
         $data->folders = $foldersRet;
+        $data->files = $filesRet;
         $this->response(array('error' => false, 'data' => $data), 200);
 	}
 }

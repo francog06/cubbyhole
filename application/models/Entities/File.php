@@ -251,6 +251,19 @@ class File implements \JsonSerializable
     }
 
     /**
+     * Get share shared to $user
+     * 
+     * @return Entities\Share
+     */
+    public function searchShareByUser($user) {
+        foreach ($this->shares as $share) {
+            if ($share->getUser() == $user)
+                return $share;
+        }
+        return false;
+    }
+
+    /**
      * Remove data_histories
      *
      * @param Entities\DataHistory $dataHistories
