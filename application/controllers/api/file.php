@@ -40,6 +40,24 @@ class File extends REST_Controller {
 		$this->response(array('error' => false, 'message' => 'Successfully retrieved file details.', 'data' => $data), 200);
 	}
 
+	public function thumbnail_get($id = null) {
+		if (is_null($id)) {
+			$this->response(array('error' => true, 'message' => 'id not defined.', 'data' => $data), 400);
+		}
+
+		$file = $this->doctrine->em->find('Entities\File', (int)$id);
+		if (is_null($file)) {
+			$this->response(array('error' => true, 'message' => 'file not found', 'data' => $data), 404);
+		}
+
+		if ( file_exists($file->getAbsolutePath()) && is_file($file->getAbsolutePath()) ) {
+			imagethumb($file->getAbsolutePath(), NULL, 200, true);
+		}
+		else {
+			$this->response(array('error' => true, 'message' => 'file not found (hard drive)', 'data' => $data), 404);
+		}
+	}
+
 	public function preview_get($id = null) {
 		$specialHash = "ab14d0415c485464a187d5a9c97cc27c";
 
@@ -135,11 +153,10 @@ class File extends REST_Controller {
 		$file = $this->doctrine->em->find('Entities\File', (int)$id);
 		if (is_null($file)) {
 			show_404();
-
 		}
 
-		if (isset($_SERVER['HTTP_X_API_TOKEN'])) {
-			$key = $_SERVER['HTTP_X_API_TOKEN'];
+		if (isset($_REQUEST['X-API-KEY'])) {
+			$key = $_REQUEST['X-API-KEY'];
 
 			if ( ! ($row = $this->rest->db->where(config_item('rest_key_column'), $key)->get(config_item('rest_keys_table'))->row()))
 			{

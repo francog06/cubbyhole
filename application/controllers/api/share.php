@@ -37,6 +37,28 @@ class Share extends REST_Controller {
     }
 
     /**
+     * @fn user_shares_get()
+     * @brief Méthode pour récuperer tout les share d'un utilisateur.\n
+     * @URL{api/user/details/:id/shares}\n
+     * @HTTPMethod{GET}
+     * @return $data
+     */
+    public function user_shares_get($id = null)
+    {
+        $data = new StdClass();
+        if (is_null($id)) {
+            $this->response(array('error' => true, 'message' => 'Id not defined.', 'data' => $data), 400);
+        }
+
+        $user = $this->rest->user;
+
+        if ($this->rest->level == ADMIN_KEY_LEVEL) 
+            $user = $this->doctrine->em->find('Entities\User', (int)$user_id);
+
+        $this->response(array('error' => false, 'message' => 'Successfully retrieved shares.', 'data' => $data), 200);
+    }
+
+    /**
      * @fn details_get()
      * @brief Méthode pour récuperer les infos d'un share donné.\n
      * @URL{cubbyhole.name/api/share/details:id}\n
@@ -71,6 +93,7 @@ class Share extends REST_Controller {
         $data = new StdClass();
         $email = $this->mandatory_value('email', 'post');
         $write = $this->mandatory_value('write', 'post');
+        $entity = null;
 
         try {
             $user = Entities\User::getByEmail($email);
@@ -90,6 +113,7 @@ class Share extends REST_Controller {
             if ($file->getUser() != $this->rest->user)
                 $this->response(array('error' => true, 'message' => "You can't share other user's file", 'data' => $data), 400);
             $type = "file";
+            $entity = $file;
         }
 
         if ( ($folder_id = $this->post('folder')) !== false && is_null($type) ) {
@@ -101,8 +125,16 @@ class Share extends REST_Controller {
             if ($folder->getUser() != $this->rest->user)
                 $this->response(array('error' => true, 'message' => "You can't share other user's folder", 'data' => $data), 400);
             $type = "folder";
+            $entity = $folder;
         }
 
+        if ($type == null) {
+            $this->response(array('error' => true, 'message' => "Vous n'avez définie aucune entity (fichier ou dossier)", 'data' => $data), 400);
+        }
+
+        if (Entities\Share::entityAlreadyShared($entity->getId(), $user->getId(), $type)) {
+            $this->response(array('error' => true, 'message' => "Vous partagez déjà cet entité avec cet utilisateur.", 'data' => $data), 400);
+        }
         $share = new Entities\Share;
         $share->setOwner($this->rest->user);
         $share->setDate(new DateTime("now", new DateTimeZone("Europe/Berlin")));
@@ -121,7 +153,7 @@ class Share extends REST_Controller {
         // TODO: Send email with template, etc...
 
         $data->share = $share;
-        $this->response(array('error' => false, 'data' => $data), 200);
+        $this->response(array('error' => false, 'message' => 'Partage créé avec succès', 'data' => $data), 200);
     }
 
     /**

@@ -769,19 +769,17 @@
 
 <script type="text/javascript">
 
-function getFile(id,accessKey){
+function getFile(id){
     if(id > 0){
-        $.ajax({
-            url: '/api/file/download/'+id+'?accessKey='+accessKey,
-            type: 'GET',
-            headers:{
-                "X_API_TOKEN":"<?= $this->session->userdata('user_token'); ?>"
-            },
-            success: function(result) { },
-            error: function(result){
-                alert("problem with your file demand");
-            }
-        });
+        
+        var $preparingFileModal  = $('#loadingModal');
+        $preparingFileModal.modal("show");
+        $.fileDownload("/api/file/download/"+id+"?X-API-KEY=<?= $this->session->userdata('user_token'); ?>",{
+            successCallback: function (url) { $preparingFileModal.modal("hide"); }
+        })
+            .done(function(){alert("test");$preparingFileModal.modal("hide");})
+            .fail(function(){alert("fuck"); $preparingFileModal.modal("hide");});
+        return false; 
     }
 }
 
@@ -860,7 +858,7 @@ function getRoot(){
                         if(result.data.files.hasOwnProperty(loop_file)){
                             $("#cubbyhole tbody").append('\
                                 <tr class="file '+share+'" data-id="'+result.data.files[loop_file].id+'" data-key="'+result.data.files[loop_file].access_key+'">\
-                                    <td class="drag"><a href="javascript:getFile('+result.data.files[loop_file].id+', '+result.data.files[loop_file].access_key+')"><span class="fileSprite '+sprite+'"></span>'+result.data.files[loop_file].name+'</a></td>\
+                                    <td class="drag"><a href="javascript:getFile('+result.data.files[loop_file].id+')"><span class="fileSprite '+sprite+'"></span>'+result.data.files[loop_file].name+'</a></td>\
                                     <td class="drag">'+type+'</td>\
                                     <td class="drag">'+result.data.files[loop_file].last_update_date.date+'</td>\
                                     <td style="width:255px;"><div style="display:none">\
@@ -964,6 +962,10 @@ function getRoot(){
                                     }else{
                                          $("div.resultShare").append('<div class="alert alert-danger fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
                                     }
+                                },
+                                error: function(result) {
+                                    $("#loadingModal").modal("hide");
+                                    $("div.resultShare").append('<div class="alert alert-danger fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
                                 }
                             })
                         });
@@ -1054,6 +1056,10 @@ function getRoot(){
                                     }else{
                                          $("div.resultShare").append('<div class="alert alert-danger fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
                                     }
+                                },
+                                error: function(result) {
+                                    $("#loadingModal").modal("hide");
+                                    $("div.resultShare").append('<div class="alert alert-danger fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
                                 }
                             })
                         });
@@ -1356,6 +1362,10 @@ function getFolder(id){
                                     }else{
                                          $("div.resultShare").append('<div class="alert alert-danger fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
                                     }
+                                },
+                                error: function(result) {
+                                    $("#loadingModal").modal("hide");
+                                    $("div.resultShare").append('<div class="alert alert-danger fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
                                 }
                             })
                         });
@@ -1446,6 +1456,10 @@ function getFolder(id){
                                     }else{
                                          $("div.resultShare").append('<div class="alert alert-danger fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
                                     }
+                                },
+                                error: function(result) {
+                                    $("#loadingModal").modal("hide");
+                                    $("div.resultShare").append('<div class="alert alert-danger fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
                                 }
                             })
                         });
