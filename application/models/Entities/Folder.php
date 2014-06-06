@@ -354,6 +354,7 @@ class Folder implements \JsonSerializable
                 $share->setOwner($shareToApply->getOwner());
                 $share->setDate(new \DateTime("now", new \DateTimeZone("Europe/Berlin")));
                 $share->setFile($file);
+                $shareToApply->getUser()->addSharedWithMe($share);
                 $ci->doctrine->em->persist($share);
             }
         }
@@ -367,6 +368,7 @@ class Folder implements \JsonSerializable
             $share->setOwner($shareToApply->getOwner());
             $share->setFolder($folder);
             $share->setDate(new \DateTime("now", new \DateTimeZone("Europe/Berlin")));
+            $shareToApply->getUser()->addSharedWithMe($share);
             $ci->doctrine->em->persist($share);
             $folder->setShare($share);
             $folder->recursiveShare(null, $sharedTo);

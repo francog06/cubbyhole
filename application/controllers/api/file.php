@@ -199,7 +199,7 @@ class File extends REST_Controller {
 
 			if ( ! ($row = $this->rest->db->where(config_item('rest_key_column'), $key)->get(config_item('rest_keys_table'))->row()))
 			{
-				$this->response(array('error' => true, 'message' => "You can't download this file.", 'data' => $data), 400);
+				$this->response(array('error' => true, 'message' => "Vous ne pouvez pas télécharger ce fichier.", 'data' => $data), 400);
 			}
 			else
 			{
@@ -228,17 +228,19 @@ class File extends REST_Controller {
 			}
 		}
 
-		$start_of_day = new DateTime("now", new DateTimeZone("Europe/Berlin")); $start_of_day->setTime(0, 0);
-		$end_of_day = new DateTime("now", new DateTimeZone("Europe/Berlin")); $end_of_day->setTime(23, 59);
-		$now = new DateTime("now", new DateTimeZone("Europe/Berlin"));
-		$downloads = $file->getDataHistories()->filter(function($e) use ($start_of_day, $end_of_day, $now) {
-			return ( $start_of_day->getTimestamp() < $now->getTimestamp() && $now->getTimestamp() < $end_of_day->getTimestamp() );
-		});
+		if ($file->getIsPublic() || $file->getUser() != $user) {
+			$start_of_day = new DateTime("now", new DateTimeZone("Europe/Berlin")); $start_of_day->setTime(0, 0);
+			$end_of_day = new DateTime("now", new DateTimeZone("Europe/Berlin")); $end_of_day->setTime(23, 59);
+			$now = new DateTime("now", new DateTimeZone("Europe/Berlin"));
+			$downloads = $file->getDataHistories()->filter(function($e) use ($start_of_day, $end_of_day, $now) {
+				return ( $start_of_day->getTimestamp() < $now->getTimestamp() && $now->getTimestamp() < $end_of_day->getTimestamp() );
+			});
 
-		$totalDownloaded = count($downloads->toArray()) * $file->getSize(); // Mo
-		$planHistory = $file->getUser()->getActivePlanHistory();
-		if ($totalDownloaded + $file->getSize() > $planHistory->getPlan()->getDailyDataTransfert()) {
-			die("Vous ne pouvez pas télécharger ce fichier (Quotat dépassé)");
+			$totalDownloaded = count($downloads->toArray()) * $file->getSize(); // Mo
+			$planHistory = $file->getUser()->getActivePlanHistory();
+			if ($totalDownloaded + $file->getSize() > $planHistory->getPlan()->getDailyDataTransfert()) {
+				die("Vous ne pouvez pas télécharger ce fichier (Quotat dépassé)");
+			}
 		}
 
 		$DataHistory_ip = $this->input->ip_address();

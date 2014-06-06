@@ -165,6 +165,7 @@ class Folder extends REST_Controller {
 			$this->response(array('error' => true, 'message' => 'user not found.', 'data' => $data), 400);
 		}
 
+		// User files & folders
 		$folders = $user->getFolders()->filter(function($_) {
             return ($_->getParent() == null);
         });
@@ -183,8 +184,60 @@ class Folder extends REST_Controller {
         	$foldersRet[] = $folder;
         }
 
+        // Files & folder shared with the user
+        $sharedFolders = $user->getSharedWithMe()->filter(function($e) {
+        	if ( ($folder = $e->getFolder()) != null) {
+        		$parentFolder = $folder->getParent();
+
+        		if ($parentFolder == null)
+        			return true;
+
+        		$shares = $parentFolder->getShares()->filter(function($e) use($user) {
+        			return $e->getUser() != $user;
+        		});
+
+        		if ( count($shares) == 1 ) {
+        			return true;
+        		}
+        		else
+        			return false;
+        	}
+        	return false;
+        });
+
+        $sharedFiles = $user->getSharedWithMe()->filter(function($e) use($user) {
+        	if ( ($file = $e->getFile()) != null) {
+        		$folder = $file->getFolder();
+
+        		if (is_null($folder))
+        			return true;
+
+        		$shares = $folder->getShares()->filter(function($e) use($user) {
+        			return $e->getUser() != $user;
+        		});
+
+        		if ( count($shares) == 1 ) {
+        			return true;
+        		}
+        		else
+        			return false;
+        	}
+        	return false;
+        });
+
+        $filesSharedRet = [];
+        foreach ($sharedFiles->toArray() as $file) {
+        	$filesSharedRet[] = $file;
+        }
+
+        $foldersSharedRet = [];
+        foreach ($sharedFolders->toArray() as $folder) {
+        	$foldersSharedRet[] = $folder;
+        }
+
         $data->folders = $foldersRet;
         $data->files = $filesRet;
+        $data->shares = array('folders' => $foldersSharedRet, 'files' => $filesSharedRet);
         $this->response(array('error' => false, 'data' => $data), 200);
 	}
 }

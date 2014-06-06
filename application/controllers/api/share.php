@@ -172,10 +172,10 @@ class Share extends REST_Controller {
         if ($type == "file")
             $share->setFile($file);
 
+        $user->addSharedWithMe($share);
+        $this->doctrine->em->merge($user);
         $this->doctrine->em->persist($share);
         $this->doctrine->em->flush();
-
-        // TODO: Send email with template, etc...
 
         $data->share = $share;
         $this->response(array('error' => false, 'message' => 'Partage créé avec succès', 'data' => $data), 200);
