@@ -53,29 +53,61 @@ class Share extends REST_Controller {
         $user = $this->rest->user;
 
         if ($this->rest->level == ADMIN_KEY_LEVEL) 
-            $user = $this->doctrine->em->find('Entities\User', (int)$user_id);
+            $user = $this->doctrine->em->find('Entities\User', (int)$id);
 
-        $shares = $user->getShares();
-        $folders = $shares->filter(function($e) {
-            return $e->getFolder() != null;
+        // Files & folder shared with the user
+        $sharedFolders = $user->getSharedWithMe()->filter(function($e) {
+            if ( ($folder = $e->getFolder()) != null) {
+                $parentFolder = $folder->getParent();
+
+                if ($parentFolder == null)
+                    return true;
+
+                $shares = $parentFolder->getShares()->filter(function($e) use($user) {
+                    return $e->getUser() != $user;
+                });
+
+                if ( count($shares) == 1 ) {
+                    return true;
+                }
+                else
+                    return false;
+            }
+            return false;
         });
 
-        $files = $shares->filter(function($e) {
-            return $e->getFile() != null;
+        $sharedFiles = $user->getSharedWithMe()->filter(function($e) use($user) {
+            if ( ($file = $e->getFile()) != null) {
+                $folder = $file->getFolder();
+
+                if (is_null($folder))
+                    return true;
+
+                $shares = $folder->getShares()->filter(function($e) use($user) {
+                    return $e->getUser() != $user;
+                });
+
+                if ( count($shares) == 1 ) {
+                    return true;
+                }
+                else
+                    return false;
+            }
+            return false;
         });
 
-        $filesRet = [];
-        foreach ($files as $file) {
-            $filesRet[] = $file;
+        $filesSharedRet = [];
+        foreach ($sharedFiles->toArray() as $file) {
+            $filesSharedRet[] = $file;
         }
 
-        $foldersRet = [];
-        foreach ($folders as $folder) {
-            $foldersRet[] = $folder;
+        $foldersSharedRet = [];
+        foreach ($sharedFolders->toArray() as $folder) {
+            $foldersSharedRet[] = $folder;
         }
 
-        $data->files = $filesRet;
-        $data->folders = $foldersRet;
+        $data->files = $filesSharedRet;
+        $data->folders = $foldersSharedRet;
         $this->response(array('error' => false, 'message' => 'Successfully retrieved shares.', 'data' => $data), 200);
     }
 
