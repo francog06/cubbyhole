@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" 
+    android:background="@color/white"
+    android:id="@+id/detail_scrollview"
+    android:background="@drawable/">
+    
+    <LinearLayout android:orientation="vertical"
+	  android:layout_width="match_parent"
+	  android:layout_height="wrap_content"
+	  android:paddingLeft="10dp"
+	  android:paddingRight="10dp"
+	  android:paddingBottom="2dp"
+	  android:paddingTop="5dp"
+	  android:id="@+id/detail_mainll">
+	    
+	    <!-- Item preview -->
+	    <com.android.volley.toolbox.NetworkImageView
+	        android:id="@+id/detail_networkImageView"
+	        android:layout_width="180dp"
+	        android:layout_height="180dp"
+	        android:layout_gravity="center_vertical|center_horizontal"
+	        android:paddingBottom="10dp" />
+	    
+	    <!-- Informations -->
+	    <LinearLayout android:id="@+id/detail_informations_ll"
+	       	android:layout_width="fill_parent"
+		    android:layout_height="wrap_content"
+		    android:background="@drawable/rounded_full" 
+		    android:orientation="vertical">
+	        
+	        <LinearLayout android:layout_width="fill_parent" 
+	            android:layout_height="wrap_content"
+	            android:orientation="vertical"
+	            android:padding="5dp">
+		        <TextView android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:text="Date de creation" 
+		        android:paddingTop="7dp"
+		        android:textSize="16sp"/>
+		         <TextView android:id="@+id/detail_itemCreationDate_tv"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:text="Element" />
+	         </LinearLayout>
+	         <ImageView 
+					    android:src="@color/cubbyhole"
+					    android:layout_width="fill_parent"
+					    android:layout_height="wrap_content"
+					    android:scaleType="fitXY"
+					    android:paddingLeft="0dp"
+					    android:paddingRight="0dp"
+					    android:paddingBottom="1dp"
+					    android:paddingTop="1dp"/>
+	         
+	         <LinearLayout android:layout_width="fill_parent" 
+	            android:layout_height="wrap_content"
+	            android:orientation="vertical"
+	            android:padding="5dp">
+		          <TextView android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:text="Derniere mise a jour" 
+		        android:paddingTop="7dp"
+		        android:textSize="16sp"/>
+		          <TextView android:id="@+id/detail_itemLastUpdateDate_tv"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:text="Element" />
+	          </LinearLayout>
+			<ImageView  android:id="@+id/detail_line1"
+					    android:src="@color/cubbyhole"
+					    android:layout_width="fill_parent"
+					    android:layout_height="wrap_content"
+					    android:scaleType="fitXY"
+					    android:paddingLeft="0dp"
+					    android:paddingRight="0dp"
+					    android:paddingBottom="1dp"
+					    android:paddingTop="1dp"/>
+			
+			<LinearLayout android:layout_width="fill_parent" 
+	            android:layout_height="wrap_content"
+	            android:orientation="vertical"
+	            android:padding="5dp"
+	            android:id="@+id/detail_sizell">
+		        <TextView android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:text="Taille du fichier" 
+		        android:paddingTop="7dp"
+		        android:textSize="17sp"/>
+		          <TextView android:id="@+id/detail_itemSize_tv"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:text="Element" />
+		      </LinearLayout>
+	          <ImageView android:id="@+id/detail_line2"
+					    android:src="@color/cubbyhole"
+					    android:layout_width="fill_parent"
+					    android:layout_height="wrap_content"
+					    android:scaleType="fitXY"
+					    android:paddingLeft="0dp"
+					    android:paddingRight="0dp"
+					    android:paddingBottom="1dp"
+					    android:paddingTop="1dp"/>
+	          
+	          <LinearLayout android:layout_width="fill_parent" 
+	            android:layout_height="wrap_content"
+	            android:orientation="vertical"
+	            android:padding="10dp">
+		          <Switch android:id="@+id/detail_isPublic_switch" 
+		              android:layout_width="wrap_content"
+		              android:layout_height="wrap_content"
+		              android:text="Fichier ouvert au partage"/>
+		        </LinearLayout>
+	    </LinearLayout>
+	    
+	     <!-- Layout Partage -->
+	    <LinearLayout android:id="@+id/detail_share_ll"
+	        android:layout_width="fill_parent"
+		    android:layout_height="wrap_content"
+		    android:orientation="vertical"
+		    android:layout_marginTop="15dp">
+	        
+	        <Button android:layout_width="fill_parent"
+	             android:layout_height="wrap_content"
+	             android:id="@+id/detail_share_btn"
+	             android:text="Partager"/>
+	        
+	        <Button android:layout_width="fill_parent"
+	             android:layout_height="wrap_content"
+	             android:id="@+id/detail_manage_btn"
+	             android:text="Gerer les permissions"/>
+	        
+	    </LinearLayout>
+	     	    
+    </LinearLayout>
+    
+</ScrollView>

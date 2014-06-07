@@ -1,0 +1,50 @@
+package com.supinfo.cubbyhole.mobileapp.models;
+
+import java.util.Date;
+
+public class Share {
+
+	private int id;
+    private Date date;
+	private Folder folder;
+	private File file;
+	private String loginOwner;
+	privqte int ownerId;
+	private String loginUser;
+	
+	public Share() {
+	}
+
+    public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+    public Folder getFolder() {
+        return folder;
+    }
+
+    public void setFolder(Folder folder) {
+        this.folder = folder;
+    }
+
+    public File getFile() {
+        return file;
+    }
+
+    public void setFile(File file) {
+        this.file = file;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+}

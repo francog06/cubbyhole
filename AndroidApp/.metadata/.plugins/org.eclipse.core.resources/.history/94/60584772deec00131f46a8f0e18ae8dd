@@ -1,0 +1,217 @@
+package com.supinfo.cubbyhole.mobileapp.adapters;
+
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import com.android.volley.RequestQueue;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.ImageLoader.ImageContainer;
+import com.android.volley.toolbox.NetworkImageView;
+import com.android.volley.toolbox.Volley;
+import com.android.volley.toolbox.ImageLoader.ImageListener;
+import com.supinfo.cubbyhole.mobileapp.R;
+import com.supinfo.cubbyhole.mobileapp.activities.Home;
+import com.supinfo.cubbyhole.mobileapp.activities.Home.DeleteData;
+import com.supinfo.cubbyhole.mobileapp.activities.Home.UpdateData;
+import com.supinfo.cubbyhole.mobileapp.models.Back;
+import com.supinfo.cubbyhole.mobileapp.models.Empty;
+import com.supinfo.cubbyhole.mobileapp.models.File;
+import com.supinfo.cubbyhole.mobileapp.models.Folder;
+import com.supinfo.cubbyhole.mobileapp.quickactions.ActionItem;
+import com.supinfo.cubbyhole.mobileapp.quickactions.QuickAction;
+import com.supinfo.cubbyhole.mobileapp.utils.BitmapLruCache;
+import com.supinfo.cubbyhole.mobileapp.utils.Utils;
+
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
+/**
+ * Created by anthonyvialleton on 04/04/14.
+ */
+
+public class GenericListAdapter extends ArrayAdapter<Object> {
+
+	private Context context;
+	private List<Object> items;
+	private QuickAction quickAction;
+
+	public GenericListAdapter(Context context, int resource, List<Object> items) {
+		super(context, resource, items);
+
+		this.items = items;
+		this.context = context;
+	}
+
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent) {
+
+		/*
+		 *  Set de la vue
+		 */
+		View rowView = convertView;
+		
+		if(rowView == null){
+
+			LayoutInflater vi = (LayoutInflater) getContext().getSystemService(
+					Context.LAYOUT_INFLATER_SERVICE);
+			rowView = vi.inflate(R.layout.listview_item, null);
+
+			ViewHolderItem holder = new ViewHolderItem();
+			holder.iconImg = (NetworkImageView) rowView.findViewById(R.id.item_icon_img);
+			holder.arrow = (ImageView) rowView.findViewById(R.id.item_arrow);
+			holder.nameTv = (TextView) rowView.findViewById(R.id.item_name_tv);
+			holder.lastModificationDateTv = (TextView) rowView.findViewById(R.id.item_lastmodification_tv);
+			holder.ll = (LinearLayout) rowView.findViewById(R.id.item_ll);
+
+			rowView.setTag(holder);
+
+		}
+
+		
+		/*
+		 *  Objets
+		 */
+
+		
+		ViewHolderItem viewHolder = (ViewHolderItem) rowView.getTag();
+
+		final Object o = items.get(position);
+
+		if (o != null){
+
+			if (o instanceof File){
+
+				RequestQueue mRequestQueue = Volley.newRequestQueue(context);
+				ImageLoader imageLoader = new ImageLoader(mRequestQueue, new BitmapLruCache(
+						BitmapLruCache.getDefaultLruCacheSize()));
+				
+				File file = (File)o;
+
+				viewHolder.arrow.setVisibility(View.GONE);
+
+				if (file.getName().contains(".jpg") || file.getName().contains(".jpeg") || 
+						file.getName().contains(".png") || file.getName().contains(".jfif")){
+
+					viewHolder.iconImg.setImageResource(R.drawable.cubby_file);
+					/*viewHolder.iconImg.setImageUrl(Utils.FILE+"details/"+file.getId()+"/thumbnail?hash="+Utils.HASH_DL, imageLoader, new ImageListener() {
+						@Override
+						public void onErrorResponse(VolleyError error) {
+							error.printStackTrace();
+						}
+
+						@Override
+						public void onResponse(ImageContainer response,
+								boolean isImmediate) {
+
+						}});*/
+				}else{
+
+					viewHolder.iconImg.setImageResource(R.drawable.cubby_file);
+				}
+
+				if (file.getName() != null){
+					viewHolder.nameTv.setText(file.getName());
+				}
+
+				if (file.getLastUpdateDate() != null){
+					viewHolder.lastModificationDateTv.setText(Utils.DateToString(file.getLastUpdateDate()));
+				}
+
+				viewHolder.arrow.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View view) {
+						quickAction.show(view);
+						quickAction.setAnimStyle(QuickAction.ANIM_REFLECT);
+
+					}
+				});
+
+			}else if (o instanceof Folder){
+
+				final Folder folder = (Folder)o;
+
+				viewHolder.iconImg.setImageResource(R.drawable.cubby_folder);
+
+				if (folder.getName() != null){
+					viewHolder.nameTv.setText(folder.getName());
+				}
+
+				if (folder.getLastUpdateDate() != null){
+					viewHolder.lastModificationDateTv.setText(Utils.DateToString(folder.getLastUpdateDate()));
+				}
+
+				viewHolder.arrow.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View view) {
+
+						quickAction.show(view);
+						quickAction.setAnimStyle(QuickAction.ANIM_REFLECT);
+
+					}
+				});
+
+			}else if (o instanceof Back){
+
+				Back back = (Back)o;
+
+				viewHolder.arrow.setVisibility(View.GONE);
+				viewHolder.lastModificationDateTv.setVisibility(View.GONE);
+
+				viewHolder.ll.setOrientation(LinearLayout.VERTICAL);
+
+				viewHolder.iconImg.setImageDrawable(this.context.getResources().getDrawable(R.drawable.arrow_up));
+
+				LinearLayout.LayoutParams layoutParams=new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+				layoutParams.gravity= Gravity.CENTER;
+
+				viewHolder.iconImg.setLayoutParams(layoutParams);
+
+				if (back.getValue()!= null){
+					viewHolder.nameTv.setText(back.getValue());
+					viewHolder.nameTv.setLayoutParams(layoutParams);
+				}
+
+			}else if (o instanceof Empty){
+
+				Empty empty = (Empty)o;
+
+				viewHolder.arrow.setVisibility(View.GONE);
+				viewHolder.lastModificationDateTv.setVisibility(View.GONE);
+
+				viewHolder.ll.setOrientation(LinearLayout.VERTICAL);
+
+				LinearLayout.LayoutParams layoutParams=new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+				layoutParams.gravity= Gravity.CENTER;
+
+				if (empty.getValue()!= null){
+					viewHolder.nameTv.setText(empty.getValue());
+					viewHolder.nameTv.setLayoutParams(layoutParams);
+				}
+
+			}
+
+		}
+
+		return rowView;
+	}
+
+	static class ViewHolderItem {
+		
+		public ViewHolderItem() {
+		}
+	}
+}
