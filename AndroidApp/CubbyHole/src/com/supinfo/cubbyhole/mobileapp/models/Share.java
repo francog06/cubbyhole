@@ -1,24 +1,22 @@
 package com.supinfo.cubbyhole.mobileapp.models;
 
-import java.util.List;
 import java.util.Date;
 
 public class Share {
 
 	private int id;
     private Date date;
-
-    private List<User> listUser;
 	private Folder folder;
 	private File file;
-
-    public Share(int id, Date date, List<User> listUser, Folder folder, File file) {
-        this.id = id;
-        this.date = date;
-        this.listUser = listUser;
-        this.folder = folder;
-        this.file = file;
-    }
+	private String loginOwner;
+	private int ownerId;
+	private String loginUser;
+	private int userId;
+	private Boolean isWritable;
+	
+	public Share() {
+		
+	}
 
     public int getId() {
 		return id;
@@ -52,11 +50,45 @@ public class Share {
         this.date = date;
     }
 
-    public List<User> getListUser() {
-        return listUser;
-    }
+	public String getLoginOwner() {
+		return loginOwner;
+	}
 
-    public void setListUser(List<User> listUser) {
-        this.listUser = listUser;
-    }
+	public void setLoginOwner(String loginOwner) {
+		this.loginOwner = loginOwner;
+	}
+
+	public int getOwnerId() {
+		return ownerId;
+	}
+
+	public void setOwnerId(int ownerId) {
+		this.ownerId = ownerId;
+	}
+
+	public String getLoginUser() {
+		return loginUser;
+	}
+
+	public void setLoginUser(String loginUser) {
+		this.loginUser = loginUser;
+	}
+
+	public int getUserId() {
+		return userId;
+	}
+
+	public void setUserId(int userId) {
+		this.userId = userId;
+	}
+
+	public Boolean getIsWritable() {
+		return isWritable;
+	}
+
+	public void setIsWritable(Boolean isWritable) {
+		this.isWritable = isWritable;
+	}
+	
+    
 }

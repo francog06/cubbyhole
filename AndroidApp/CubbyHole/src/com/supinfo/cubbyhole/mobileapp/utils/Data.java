@@ -12,4 +12,5 @@ import com.supinfo.cubbyhole.mobileapp.models.Folder;
 public class Data {
     public static Folder currentFolder = null;
     public static List<Object> currentArray = null;
+    public static String errorMessage = "Une erreur est survenue. Veuillez réessayer ultérieurement.";
 }

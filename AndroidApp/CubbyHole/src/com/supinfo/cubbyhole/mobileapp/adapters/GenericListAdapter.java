@@ -15,21 +15,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.supinfo.cubbyhole.mobileapp.R;
-import com.supinfo.cubbyhole.mobileapp.activities.Home;
-import com.supinfo.cubbyhole.mobileapp.activities.Home.DeleteData;
-import com.supinfo.cubbyhole.mobileapp.activities.Home.UpdateData;
 import com.supinfo.cubbyhole.mobileapp.models.Back;
 import com.supinfo.cubbyhole.mobileapp.models.Empty;
 import com.supinfo.cubbyhole.mobileapp.models.File;
 import com.supinfo.cubbyhole.mobileapp.models.Folder;
-import com.supinfo.cubbyhole.mobileapp.quickactions.ActionItem;
 import com.supinfo.cubbyhole.mobileapp.quickactions.QuickAction;
 import com.supinfo.cubbyhole.mobileapp.utils.Utils;
 
-import java.text.DateFormat;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Created by anthonyvialleton on 04/04/14.
@@ -39,7 +32,6 @@ public class GenericListAdapter extends ArrayAdapter<Object> {
 
     private Context context;
     private List<Object> items;
-    private QuickAction quickAction;
     
     public GenericListAdapter(Context context, int resource, List<Object> items) {
         super(context, resource, items);
@@ -84,15 +76,6 @@ public class GenericListAdapter extends ArrayAdapter<Object> {
                 	lastModificationDateTv.setText(Utils.DateToString(file.getLastUpdateDate()));
                 }
                 
-                arrow.setOnClickListener(new OnClickListener() {
-					@Override
-					public void onClick(View view) {
-						quickAction.show(view);
-	                    quickAction.setAnimStyle(QuickAction.ANIM_REFLECT);
-						
-					}
-				});
-
             }else if (o instanceof Folder){
 
                 final Folder folder = (Folder)o;
@@ -107,15 +90,6 @@ public class GenericListAdapter extends ArrayAdapter<Object> {
                 	lastModificationDateTv.setText(Utils.DateToString(folder.getLastUpdateDate()));
                 }
                 
-                arrow.setOnClickListener(new OnClickListener() {
-					@Override
-					public void onClick(View view) {
-						
-						 quickAction.show(view);
-	                     quickAction.setAnimStyle(QuickAction.ANIM_REFLECT);
-	                     
-					}
-				});
 
             }else if (o instanceof Back){
 
