@@ -48,10 +48,10 @@ $route['api/folder/details/(:num)/shares'] = "api/folder/shares/$1";
 /* FILE SPECIAL ROUTE */
 $route['api/file/details/(:num)/preview'] = "api/file/preview/$1";
 $route['api/file/details/(:num)/shares'] = "api/file/shares/$1";
-$route['api/file/details/(:num)/thumbnail'] = "api/file/preview/$1";
+$route['api/file/details/(:num)/thumbnail'] = "api/file/thumbnail/$1";
 
 /* SHARES SPECIAL ROUTE */
-$route['api/user/details/(:num)/shares'] = "api/shares/user_shares/$1";
+$route['api/user/details/(:num)/shares'] = "api/share/user_shares/$1";
 
 //$route['api/(:any)/format.(:any)'] = "api/$1/format.$3"; // api/{controller}/{method}/{format}
 

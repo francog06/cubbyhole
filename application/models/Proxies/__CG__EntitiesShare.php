@@ -111,12 +111,6 @@ class Share extends \Entities\Share implements \Doctrine\ORM\Proxy\Proxy
         return parent::getUser();
     }
 
-    public function jsonSerialize()
-    {
-        $this->__load();
-        return parent::jsonSerialize();
-    }
-
     public function setIsWritable($isWritable)
     {
         $this->__load();
@@ -127,6 +121,12 @@ class Share extends \Entities\Share implements \Doctrine\ORM\Proxy\Proxy
     {
         $this->__load();
         return parent::getIsWritable();
+    }
+
+    public function jsonSerialize()
+    {
+        $this->__load();
+        return parent::jsonSerialize();
     }
 
 

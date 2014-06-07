@@ -31,7 +31,6 @@ class Doctrine
         $yamlDriver = new \Doctrine\ORM\Mapping\Driver\YamlDriver(APPPATH.'models/Mappings');
         $config->setMetadataDriverImpl($yamlDriver);
  
-        /*
         $CI =& get_instance();
         $CI->load->database();
 
@@ -42,8 +41,8 @@ class Doctrine
             'host' => $CI->db->hostname,
             'dbname' => $CI->db->database
         );
-        */
 
+        /*
         $connectionOptions = array(
             'driver' => 'pdo_mysql',
             'user' => 'dev',
@@ -59,6 +58,7 @@ class Doctrine
                 'default_table_charset' => 'utf8'
             )
         );
+        */
  
         $em = \Doctrine\ORM\EntityManager::create($connectionOptions, $config);
  

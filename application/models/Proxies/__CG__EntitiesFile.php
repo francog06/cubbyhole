@@ -141,6 +141,12 @@ class File extends \Entities\File implements \Doctrine\ORM\Proxy\Proxy
         return parent::addDataHistorie($dataHistories);
     }
 
+    public function searchShareByUser($user)
+    {
+        $this->__load();
+        return parent::searchShareByUser($user);
+    }
+
     public function removeDataHistorie(\Entities\DataHistory $dataHistories)
     {
         $this->__load();

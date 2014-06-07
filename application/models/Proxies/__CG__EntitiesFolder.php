@@ -171,18 +171,6 @@ class Folder extends \Entities\Folder implements \Doctrine\ORM\Proxy\Proxy
         return parent::getParent();
     }
 
-    public function recursiveShare()
-    {
-        $this->__load();
-        return parent::recursiveShare();
-    }
-
-    public function jsonSerialize()
-    {
-        $this->__load();
-        return parent::jsonSerialize();
-    }
-
     public function addShare(\Entities\Share $shares)
     {
         $this->__load();
@@ -199,6 +187,18 @@ class Folder extends \Entities\Folder implements \Doctrine\ORM\Proxy\Proxy
     {
         $this->__load();
         return parent::getShares();
+    }
+
+    public function recursiveShare($shareToApply, $sharedTo = NULL)
+    {
+        $this->__load();
+        return parent::recursiveShare($shareToApply, $sharedTo);
+    }
+
+    public function jsonSerialize()
+    {
+        $this->__load();
+        return parent::jsonSerialize();
     }
 
 

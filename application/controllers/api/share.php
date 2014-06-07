@@ -53,8 +53,61 @@ class Share extends REST_Controller {
         $user = $this->rest->user;
 
         if ($this->rest->level == ADMIN_KEY_LEVEL) 
-            $user = $this->doctrine->em->find('Entities\User', (int)$user_id);
+            $user = $this->doctrine->em->find('Entities\User', (int)$id);
 
+        // Files & folder shared with the user
+        $sharedFolders = $user->getSharedWithMe()->filter(function($e) {
+            if ( ($folder = $e->getFolder()) != null) {
+                $parentFolder = $folder->getParent();
+
+                if ($parentFolder == null)
+                    return true;
+
+                $shares = $parentFolder->getShares()->filter(function($e) use($user) {
+                    return $e->getUser() != $user;
+                });
+
+                if ( count($shares) == 1 ) {
+                    return true;
+                }
+                else
+                    return false;
+            }
+            return false;
+        });
+
+        $sharedFiles = $user->getSharedWithMe()->filter(function($e) use($user) {
+            if ( ($file = $e->getFile()) != null) {
+                $folder = $file->getFolder();
+
+                if (is_null($folder))
+                    return true;
+
+                $shares = $folder->getShares()->filter(function($e) use($user) {
+                    return $e->getUser() != $user;
+                });
+
+                if ( count($shares) == 1 ) {
+                    return true;
+                }
+                else
+                    return false;
+            }
+            return false;
+        });
+
+        $filesSharedRet = [];
+        foreach ($sharedFiles->toArray() as $file) {
+            $filesSharedRet[] = $file;
+        }
+
+        $foldersSharedRet = [];
+        foreach ($sharedFolders->toArray() as $folder) {
+            $foldersSharedRet[] = $folder;
+        }
+
+        $data->files = $filesSharedRet;
+        $data->folders = $foldersSharedRet;
         $this->response(array('error' => false, 'message' => 'Successfully retrieved shares.', 'data' => $data), 200);
     }
 
@@ -104,6 +157,9 @@ class Share extends REST_Controller {
             $this->response(array('error' => true, 'message' => 'User not found', 'data' => $data), 404);
         }
 
+        if ($user == $this->rest->user)
+            $this->response(array('error' => true, 'message' => 'Vous ne pouvez pas partager ce fichier a vous même.', 'data' => $data), 401);
+
         if ( ($file_id = $this->post('file')) !== false ) {
             $file = $this->doctrine->em->find('Entities\File', (int)$file_id);
             if (is_null($file)) {
@@ -132,25 +188,26 @@ class Share extends REST_Controller {
             $this->response(array('error' => true, 'message' => "Vous n'avez définie aucune entity (fichier ou dossier)", 'data' => $data), 400);
         }
 
-        if (Entities\Share::entityAlreadyShared($entity->getId(), $user->getId(), $type)) {
+        if (Entities\Share::entityAlreadyShared($entity, $user, $type)) {
             $this->response(array('error' => true, 'message' => "Vous partagez déjà cet entité avec cet utilisateur.", 'data' => $data), 400);
         }
         $share = new Entities\Share;
         $share->setOwner($this->rest->user);
         $share->setDate(new DateTime("now", new DateTimeZone("Europe/Berlin")));
-
-        if ($type == "folder")
-            $share->setFolder($folder);
-        if ($type == "file")
-            $share->setFile($file);
-
         $share->setIsWritable( ($write == "1" ? true : false) );
         $share->setUser($user);
 
+        if ($type == "folder") {
+            $share->setFolder($folder);
+            $folder->recursiveShare($share);
+        }
+        if ($type == "file")
+            $share->setFile($file);
+
+        $user->addSharedWithMe($share);
+        $this->doctrine->em->merge($user);
         $this->doctrine->em->persist($share);
         $this->doctrine->em->flush();
-
-        // TODO: Send email with template, etc...
 
         $data->share = $share;
         $this->response(array('error' => false, 'message' => 'Partage créé avec succès', 'data' => $data), 200);
@@ -203,7 +260,13 @@ class Share extends REST_Controller {
             $this->response(array('error' => true, 'message' => 'Share not found.', 'data' => $data), 400);
         }
 
-        $this->doctrine->em->remove($share);
+        if ($share->getFolder() != null) {
+            $share->getFolder()->removeShare($share);
+            $share->getFolder()->recursiveShare(null, $share->getUser());
+            $this->doctrine->em->merge($share->getFolder());
+        }
+
+        $this->doctrine->em->remove($share, $share->getUser());
         $this->doctrine->em->flush();
 
         $this->response(array('error' => false, 'message' => 'Share has been removed.', 'data' => $data), 200);

@@ -209,19 +209,18 @@ class Share implements \JsonSerializable
      * 
      *  @return boolean
      */
-    public static function fileAlreadyShared($file_id, $user_id) {
+    public static function fileAlreadyShared($file, $user) {
         $ci =& get_instance();
         $query = $ci->doctrine->em->createQueryBuilder()
-                    ->add('select', 's')
-                    ->add('from', 'Entities\Share s')
-                    ->add('where', 's.user_id = :user_id AND s.file_id = :file_id')
-                    ->setParameter('user_id', $user_id)
-                    ->setParameter('file_id', $file_id)
-                    ->getQuery();
-
+                ->add('select', 's')
+                ->add('from', 'Entities\Share s')
+                ->add('where', 's.user = :user AND s.file = :file')
+                ->setParameter('user', $user)
+                ->setParameter('file', $file)
+                ->getQuery();
         try {
             $share = $query->getSingleResult();
-        } catch (Doctrine\ORM\NoResultException $e) {
+        } catch (\Doctrine\ORM\NoResultException $e) {
             return false;
         } catch (Exception $e) {
             return false;
@@ -234,19 +233,19 @@ class Share implements \JsonSerializable
      * 
      *  @return boolean
      */
-    public static function folderAlreadyShared($folder_id, $user_id) {
+    public static function folderAlreadyShared($folder, $user) {
         $ci =& get_instance();
         $query = $ci->doctrine->em->createQueryBuilder()
                     ->add('select', 's')
                     ->add('from', 'Entities\Share s')
-                    ->add('where', 's.user_id = :user_id AND s.folder_id = :folder_id')
-                    ->setParameter('user_id', $user_id)
-                    ->setParameter('folder_id', $folder_id)
+                    ->add('where', 's.user = :user AND s.folder = :folder')
+                    ->setParameter('user', $user)
+                    ->setParameter('folder', $folder)
                     ->getQuery();
 
         try {
             $share = $query->getSingleResult();
-        } catch (Doctrine\ORM\NoResultException $e) {
+        } catch (\Doctrine\ORM\NoResultException $e) {
             return false;
         } catch (Exception $e) {
             return false;

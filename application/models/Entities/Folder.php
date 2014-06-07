@@ -49,6 +49,11 @@ class Folder implements \JsonSerializable
      */
     private $user;
 
+    /**
+     * @var \Doctrine\Common\Collections\ArrayCollection
+     */
+    private $shares;
+
     public function __construct()
     {
         $this->files = new \Doctrine\Common\Collections\ArrayCollection();
@@ -294,38 +299,81 @@ class Folder implements \JsonSerializable
     }
 
     /**
+     * Add shares
+     *
+     * @param Entities\Share $shares
+     * @return Folder
+     */
+    public function addShare(\Entities\Share $shares)
+    {
+        $this->shares[] = $shares;
+        return $this;
+    }
+
+    /**
+     * Remove shares
+     *
+     * @param Entities\Share $shares
+     */
+    public function removeShare(\Entities\Share $shares)
+    {
+        $this->shares->removeElement($shares);
+    }
+
+    /**
+     * Get shares
+     *
+     * @return Doctrine\Common\Collections\Collection 
+     */
+    public function getShares()
+    {
+        return $this->shares;
+    }
+
+    /**
      * Recursively apply share
      * 
      * @return Entities\Folder
      */
-    public function recursiveShare() {
+    public function recursiveShare($shareToApply, $sharedTo = null) {
         $ci =& get_instance();
 
         // Apply share to file
         foreach ($this->getFiles()->toArray() as $file) {
-            if (!is_null($this->getShare())) {
-                /*
-                $share = new Entities\Share;
+            if (is_null($shareToApply)) {
+                if ( ($share = $file->searchShareByUser($sharedTo)) !== false) {
+                    $file->removeShare($share);
+                    $ci->doctrine->em->remove($share);
+                }
+            }
+            else {
+                $share = new Share;
 
-                $share->setRead($this->getShare()->getRead());
-                $share->setWrite($this->getShare()->getWrite());
-                $share->setUsers($this->getShare()->getUsers());
-                $share->setOwner($this->getShare()->getOwner());
-                $share->setDate(new DateTime("now", new DateTimeZone("Europe/Berlin")));
-                $ci->doctrine->persist($share);
-                */
+                $share->setIsWritable($shareToApply->getIsWritable());
+                $share->setUser($shareToApply->getUser());
+                $share->setOwner($shareToApply->getOwner());
+                $share->setDate(new \DateTime("now", new \DateTimeZone("Europe/Berlin")));
+                $share->setFile($file);
+                $shareToApply->getUser()->addSharedWithMe($share);
+                $ci->doctrine->em->persist($share);
             }
         }
 
         // Apply share to folder
         foreach ($this->getFolders() as $folder) {
-            /*
-            $folder->setShare($this->getShare());
-            $folder->recursiveShare();
-            */
+            $share = new Share;
+
+            $share->setIsWritable($shareToApply->getIsWritable());
+            $share->setUser($shareToApply->getUser());
+            $share->setOwner($shareToApply->getOwner());
+            $share->setFolder($folder);
+            $share->setDate(new \DateTime("now", new \DateTimeZone("Europe/Berlin")));
+            $shareToApply->getUser()->addSharedWithMe($share);
+            $ci->doctrine->em->persist($share);
+            $folder->setShare($share);
+            $folder->recursiveShare(null, $sharedTo);
         }
-        $ci->doctrine->persist($this);
-        $ci->doctrine->flush();
+        $ci->doctrine->em->persist($this);
         return $this;
     }
 
@@ -366,42 +414,5 @@ class Folder implements \JsonSerializable
         }
         $json["parent"] = (!is_null($this->parent) ? $this->parent->getId() : null);
         return $json;
-    }
-    /**
-     * @var \Doctrine\Common\Collections\ArrayCollection
-     */
-    private $shares;
-
-
-    /**
-     * Add shares
-     *
-     * @param Entities\Share $shares
-     * @return Folder
-     */
-    public function addShare(\Entities\Share $shares)
-    {
-        $this->shares[] = $shares;
-        return $this;
-    }
-
-    /**
-     * Remove shares
-     *
-     * @param Entities\Share $shares
-     */
-    public function removeShare(\Entities\Share $shares)
-    {
-        $this->shares->removeElement($shares);
-    }
-
-    /**
-     * Get shares
-     *
-     * @return Doctrine\Common\Collections\Collection 
-     */
-    public function getShares()
-    {
-        return $this->shares;
     }
 }
