@@ -15,6 +15,9 @@ class Share extends REST_Controller {
     function __construct()
     {
         parent::__construct();
+
+        $this->load->library('email');
+        $this->load->helper('email');
     }
 
     /**
@@ -209,6 +212,18 @@ class Share extends REST_Controller {
         $this->doctrine->em->persist($share);
         $this->doctrine->em->flush();
 
+        $this->email->clear();
+        $this->email->initialize(array(
+            'mailtype' => 'html',
+            'charset'  => 'utf-8',
+            'priority' => '1'
+        ));
+        $this->email->to($user->getEmail());
+        $this->email->from('share@cubbyhole.name');
+        $this->email->subject($user->getEmail() . ' veut partager un ' . $type . ' avec vous.');
+        $this->email->message($this->load->view('layouts/email', array('user' => $user, 'share' => $share, 'type' => ($type == "folder" ? "dossier" : "fichier"), 'view' => 'email/share'), TRUE));
+        @$this->email->send();
+
         $data->share = $share;
         $this->response(array('error' => false, 'message' => 'Partage créé avec succès', 'data' => $data), 200);
     }
@@ -270,16 +285,5 @@ class Share extends REST_Controller {
         $this->doctrine->em->flush();
 
         $this->response(array('error' => false, 'message' => 'Share has been removed.', 'data' => $data), 200);
-    }
-
-    /**
-     * @fn stats_get()
-     * @brief Méthode pour recuperer des stats.\n
-     * @URL{cubbyhole.name/api/share/stats}\n
-     * @HTTPMethod{GET}
-     * @return $data
-     */
-    public function stats_get() {
-
     }
 }

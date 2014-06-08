@@ -37,7 +37,16 @@ class Folder extends REST_Controller {
 			$this->response(array('error' => true, 'message' => 'folder not found.', 'data' => $data), 400);
 		}
 
-		if ($folder->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL)
+		$shared_with_me = false;
+		$user = $this->rest->user;
+		$shares = $folder->getShares()->filter(function($e) use($user) {
+			return $e->getUser() == $user;
+		});
+
+		if ( count($shares->toArray()) == 1 )
+			$shared_with_me = true;
+
+		if ($folder->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL && !$shared_with_me)
 			$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
 
 		$data->folder = $folder;
@@ -108,10 +117,10 @@ class Folder extends REST_Controller {
 			$this->response(array('error' => true, 'message' => 'folder not found.', 'data' => $data), 400);
 		}
 
-		if ( ($name = $this->put('name')) !== false )
+		if ( ($name = $this->put('name')) !== false && ($shared_with_me || $this->rest->user == $file->getUser()) )
 			$folder->setName($name);
 
-		if ( ($folder_id = $this->put('folder_id')) !== false) {
+		if ( ($folder_id = $this->put('folder_id')) !== false && $this->rest->user == $folder->getUser()) {
 			if ((int)$folder_id == $folder->getId())
 				$this->response(array('error' => true, 'message' => "You can't move a folder into himself", 'data' => $data), 400);
 
@@ -134,7 +143,7 @@ class Folder extends REST_Controller {
 			$folder->setUser($user);
 		}
 
-		if ( ($is_public = $this->put('is_public')) !== false ) {
+		if ( ($is_public = $this->put('is_public')) !== false && $this->rest->user == $folder->getUser()) {
 			$folder->setIsPublic( $is_public == "0" ? false : true );
 			if ($folder->getIsPublic() == true) {
 				$folder->setAccessKey(substr(md5(time()), 15));
@@ -185,7 +194,7 @@ class Folder extends REST_Controller {
         }
 
         // Files & folder shared with the user
-        $sharedFolders = $user->getSharedWithMe()->filter(function($e) {
+        $sharedFolders = $user->getSharedWithMe()->filter(function($e) use($user) {
         	if ( ($folder = $e->getFolder()) != null) {
         		$parentFolder = $folder->getParent();
 

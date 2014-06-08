@@ -489,7 +489,7 @@ class User implements \JsonSerializable
      * @return public object
      */
     public function jsonSerialize() {
-        $excludes = ["plan_historys", "shares", "shared_with_me"];
+        $excludes = ["plan_historys", "shares", "shared_with_me", "folders", "files"];
         $json = [];
 
         $this->folders = $this->folders->filter(function($_) {

@@ -361,17 +361,26 @@ class Folder implements \JsonSerializable
 
         // Apply share to folder
         foreach ($this->getFolders() as $folder) {
-            $share = new Share;
+            if (is_null($shareToApply)) {
+                if ( ($share = $file->searchShareByUser($sharedTo)) !== false) {
+                    $file->removeShare($share);
+                    $ci->doctrine->em->remove($share);
+                }
+            }
+            else {
+                $share = new Share;
 
-            $share->setIsWritable($shareToApply->getIsWritable());
-            $share->setUser($shareToApply->getUser());
-            $share->setOwner($shareToApply->getOwner());
-            $share->setFolder($folder);
-            $share->setDate(new \DateTime("now", new \DateTimeZone("Europe/Berlin")));
-            $shareToApply->getUser()->addSharedWithMe($share);
-            $ci->doctrine->em->persist($share);
-            $folder->setShare($share);
-            $folder->recursiveShare(null, $sharedTo);
+                $share->setIsWritable($shareToApply->getIsWritable());
+                $share->setUser($shareToApply->getUser());
+                $share->setOwner($shareToApply->getOwner());
+                $share->setFolder($folder);
+                $share->setDate(new \DateTime("now", new \DateTimeZone("Europe/Berlin")));
+                $shareToApply->getUser()->addSharedWithMe($share);
+                $ci->doctrine->em->persist($share);
+                $folder->addShare($share);
+                $ci->doctrine->em->merge($folder);
+            }
+            $folder->recursiveShare($shareToApply, $sharedTo);
         }
         $ci->doctrine->em->persist($this);
         return $this;
