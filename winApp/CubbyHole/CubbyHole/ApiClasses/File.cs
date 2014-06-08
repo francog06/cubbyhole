@@ -9,6 +9,7 @@ namespace CubbyHole.ApiClasses
     class File
     {
         public int id { get; set; }
+        public string name { get; set;}
         public ApiDateTime creation_date { get; set; }
         public ApiDateTime last_update_date { get; set; }
         public string absolute_path { get; set; }

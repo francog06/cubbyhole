@@ -66,10 +66,10 @@ namespace CubbyHole
 
         async private void Identification_Click(object sender, RoutedEventArgs e)
         {
+            userName.Text = "igor.morenosemedo@supinfo.com";
+            password.Password = "test";
             this.UserName = userName.Text;
-            this.Password = password.Password;
-
-            Debug.WriteLine("login !!!!!!!!!!");
+            this.Password =  password.Password;
 
             // Make request for validation
             bool response = await Request.doLogin(UserName, Password, Label);
@@ -79,12 +79,8 @@ namespace CubbyHole
                 this.notifyIcon1.Icon = new System.Drawing.Icon("logo.ico");
       
                 Debug.WriteLine("Minimize application");
-                //SHOW IN TASK BAR
-                 /*this.WindowState = WindowState.Minimized;
-                this.ShowInTaskbar = true; */
-                //Test notificy
                 notifyIcon1.BalloonTipTitle = "Cubbyhole";
-                notifyIcon1.BalloonTipText = "Synchronisation de vos dossiers";
+                notifyIcon1.BalloonTipText = "Synchronisation de vos dossiers...";
                 this.WindowState = WindowState.Minimized;
 
                 if (WindowState.Minimized == this.WindowState)
@@ -93,11 +89,13 @@ namespace CubbyHole
                     notifyIcon1.ShowBalloonTip(500);
                     this.Hide();
                     this.notifyIcon1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon1_MouseDoubleClick);
-                    //            notifyIcon1.DoubleClick += new System.EventHandler(this.notifyIcon1_DoubleClick);
+                    //await Request.Synchronize(Properties.Settings.Default.IdUser);
+                    await Request.DetailsUser(Properties.Settings.Default.IdUser);
+                    
                 }
                 else
                 {
-
+                    notifyIcon1.Visible = false;
                 }
             }
         }
