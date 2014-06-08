@@ -351,6 +351,18 @@ class File extends REST_Controller {
 				$this->response(array('error' => true, 'message' => 'Folder not found.', 'data' => $data), 404);
 			}
 			$file->setFolder($folder);
+
+			foreach ($folder->getShares()->toArray() as $share) {
+				$shareForFile = new Entities\Share;
+
+				$shareForFile->setIsWritable($share->getIsWritable());
+	            $shareForFile->setUser($share->getUser());
+	            $shareForFile->setOwner($share->getOwner());
+	            $shareForFile->setFile($file);
+	            $shareForFile->setDate(new \DateTime("now", new \DateTimeZone("Europe/Berlin")));
+	            $file->addShare($shareForFile);
+	            $this->doctrine->em->persist($share);
+			}
 		}
 
 		if ( ($user_id = $this->post('user_id')) !== false && ($this->rest->level == ADMIN_KEY_LEVEL || $this->rest->user == $folder->getUser())) {
@@ -471,6 +483,18 @@ class File extends REST_Controller {
 				}
 
 				$file->setFolder($folder);
+
+				foreach ($folder->getShares()->toArray() as $share) {
+					$shareForFile = new Entities\Share;
+
+					$shareForFile->setIsWritable($share->getIsWritable());
+		            $shareForFile->setUser($share->getUser());
+		            $shareForFile->setOwner($share->getOwner());
+		            $shareForFile->setFile($file);
+		            $shareForFile->setDate(new \DateTime("now", new \DateTimeZone("Europe/Berlin")));
+		            $file->addShare($shareForFile);
+		            $this->doctrine->em->persist($share);
+				}
 			}
 
 			$this->doctrine->em->persist($file);
