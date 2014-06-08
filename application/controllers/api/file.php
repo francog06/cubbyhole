@@ -276,7 +276,16 @@ class File extends REST_Controller {
 			$this->response(array('error' => true, 'message' => 'file not found.', 'data' => $data), 404);
 		}
 
-		if ($file->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL)
+		$user = $this->rest->user;
+		$shares = $file->getShares()->filter(function($e) use($user) {
+			return $e->getUser() == $user;
+		});
+
+		$shared_with_me = false;
+		if (count($shares) == 1)
+			$shared_with_me = true;
+
+		if ($file->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL && !$shared_with_me)
 			$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
 
 		$data->file = $file;
@@ -294,7 +303,16 @@ class File extends REST_Controller {
 			$this->response(array('error' => true, 'message' => 'file not found.', 'data' => $data), 404);
 		}
 
-		if ($file->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL)
+		$user = $this->rest->user;
+		$shares = $file->getShares()->filter(function($e) use($user) {
+			return $e->getUser() == $user;
+		});
+
+		$shared_with_me = false;
+		if (count($shares) == 1)
+			$shared_with_me = true;
+
+		if ($file->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL && !$shared_with_me)
 			$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
 
 		@unlink($file->getAbsolutePath());
@@ -315,10 +333,19 @@ class File extends REST_Controller {
 			$this->response(array('error' => true, 'message' => 'file not found.', 'data' => $data), 404);
 		}
 
-		if ($file->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL)
+		$shared_with_me = false;
+		$user = $this->rest->user;
+		$shares = $file->getShares()->filter(function($e) use($user) {
+			return $e->getUser() == $user;
+		});
+
+		if ( count($shares->toArray()) >= 1 )
+			$shared_with_me = true;
+
+		if ($file->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL && !$shared_with_me)
 			$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
 
-		if ( ($folder_id = $this->post('folder_id')) !== false ) {
+		if ( ($folder_id = $this->post('folder_id')) !== false && $this->rest->user == $file->getUser()) {
 			$folder = $this->doctrine->em->find('Entities\Folder', (int)$folder_id);
 			if (is_null($folder)) {
 				$this->response(array('error' => true, 'message' => 'Folder not found.', 'data' => $data), 404);
@@ -326,15 +353,7 @@ class File extends REST_Controller {
 			$file->setFolder($folder);
 		}
 
-		if ( ($share_id = $this->post('share_id')) !== false ) {
-			$share = $this->doctrine->em->find('Entities\Share', (int)$share_id);
-			if (is_null($share)) {
-				$this->response(array('error' => true, 'message' => 'Share not found.', 'data' => $data), 404);
-			}
-			$file->setShare($share);
-		}
-
-		if ( ($user_id = $this->post('user_id')) !== false && $this->rest->level == ADMIN_KEY_LEVEL) {
+		if ( ($user_id = $this->post('user_id')) !== false && ($this->rest->level == ADMIN_KEY_LEVEL || $this->rest->user == $folder->getUser())) {
 			$user = $this->doctrine->em->find('Entities\User', (int)$user_id);
 			if (is_null($user)) {
 				$this->response(array('error' => true, 'message' => 'user not found.', 'data' => $data), 404);
@@ -351,7 +370,7 @@ class File extends REST_Controller {
 		else
 			$user = $this->rest->user;
 
-		if ( ($is_public = $this->post('is_public')) !== false ) {
+		if ( ($is_public = $this->post('is_public')) !== false && $this->rest->user == $file->getUser() ) {
 			$file->setIsPublic( $is_public == "0" ? false : true );
 			if ($file->getIsPublic() == true) {
 				$file->setAccessKey(substr(md5(time()), 15));
@@ -360,12 +379,12 @@ class File extends REST_Controller {
 			}
 		}
 
-		if ( ($name = $this->post('name')) !== false ) {
+		if ( ($name = $this->post('name')) !== false && ( $shared_with_me || $this->rest->user == $file->getUser() ) ) {
 			$file->setName($name);
 		}
 
 		// Verify is the file is not too big for the plan
-		if (isset($_FILES['file'])) {
+		if ( isset($_FILES['file']) && ($shared_with_me || $this->rest->user == $file->getUser()) ) {
 			$fileSize = $_FILES['file']['size']; // Valeur octale
 			$fileName = $_FILES['file']['name'];
 

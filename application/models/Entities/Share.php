@@ -196,9 +196,9 @@ class Share implements \JsonSerializable
      * @param entity id, email, type
      * @return boolean
      */
-    public static function entityAlreadyShared($entity_id, $user_id, $type = "file") {
+    public static function entityAlreadyShared($entity, $user, $type = "file") {
         if (method_exists(get_class(), $type . "AlreadyShared"))
-            return self::{$type . "AlreadyShared"}($entity_id, $user_id);
+            return self::{$type . "AlreadyShared"}($entity, $user);
         else
             throw new Exception("Type not allowed.", 1);
             
