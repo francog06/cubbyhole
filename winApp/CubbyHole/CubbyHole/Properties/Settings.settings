@@ -9,9 +9,12 @@
       <Value Profile="(Default)">884f77815f692eaa8d00c7c60c22ef30</Value>
     </Setting>
     <Setting Name="Token" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">884f77815f692eaa8d00c7c60c22ef30</Value>
     </Setting>
     <Setting Name="ApplicationFolder" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="IdUser" Type="System.Int32" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
   </Settings>

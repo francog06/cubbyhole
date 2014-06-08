@@ -17,9 +17,13 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using Microsoft.Win32;
 using System.Windows.Forms;
+using System.Runtime.InteropServices;
+using System.Xml;
+
 
 namespace CubbyHole
 {
+
     public static class Request
     {
         async public static Task<string> GetResponseAsync(this WebRequest request)
@@ -60,7 +64,7 @@ namespace CubbyHole
                 return json;
             }
         }
-
+        
         async public static Task<bool> doLogin(string username, string password, TextBlock label) {
             WebRequest request;
             request = WebRequest.Create(Properties.Settings.Default.SiteUrl + "api/user/login");
@@ -81,8 +85,10 @@ namespace CubbyHole
             Task<string> Tjson = Request.GetResponseAsync(request);
             string json = await Tjson;
 
-            Debug.WriteLine(json);
+            Debug.WriteLine("Json Login: " + json);
             Response<LoginResponse> resp = JsonConvert.DeserializeObject<Response<LoginResponse>>(json);
+            Response<User> respUser = JsonConvert.DeserializeObject<Response<User>>(json);
+
             if (resp.error)
             {
                 label.Text = resp.message;
@@ -92,8 +98,9 @@ namespace CubbyHole
             else
             {
                 LoginResponse data = resp.data;
-
                 Properties.Settings.Default.Token = data.token;
+                Properties.Settings.Default.IdUser = data.user.id;
+                Debug.WriteLine("data.user.id Login: " + data.user.id);
                 Properties.Settings.Default.Save();
 
                 FolderBrowserDialog dialog = new FolderBrowserDialog();
@@ -101,18 +108,83 @@ namespace CubbyHole
 
                 Properties.Settings.Default.ApplicationFolder = dialog.SelectedPath;
                 Properties.Settings.Default.Save();
-
                 return true;
             }
         }
 
-        /*async public static Task Download(string) 
+        async public static Task<bool> DetailsUser(int id)
         {
+            WebRequest request;
+            request = WebRequest.Create(Properties.Settings.Default.SiteUrl + "api/user/details/" + id + "/root");
+            request.Method = "GET";
+            request.Headers.Add("X-API-KEY", Properties.Settings.Default.Token);
+
+            Task<string> Tjson = Request.GetResponseAsync(request);
+            string json = await Tjson;
+            Debug.WriteLine("JSON Details User/root: " + json);
+
+            Response<FolderResponse> resp = JsonConvert.DeserializeObject<Response<FolderResponse>>(json);
+
+            if (resp.error)
+            {
+                Debug.WriteLine("ERROR Details User");
+                return false;
+            }
+            else
+            {
+                FolderResponse data = new FolderResponse();
+                data = resp.data;
+                foreach( Folder  el in data.folders)
+                {
+                    Debug.WriteLine("USER ID: " + el.id);
+                }
+
+                /*   CubbyHole.ApiClasses.Folder fol = respFol.data;
+                     Debug.WriteLine("RespFol Name: " + fol.user);  */
+
+                Debug.WriteLine("Details User OK");
+                Debug.WriteLine(resp.message);
+                return true;
+            }
+        }
+
+        async public static Task<bool> Synchronize(int id) 
+        {
+            WebRequest request; //api/file/synchronize/{:ID}?hash=ab14d0415c485464a187d5a9c97cc27c
+            request = WebRequest.Create(Properties.Settings.Default.SiteUrl + "api/file/synchronize/" + id + "?hash=ab14d0415c485464a187d5a9c97cc27c");
+            request.Method = "GET";
+            request.Headers.Add("X-API-KEY", Properties.Settings.Default.Token);
+
+    
+      /*   using (WebResponse response = request.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        XmlTextReader reader = new XmlTextReader(stream);
+                        //debut
+
+                    }
+            }        */
 
 
-        } */
+            Task<string> Tjson = Request.GetResponseAsync(request);
+            string json = await Tjson;
+            Debug.WriteLine("JSON SYNCHRO: " + json);
 
+            Response<CubbyHole.ApiClasses.File> resp = JsonConvert.DeserializeObject<Response<CubbyHole.ApiClasses.File>>(json);
 
+            if (resp.error)
+            {
+                Debug.WriteLine("ERROR SYNCHRONIZE");
+                return false;
+            }
+            else
+            {
+
+                return true;
+            }
+
+        } 
 
     }
 }

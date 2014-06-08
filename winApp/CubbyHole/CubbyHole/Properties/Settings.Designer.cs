@@ -44,7 +44,7 @@ namespace CubbyHole.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("884f77815f692eaa8d00c7c60c22ef30")]
         public string Token {
             get {
                 return ((string)(this["Token"]));
@@ -63,6 +63,17 @@ namespace CubbyHole.Properties {
             }
             set {
                 this["ApplicationFolder"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public int IdUser {
+            get {
+                return ((int)(this["IdUser"]));
+            }
+            set {
+                this["IdUser"] = value;
             }
         }
     }
