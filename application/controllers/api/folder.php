@@ -194,7 +194,7 @@ class Folder extends REST_Controller {
         }
 
         // Files & folder shared with the user
-        $sharedFolders = $user->getSharedWithMe()->filter(function($e) {
+        $sharedFolders = $user->getSharedWithMe()->filter(function($e) use($user) {
         	if ( ($folder = $e->getFolder()) != null) {
         		$parentFolder = $folder->getParent();
 
