@@ -15,6 +15,7 @@
     <script type="text/javascript" src="<?= js('bootstrap-sortable'); ?>"></script>
     <script type="text/javascript" src="<?= js('jquery-download'); ?>"></script>
     <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+
     <!-- Custom styles for this template -->
     <link href="<?=css("style")?>" rel="stylesheet">
 

@@ -7,6 +7,8 @@
         getRoot();
         // Hover actions tableau
         $.bootstrapSortable();
+        // Fait plaisir à fils et delete les message resultat de l'api
+        setInterval(function(){$(".result, .resultShare").html("");}, 5000);
 
         /* ------------------
             BOUTONS HEADER
@@ -1212,10 +1214,10 @@ function getFolder(id){
                             $("#cubbyhole tbody").append('\
                                 <tr class="folder" data-id="'+result.data.folder.folders[loop_folder].id+'">\
                                     <td class="drag"><a href="javascript:getFolder('+result.data.folder.folders[loop_folder].id+')"><span class="sprite '+sprite+'"></span>'+result.data.folder.folders[loop_folder].name+'</a></td>\
-                                    <td class="drag">'+type+'</td>\
+                                    <td class="drag" data-value="a'+type+'">'+type+'</td>\
                                     <td class="drag">'+result.data.folder.folders[loop_folder].last_update_date.date+'</td>\
-                                    <td style="width:175px;"><div style="display:none">\
-                                        <button type="button" class="btn btn-xs btn-warning partager"><span class="glyphicon glyphicon-link"></span> Partager</button>\
+                                    <td style="width:255px;"><div style="display:none">\
+                                        <button type="button" class="btn btn-xs btn-warning partagerFolder"><span class="glyphicon glyphicon-link"></span> Partager</button>\
                                         <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..." data-fname="'+result.data.folder.folders[loop_folder].name+'"><span class="glyphicon glyphicon-pencil"></span> Editer</button> \
                                         <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span> Supprimer</button></div>\
                                     </td>\

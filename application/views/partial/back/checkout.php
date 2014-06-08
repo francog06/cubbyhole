@@ -77,7 +77,7 @@
                                 type: 'POST',
                                 data: {plan_id:plan_id, duration:duration, user_id:user_id},
                                 headers:{
-                                    "X-API-KEY":"5422e102a743fd70a22ee4ff7c2ebbe8"
+                                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
                                 },
                                 success: function(result) {
                                     $(".panel").fadeOut();

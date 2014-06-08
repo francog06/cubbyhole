@@ -517,4 +517,46 @@ class User implements \JsonSerializable
         $json['activePlanHistory'] = self::getActivePlanHistory();
         return $json;
     }
+
+    /**
+    * Get all users by period
+    * mktime(0, 0, 0, date("m"), date("d"),   date("Y"));
+    *
+    * @return Doctrine\Common\Collections\Collection
+    */
+    public static function getAllUsersByPeriod($from, $to)
+    {
+        if(is_null($from) || is_null($to))
+            return false;
+
+        $ci =& get_instance();
+        $query = $ci->doctrine->em->createQueryBuilder()
+                    ->select('u')
+                    ->add('from', 'Entities\User u')
+                    ->add("where","u.registration_date >= '".date("Y-m-d",$from)."' AND u.registration_date <= '".date("Y-m-d",$to)."'")
+                    ->getQuery();
+
+        $result = $query->getArrayResult();
+
+        return $result;
+    }
+
+     /**
+    * Get all ip of users
+    * mktime(0, 0, 0, date("m"), date("d"),   date("Y"));
+    *
+    * @return Doctrine\Common\Collections\Collection
+    */
+    public static function getAllIpUsers()
+    {
+        $ci =& get_instance();
+        $query = $ci->doctrine->em->createQueryBuilder()
+                    ->select('u.user_location_ip')
+                    ->add('from', 'Entities\User u')
+                    ->getQuery();
+
+        $result = $query->getArrayResult();
+
+        return $result;
+    }
 }
