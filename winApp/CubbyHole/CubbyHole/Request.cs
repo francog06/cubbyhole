@@ -121,7 +121,7 @@ namespace CubbyHole
 
             Task<string> Tjson = Request.GetResponseAsync(request);
             string json = await Tjson;
-            Debug.WriteLine("JSON Details User/root: " + json);
+            Debug.WriteLine("JSON DetailsUser/root: " + json);
 
             Response<FolderResponse> resp = JsonConvert.DeserializeObject<Response<FolderResponse>>(json);
 
@@ -134,10 +134,10 @@ namespace CubbyHole
             {
                 FolderResponse data = new FolderResponse();
                 data = resp.data;
-                foreach( Folder  el in data.folders)
+                /*foreach( Folder  el in data.folders)
                 {
                     Debug.WriteLine("USER ID: " + el.id);
-                }
+                }*/
 
                 /*   CubbyHole.ApiClasses.Folder fol = respFol.data;
                      Debug.WriteLine("RespFol Name: " + fol.user);  */
@@ -180,6 +180,7 @@ namespace CubbyHole
             }
             else
             {
+                Debug.WriteLine("OKAY  SYNCHRONIZE");
 
                 return true;
             }
