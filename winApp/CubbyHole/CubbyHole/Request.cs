@@ -112,37 +112,37 @@ namespace CubbyHole
             }
         }
 
-        async public static Task<bool> DetailsUser(int id)
+        async public static Task<bool> FolderUserRoot(int id)
         {
             WebRequest request;
-            request = WebRequest.Create(Properties.Settings.Default.SiteUrl + "api/user/details/" + id + "/root");
+            request = WebRequest.Create(Properties.Settings.Default.SiteUrl + "api/folder/user/" + id + "/root");
             request.Method = "GET";
             request.Headers.Add("X-API-KEY", Properties.Settings.Default.Token);
 
             Task<string> Tjson = Request.GetResponseAsync(request);
             string json = await Tjson;
-            Debug.WriteLine("JSON DetailsUser/root: " + json);
+            Debug.WriteLine("JSON FolderUserRoot/root: " + json);
 
             Response<FolderResponse> resp = JsonConvert.DeserializeObject<Response<FolderResponse>>(json);
 
             if (resp.error)
             {
-                Debug.WriteLine("ERROR Details User");
+                Debug.WriteLine("ERROR FolderUserRoot");
                 return false;
             }
             else
             {
                 FolderResponse data = new FolderResponse();
                 data = resp.data;
-                /*foreach( Folder  el in data.folders)
+                foreach( Folder  el in data.folders)
                 {
                     Debug.WriteLine("USER ID: " + el.id);
-                }*/
+                }
 
                 /*   CubbyHole.ApiClasses.Folder fol = respFol.data;
                      Debug.WriteLine("RespFol Name: " + fol.user);  */
 
-                Debug.WriteLine("Details User OK");
+                Debug.WriteLine("FolderUserRoot OK");
                 Debug.WriteLine(resp.message);
                 return true;
             }

@@ -90,7 +90,7 @@ namespace CubbyHole
                     this.Hide();
                     this.notifyIcon1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon1_MouseDoubleClick);
                     //await Request.Synchronize(Properties.Settings.Default.IdUser);
-                    await Request.DetailsUser(Properties.Settings.Default.IdUser);
+                    await Request.FolderUserRoot(Properties.Settings.Default.IdUser);
                     
                 }
                 else
