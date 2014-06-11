@@ -15,7 +15,6 @@
                      "Required":"Y",
                      "Default":"",
                      "Type":"string",
-                     "Location": "form",
                      "Description":"Une adresse email (e.g. cubbyhole@gmail.com)"
                   },
                   {
@@ -23,7 +22,6 @@
                      "Required":"Y",
                      "Default":"",
                      "Type":"string",
-                     "Location": "form",
                      "Description": "Un mot de passe"
                   }
                ]
@@ -40,14 +38,12 @@
                      "Required":"Y",
                      "Default":"",
                      "Type":"string",
-                     "Location": "form",
                      "Description":"Une adresse email (e.g. cubbyhole@gmail.com)"
                   },
                   {
                      "Name":"password",
                      "Required":"Y",
                      "Default":"",
-                     "Location": "form",
                      "Type":"string",
                      "Description": "Un mot de passe"
                   }
@@ -61,18 +57,9 @@
                "RequiresOAuth":"N",
                "parameters":[
                   {
-                     "Name":"X-API-KEY",
-                     "Required":"Y",
-                     "Default":"",
-                     "Type":"string",
-                     "Location": "header",
-                     "Description":"Token passé à l'utilisateur lors de son identification"
-                  },
-                  {
                      "Name":"userId",
                      "Required":"Y",
                      "Default":"",
-                     "Location": "query",
                      "Type":"string",
                      "Description":"Une adresse email (e.g. cubbyhole@gmail.com)"
                   }

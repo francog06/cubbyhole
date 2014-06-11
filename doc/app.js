@@ -798,6 +798,7 @@ function processRequest(req, res, next) {
 
     // Unsecured API Call helper
     function unsecuredCall() {
+        var headers = {};
         console.log('Unsecured Call');
 
         if (['POST','PUT','DELETE'].indexOf(httpMethod) === -1) {
@@ -837,7 +838,6 @@ function processRequest(req, res, next) {
             if (config.debug) {
                 console.log('Setting headers');
             }
-            var headers = {};
 
             for (var x = 0, len = reqQuery.headerNames.length; x < len; x++) {
                 if (config.debug) {
