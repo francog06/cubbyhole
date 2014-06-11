@@ -183,6 +183,12 @@ class User extends \Entities\User implements \Doctrine\ORM\Proxy\Proxy
         return parent::getSharedWithMe();
     }
 
+    public function hasFilenameInRoot($filename)
+    {
+        $this->__load();
+        return parent::hasFilenameInRoot($filename);
+    }
+
     public function getActivePlanHistory()
     {
         $this->__load();

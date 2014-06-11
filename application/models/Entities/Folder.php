@@ -331,6 +331,34 @@ class Folder implements \JsonSerializable
     }
 
     /**
+     * Does a file with the same name exists in the folder
+     * 
+     * @param String $filename
+     * @return Boolean
+     */
+    public function hasFilenameAlreadyTaken($filename) {
+        foreach ($this->files->toArray() as $file) {
+            if ($file->getName() == $filename)
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * Does a folder with the same name exists in the folder
+     * 
+     * @param String $foldername
+     * @return Boolean
+     */
+    public function hasFoldernameAlreadyTaken($foldername) {
+        foreach ($this->folders->toArray() as $folder) {
+            if ($folder->getName() == $foldername)
+                return true;
+        }
+        return false;
+    }
+
+    /**
      * Folder is shared with user
      * 
      * @param Entities\User $user

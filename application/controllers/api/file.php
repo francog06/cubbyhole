@@ -326,25 +326,35 @@ class File extends REST_Controller {
 				$this->response(array('error' => true, 'message' => 'Folder not found.', 'data' => $data), 404);
 			}
 
-			$shareFolder = $folder->isSharedWith($this->rest->user);
+			if ($folder != $file->getFolder()) {
+				$shareFolder = $folder->isSharedWith($this->rest->user);
 
-			if (!$shareFolder || !$shareFolder->getIsWritable() || $folder->getUser() != $file->getUser())
-				$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
+				if ($folder->getUser() != $this->rest->user && (!$shareFolder || !$shareFolder->getIsWritable()) )
+					$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
 
-			$file->setFolder($folder);
+				$i = 1;
+				$fileName = $file->getName();
+				$infos = pathinfo($fileName);
+				while ($folder->hasFilenameAlreadyTaken($fileName)) {
+					$fileName = $infos['filename'] . '(' . $i . ').' . $infos['extension'];
+					$i++;
+				}
+				$file->setName($fileName);
+				$file->setFolder($folder);
 
-			foreach ($folder->getShares()->toArray() as $shareApply) {
-				$shareForFile = new Entities\Share;
+				foreach ($folder->getShares()->toArray() as $shareApply) {
+					$shareForFile = new Entities\Share;
 
-				if ($share->getUser() != $shareApply->getUser() && $shareApply->getIsWritable() != $share->getIsWritable()) {
-					$shareForFile->setIsWritable($shareApply->getIsWritable());
-		            $shareForFile->setUser($shareApply->getUser());
-		            $shareForFile->setOwner($shareApply->getOwner());
-		            $shareForFile->setFile($file);
-		            $shareForFile->setDate(new \DateTime("now", new \DateTimeZone("Europe/Berlin")));
-		            $file->addShare($shareForFile);
-		            $this->doctrine->em->persist($shareApply);
-	        	}
+					if ( !$share || ($share->getUser() != $shareApply->getUser() && $shareApply->getIsWritable() != $share->getIsWritable()) ) {
+						$shareForFile->setIsWritable($shareApply->getIsWritable());
+			            $shareForFile->setUser($shareApply->getUser());
+			            $shareForFile->setOwner($shareApply->getOwner());
+			            $shareForFile->setFile($file);
+			            $shareForFile->setDate(new \DateTime("now", new \DateTimeZone("Europe/Berlin")));
+			            $file->addShare($shareForFile);
+			            $this->doctrine->em->persist($shareApply);
+		        	}
+				}
 			}
 		}
 
@@ -374,8 +384,15 @@ class File extends REST_Controller {
 			}
 		}
 
-		if ( ($name = $this->post('name')) !== false && ($share->getIsWritable() || $this->rest->user == $file->getUser()) ) {
-			$file->setName($name);
+		if ( ($name = $this->post('name')) !== false && ($this->rest->user == $file->getUser() || $share->getIsWritable()) ) {
+			$i = 1;
+			$fileName = $name;
+			$infos = pathinfo($name);
+			while ($file->getFolder()->hasFilenameAlreadyTaken($fileName)) {
+				$fileName = $infos['filename'] . '(' . $i . ').' . $infos['extension'];
+				$i++;
+			}
+			$file->setName($fileName);
 		}
 
 		// Verify is the file is not too big for the plan
@@ -469,6 +486,14 @@ class File extends REST_Controller {
 
 				if ($folder->getUser() != $this->rest->user && (!$shareFolder || !$shareFolder->getIsWritable()) )
 					$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
+
+				$i = 1;
+				$infos = pathinfo($fileName);
+				while ($folder->hasFilenameAlreadyTaken($fileName)) {
+					$fileName = $infos['filename'] . '(' . $i . ').' . $infos['extension'];
+					$i++;
+				}
+				$file->setName($fileName);
 
 				$file->setFolder($folder);
 				$file->setUser($folder->getUser());

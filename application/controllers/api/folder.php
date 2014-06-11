@@ -37,16 +37,8 @@ class Folder extends REST_Controller {
 			$this->response(array('error' => true, 'message' => 'folder not found.', 'data' => $data), 400);
 		}
 
-		$shared_with_me = false;
-		$user = $this->rest->user;
-		$shares = $folder->getShares()->filter(function($e) use($user) {
-			return $e->getUser() == $user;
-		});
-
-		if ( count($shares->toArray()) == 1 )
-			$shared_with_me = true;
-
-		if ($folder->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL && !$shared_with_me)
+		$share = $folder->isSharedWith($this->rest->user);
+		if ($folder->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL && !$share)
 			$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
 
 		$data->folder = $folder;
@@ -64,7 +56,9 @@ class Folder extends REST_Controller {
 			$this->response(array('error' => true, 'message' => 'folder not found.', 'data' => $data), 400);
 		}
 
-		if ($folder->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL)
+		$share = $folder->isSharedWith($this->rest->user);
+
+		if ($folder->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL && !$share->getIsWritable())
 			$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
 
 		$files = $folder->getFiles()->toArray();
@@ -96,7 +90,31 @@ class Folder extends REST_Controller {
 				$this->response(array('error' => true, 'message' => 'Parent folder not found.', 'data' => $data), 400);
 			}
 
+			$shareParentFolder = $parentFolder->isSharedWith($user);
+			if ($parentFolder->getUser() != $this->rest->user && (!$shareParentFolder || !$shareParentFolder->getIsWritable()) )
+				$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
+
+			$i = 1;
+			$original_name = $folder_name;
+			while ($parentFolder->hasFoldernameAlreadyTaken($folder_name)) {
+				$folder_name = $original_name . '(' . $i . ')';
+				$i++;
+			}
+			$folder->setName($folder_name);
+
 			$folder->setParent($parentFolder);
+			$folder->setUser($parentFolder->getUser());
+			foreach ($parentFolder->getShares()->toArray() as $shareToApply) {
+				$shareForFolder = new Entities\Share;
+
+				$shareForFolder->setIsWritable($shareToApply->getIsWritable());
+	            $shareForFolder->setUser($shareToApply->getUser());
+	            $shareForFolder->setOwner($shareToApply->getOwner());
+	            $shareForFolder->setFolder($folder);
+	            $shareForFolder->setDate(new \DateTime("now", new \DateTimeZone("Europe/Berlin")));
+	            $folder->addShare($shareForFolder);
+	            $this->doctrine->em->persist($shareToApply);
+			}
 		}
 
 		$this->doctrine->em->persist($folder);
@@ -117,8 +135,20 @@ class Folder extends REST_Controller {
 			$this->response(array('error' => true, 'message' => 'folder not found.', 'data' => $data), 400);
 		}
 
-		if ( ($name = $this->put('name')) !== false && ($shared_with_me || $this->rest->user == $file->getUser()) )
+		$share = $folder->isSharedWith($this->rest->user);
+
+		if ($folder->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL && (!$share || !$share->getIsWritable()))
+			$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
+
+		if ( ($name = $this->put('name')) !== false ) {
+			$i = 1;
+			$original_name = $name;
+			while ($parentFolder->hasFoldernameAlreadyTaken($name)) {
+				$name = $original_name . '(' . $i . ')';
+				$i++;
+			}
 			$folder->setName($name);
+		}
 
 		if ( ($folder_id = $this->put('folder_id')) !== false && $this->rest->user == $folder->getUser()) {
 			if ((int)$folder_id == $folder->getId())
@@ -131,7 +161,35 @@ class Folder extends REST_Controller {
 				if (is_null($parentFolder)) {
 					$this->response(array('error' => true, 'message' => 'Parent folder not found.', 'data' => $data), 400);
 				}
-				$folder->setParent($parentFolder);
+
+				if ($parentFolder != $folder->getFolder()) {
+					$shareFolder = $parentFolder->isSharedWith($this->rest->user);
+
+					if ($parentFolder->getUser() != $this->rest->user && (!$shareFolder || !$shareFolder->getIsWritable()) )
+						$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
+
+					$i = 1;
+					$original_name = $folder->getName();
+					$name = $folder->getName();
+					while ($parentFolder->hasFoldernameAlreadyTaken($name)) {
+						$name = $original_name . '(' . $i . ')';
+						$i++;
+					}
+					$folder->setName($name);
+					$folder->setParent($folder);
+					$folder->setUser($parentFolder->getUser());
+					foreach ($parentFolder->getShares()->toArray() as $shareToApply) {
+						$shareForFolder = new Entities\Share;
+
+						$shareForFolder->setIsWritable($shareToApply->getIsWritable());
+			            $shareForFolder->setUser($shareToApply->getUser());
+			            $shareForFolder->setOwner($shareToApply->getOwner());
+			            $shareForFolder->setFolder($folder);
+			            $shareForFolder->setDate(new \DateTime("now", new \DateTimeZone("Europe/Berlin")));
+			            $folder->addShare($shareForFolder);
+			            $this->doctrine->em->persist($shareToApply);
+					}
+				}
 			}
 		}
 
