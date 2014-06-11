@@ -59,7 +59,7 @@ class Share extends REST_Controller {
             $user = $this->doctrine->em->find('Entities\User', (int)$id);
 
         // Files & folder shared with the user
-        $sharedFolders = $user->getSharedWithMe()->filter(function($e) {
+        $sharedFolders = $user->getSharedWithMe()->filter(function($e) use($user) {
             if ( ($folder = $e->getFolder()) != null) {
                 $parentFolder = $folder->getParent();
 
