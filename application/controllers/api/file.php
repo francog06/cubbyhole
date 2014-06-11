@@ -206,7 +206,7 @@ class File extends REST_Controller {
 					$this->response(array('error' => true, 'message' => "User don't exist (APIKEY).", 'data' => $data), 400);
 
 				$share = $file->isSharedWith($user);
-				if (!$share)
+				if ($user != $file->getUser() && !$share)
 					$this->response(array('error' => true, 'message' => "Ceci n'est pas votre fichier et n'a pas été partagé avec vous.", 'data' => $data), 400);
 			}
 		}
@@ -467,10 +467,11 @@ class File extends REST_Controller {
 
 				$shareFolder = $folder->isSharedWith($this->rest->user);
 
-				if (!$shareFolder || !$shareFolder->getIsWritable())
+				if ($folder->getUser() != $this->rest->user && (!$shareFolder || !$shareFolder->getIsWritable()) )
 					$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
 
 				$file->setFolder($folder);
+				$file->setUser($folder->getUser());
 				foreach ($folder->getShares()->toArray() as $shareToApply) {
 					$shareForFile = new Entities\Share;
 
