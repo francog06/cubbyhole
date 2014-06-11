@@ -331,6 +331,20 @@ class Folder implements \JsonSerializable
     }
 
     /**
+     * Folder is shared with user
+     * 
+     * @param Entities\User $user
+     * @return Boolean
+     */
+    public function isSharedWith($user) {
+        foreach ($this->shares->toArray() as $share) {
+            if ($share->getUser() == $user)
+                return $share;
+        }
+        return false;
+    }
+
+    /**
      * Recursively apply share
      * 
      * @return Entities\Folder

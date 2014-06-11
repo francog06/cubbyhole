@@ -189,6 +189,12 @@ class Folder extends \Entities\Folder implements \Doctrine\ORM\Proxy\Proxy
         return parent::getShares();
     }
 
+    public function isSharedWith($user)
+    {
+        $this->__load();
+        return parent::isSharedWith($user);
+    }
+
     public function recursiveShare($shareToApply, $sharedTo = NULL)
     {
         $this->__load();

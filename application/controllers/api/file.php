@@ -276,16 +276,9 @@ class File extends REST_Controller {
 			$this->response(array('error' => true, 'message' => 'file not found.', 'data' => $data), 404);
 		}
 
-		$user = $this->rest->user;
-		$shares = $file->getShares()->filter(function($e) use($user) {
-			return $e->getUser() == $user;
-		});
+		$share = $file->isSharedWith($this->rest->user);
 
-		$shared_with_me = false;
-		if (count($shares) == 1)
-			$shared_with_me = true;
-
-		if ($file->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL && !$shared_with_me)
+		if ($file->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL && !$share)
 			$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
 
 		$data->file = $file;
@@ -303,16 +296,9 @@ class File extends REST_Controller {
 			$this->response(array('error' => true, 'message' => 'file not found.', 'data' => $data), 404);
 		}
 
-		$user = $this->rest->user;
-		$shares = $file->getShares()->filter(function($e) use($user) {
-			return $e->getUser() == $user;
-		});
+		$share = $share = $file->isSharedWith($this->rest->user);
 
-		$shared_with_me = false;
-		if (count($shares) == 1)
-			$shared_with_me = true;
-
-		if ($file->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL && !$shared_with_me)
+		if ($file->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL && (!$share || !$share->getIsWritable()))
 			$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
 
 		@unlink($file->getAbsolutePath());
@@ -333,39 +319,40 @@ class File extends REST_Controller {
 			$this->response(array('error' => true, 'message' => 'file not found.', 'data' => $data), 404);
 		}
 
-		$shared_with_me = false;
-		$user = $this->rest->user;
-		$shares = $file->getShares()->filter(function($e) use($user) {
-			return $e->getUser() == $user;
-		});
+		$share = $file->isSharedWith($this->rest->user);
 
-		if ( count($shares->toArray()) >= 1 )
-			$shared_with_me = true;
-
-		if ($file->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL && !$shared_with_me)
+		if ($file->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL && (!$share || !$share->getIsWritable()))
 			$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
 
-		if ( ($folder_id = $this->post('folder_id')) !== false && $this->rest->user == $file->getUser()) {
+		if ( ($folder_id = $this->post('folder_id')) !== false) {
 			$folder = $this->doctrine->em->find('Entities\Folder', (int)$folder_id);
 			if (is_null($folder)) {
 				$this->response(array('error' => true, 'message' => 'Folder not found.', 'data' => $data), 404);
 			}
+
+			$shareFolder = $folder->isSharedWith($this->rest->user);
+
+			if (!$shareFolder || !$shareFolder->getIsWritable() || $folder->getUser() != $file->getUser())
+				$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
+
 			$file->setFolder($folder);
 
-			foreach ($folder->getShares()->toArray() as $share) {
+			foreach ($folder->getShares()->toArray() as $shareApply) {
 				$shareForFile = new Entities\Share;
 
-				$shareForFile->setIsWritable($share->getIsWritable());
-	            $shareForFile->setUser($share->getUser());
-	            $shareForFile->setOwner($share->getOwner());
-	            $shareForFile->setFile($file);
-	            $shareForFile->setDate(new \DateTime("now", new \DateTimeZone("Europe/Berlin")));
-	            $file->addShare($shareForFile);
-	            $this->doctrine->em->persist($share);
+				if ($share->getUser() != $shareApply->getUser() && $shareApply->getIsWritable() != $share->getIsWritable()) {
+					$shareForFile->setIsWritable($shareApply->getIsWritable());
+		            $shareForFile->setUser($shareApply->getUser());
+		            $shareForFile->setOwner($shareApply->getOwner());
+		            $shareForFile->setFile($file);
+		            $shareForFile->setDate(new \DateTime("now", new \DateTimeZone("Europe/Berlin")));
+		            $file->addShare($shareForFile);
+		            $this->doctrine->em->persist($shareApply);
+	        	}
 			}
 		}
 
-		if ( ($user_id = $this->post('user_id')) !== false && ($this->rest->level == ADMIN_KEY_LEVEL || $this->rest->user == $folder->getUser())) {
+		if ( ($user_id = $this->post('user_id')) !== false && $this->rest->level == ADMIN_KEY_LEVEL ) {
 			$user = $this->doctrine->em->find('Entities\User', (int)$user_id);
 			if (is_null($user)) {
 				$this->response(array('error' => true, 'message' => 'user not found.', 'data' => $data), 404);
@@ -382,7 +369,7 @@ class File extends REST_Controller {
 		else
 			$user = $this->rest->user;
 
-		if ( ($is_public = $this->post('is_public')) !== false && $this->rest->user == $file->getUser() ) {
+		if ( ($is_public = $this->post('is_public')) !== false && ($this->rest->user == $file->getUser() || $this->rest->level == ADMIN_KEY_LEVEL) ) {
 			$file->setIsPublic( $is_public == "0" ? false : true );
 			if ($file->getIsPublic() == true) {
 				$file->setAccessKey(substr(md5(time()), 15));
@@ -391,12 +378,12 @@ class File extends REST_Controller {
 			}
 		}
 
-		if ( ($name = $this->post('name')) !== false && ( $shared_with_me || $this->rest->user == $file->getUser() ) ) {
+		if ( ($name = $this->post('name')) !== false && ($share->getIsWritable() || $this->rest->user == $file->getUser()) ) {
 			$file->setName($name);
 		}
 
 		// Verify is the file is not too big for the plan
-		if ( isset($_FILES['file']) && ($shared_with_me || $this->rest->user == $file->getUser()) ) {
+		if ( isset($_FILES['file']) && ($share->getIsWritable() || $this->rest->user == $file->getUser()) ) {
 			$fileSize = $_FILES['file']['size']; // Valeur octale
 			$fileName = $_FILES['file']['name'];
 
@@ -482,18 +469,22 @@ class File extends REST_Controller {
 					$this->response(array('error' => true, 'message' => 'folder not found.', 'data' => $data), 404);
 				}
 
-				$file->setFolder($folder);
+				$shareFolder = $folder->isSharedWith($this->rest->user);
 
-				foreach ($folder->getShares()->toArray() as $share) {
+				if (!$shareFolder || !$shareFolder->getIsWritable())
+					$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
+
+				$file->setFolder($folder);
+				foreach ($folder->getShares()->toArray() as $shareToApply) {
 					$shareForFile = new Entities\Share;
 
-					$shareForFile->setIsWritable($share->getIsWritable());
-		            $shareForFile->setUser($share->getUser());
-		            $shareForFile->setOwner($share->getOwner());
+					$shareForFile->setIsWritable($shareToApply->getIsWritable());
+		            $shareForFile->setUser($shareToApply->getUser());
+		            $shareForFile->setOwner($shareToApply->getOwner());
 		            $shareForFile->setFile($file);
 		            $shareForFile->setDate(new \DateTime("now", new \DateTimeZone("Europe/Berlin")));
 		            $file->addShare($shareForFile);
-		            $this->doctrine->em->persist($share);
+		            $this->doctrine->em->persist($shareToApply);
 				}
 			}
 
