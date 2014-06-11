@@ -22,7 +22,7 @@ class User extends REST_Controller {
 
 		$data = new StdClass();
 		if (!valid_email($user_email)) {
-			$this->response(array('error' => true, 'message' => 'Invalid email.', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'Adresse email invalide.', 'data' => $data), 400);
 		}
 
 		$query = $this->doctrine->em->createQueryBuilder()
@@ -35,10 +35,10 @@ class User extends REST_Controller {
 		try {
 			$user = $query->getSingleResult();
 		} catch (Doctrine\ORM\NoResultException $e) {
-			$this->response(array('error' => true, 'message' => 'No user exist for the email specified.', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'Aucun utilisateur trouvé.', 'data' => $data), 400);
 			return null;
 		} catch (Exception $e) {
-			$this->response(array('error' => true, 'message' => 'An error occured, please contact administrator: '. $e->getMessage(), 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'Une erreur est survenue, merci de contacter un administrateur: '. $e->getMessage(), 'data' => $data), 400);
 			return null;
 		}
 
@@ -53,7 +53,7 @@ class User extends REST_Controller {
 				'data' => $data
 			), 200);
 		} else {
-			$this->response(array('error' => true, 'message' => 'Invalid password', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'Identifiants invalide.', 'data' => $data), 400);
 		}
 	}
 
@@ -63,7 +63,7 @@ class User extends REST_Controller {
 
 		$data = new StdClass();
 		if (!valid_email($user_email)) {
-			$this->response(array('error' => true, 'message' => 'Invalid email.', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'Adresse email invalide', 'data' => $data), 400);
 		}
 
 		$query = $this->doctrine->em->createQueryBuilder()
@@ -75,7 +75,7 @@ class User extends REST_Controller {
 
 		$result = $query->getArrayResult();
 		if (!empty($result)) {
-			$this->response(array('error' => true, 'message' => 'A user with this email is already specified.', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'Cette adresse email est déjà utilisée.', 'data' => $data), 400);
 		} else {
 			$user = new Entities\User;
 
@@ -123,42 +123,42 @@ class User extends REST_Controller {
 
 			$data->user = $user;
 			$data->token = $key;
-			$this->response(array('error' => false, 'message' => 'Successfull registration.', 'data' => $data), 201);
+			$this->response(array('error' => false, 'message' => 'Vous êtes désormais inscrit.', 'data' => $data), 201);
 		}
 	}
 
 	public function details_get($id = null) {
 		$data = new StdClass();
 		if (is_null($id)) {
-			$this->response(array('error' => true, 'message' => 'id not defined.', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'Vous n\'avez défini aucun ID', 'data' => $data), 400);
 		}
 
 		$user = $this->doctrine->em->find('Entities\User', (int)$id);
 		if (is_null($user)) {
-			$this->response(array('error' => true, 'message' => 'user not found.', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'Utilisateur non trouvé.', 'data' => $data), 400);
 		}
 
 		if ($user != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL)
-			$this->response(array('error' => true, 'message' => "You can't view that user", 'data' => $data), 401);
+			$this->response(array('error' => true, 'message' => "Vous n'avez pas accès à cet utilisateur.", 'data' => $data), 401);
 
 		$data = new StdClass();
 		$data->user = $user;
-		$this->response(array('error' => false, 'message' => 'Successfully retrieved user.', 'data' => $data), 200);
+		$this->response(array('error' => false, 'message' => 'Récupération de l\'utilisateur réussi.', 'data' => $data), 200);
 	}
 
 	public function update_put($id = null) {
 		$data = new StdClass();
 		if (is_null($id)) {
-			$this->response(array('error' => true, 'message' => 'id not defined.', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'Vous n\'avez défini aucun ID', 'data' => $data), 400);
 		}
 
 		$user = $this->doctrine->em->find('Entities\User', (int)$id);
 		if (is_null($user)) {
-			$this->response(array('error' => true, 'message' => 'user not found.', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'Utilisateur non trouvé.', 'data' => $data), 400);
 		}
 
 		if ($user != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL)
-			$this->response(array('error' => true, 'message' => "You can't modify that user", 'data' => $data), 401);
+			$this->response(array('error' => true, 'message' => "Vous ne pouvez pas modifier cet utilisateur.", 'data' => $data), 401);
 
 		if ( ($email = $this->put('email')) !== false ) {
 			$user->setEmail($email);
@@ -182,27 +182,27 @@ class User extends REST_Controller {
 		$user->updateKey();
 
 		$data->user = $user;
-		$this->response(array('error' => false, 'message' => 'user updated successfully.', 'data' => $data), 200);
+		$this->response(array('error' => false, 'message' => "Mise à jour de l'utilisateur réussie.", 'data' => $data), 200);
 	}
 
 	public function delete_delete($id = null) {
 		$data = new StdClass();
 		if (is_null($id)) {
-			$this->response(array('error' => true, 'message' => 'id not defined.', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'Vous n\'avez défini aucun ID', 'data' => $data), 400);
 		}
 
 		$user = $this->doctrine->em->find('Entities\User', (int)$id);
 		if (is_null($user)) {
-			$this->response(array('error' => true, 'message' => 'user not found.', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'Utilisateur non trouvé.', 'data' => $data), 400);
 		}
 
 		if ($user != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL)
-			$this->response(array('error' => true, 'message' => "You can't modify that user", 'data' => $data), 401);
+			$this->response(array('error' => true, 'message' => "Vous ne pouvez pas modifier cet utilisateur.", 'data' => $data), 401);
 
 		$this->doctrine->em->remove($user);
 		$this->doctrine->em->flush();
 
-		$this->response(array('error' => false, 'message' => 'User has been removed.', 'data' => $data), 200);
+		$this->response(array('error' => false, 'message' => "L'utilisateur a été supprimé.", 'data' => $data), 200);
 	}
 
 	public function forget_post() {
@@ -210,7 +210,7 @@ class User extends REST_Controller {
 		$data = new StdClass();
 
 		if (!valid_email($user_email)) {
-			$this->response(array('error' => true, 'message' => 'Invalid email.', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => "Adresse email invalide.", 'data' => $data), 400);
 		}
 
 		$query = $this->doctrine->em->createQueryBuilder()
@@ -223,10 +223,10 @@ class User extends REST_Controller {
 		try {
 			$user = $query->getSingleResult();
 		} catch (Doctrine\ORM\NoResultException $e) {
-			$this->response(array('error' => true, 'message' => 'No user exist for the email specified.', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => "Aucune utilisateur n'a été trouvé.", 'data' => $data), 400);
 			return null;
 		} catch (Exception $e) {
-			$this->response(array('error' => true, 'message' => 'An error occured, please contact an administrator: '. $e->getMessage(), 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'Une erreur est survenue, merci de contact un administrateur: '. $e->getMessage(), 'data' => $data), 400);
 			return null;
 		}
 
@@ -242,6 +242,6 @@ class User extends REST_Controller {
 		$this->email->message($this->load->view('layouts/email', array('user' => $user, 'view' => 'email/forget_password'), TRUE));
 		@$this->email->send();
 
-		$this->response(array('error' => false, 'message' => 'Mail sent.', 'data' => $data), 200);
+		$this->response(array('error' => false, 'message' => 'Mail envoyé.', 'data' => $data), 200);
 	}
 }

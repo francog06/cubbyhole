@@ -329,10 +329,25 @@ class User implements \JsonSerializable
      */
     public function hasFilenameInRoot($filename) {
         $files = $this->files->filter(function($e) use($filename) {
-            return $file->getFolder() == null && $file->getName() == $filename;
+            return $e->getFolder() == null && $e->getName() == $filename;
         });
 
         return (count($files) > 0);
+    }
+
+    /**
+     * 
+     * Has folder named `$foldername` in his root
+     * 
+     * @param String $foldername
+     * @return Boolean
+     */
+    public function hasFoldernameInRoot($foldername) {
+        $folders = $this->folders->filter(function($e) use($foldername) {
+            return $e->getParent() == null && $e->getName() == $foldername;
+        });
+
+        return (count($folders) > 0);
     }
 
     /**

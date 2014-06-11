@@ -28,7 +28,7 @@ class Plan_history extends REST_Controller {
 	public function details_get($id = null) {
 		$data = new StdClass();
 		if (is_null($id)) {
-			$this->response(array('error' => true, 'message' => 'Id not defined.', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'Vous n'avez défini aucun ID', 'data' => $data), 400);
 		}
 
 		$PlanHistory = $this->doctrine->em->find('Entities\PlanHistory', (int)$id);
@@ -54,7 +54,7 @@ class Plan_history extends REST_Controller {
 	public function user_get($id = null) {
 		$data = new StdClass();
 		if (is_null($id)) {
-			$this->response(array('error' => true, 'message' => 'Id not defined.', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'Vous n'avez défini aucun ID', 'data' => $data), 400);
 		}
 
 		$User = $this->doctrine->em->find('Entities\User', (int)$id);
@@ -151,7 +151,7 @@ class Plan_history extends REST_Controller {
 	public function update_put($id = null) {
 		$data = new StdClass();
 		if (is_null($id)) {
-			$this->response(array('error' => true, 'message' => 'Id not defined.', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'Vous n'avez défini aucun ID', 'data' => $data), 400);
 		}
 
 		$PlanHistory = $this->doctrine->em->find('Entities\PlanHistory', (int)$id);
@@ -193,7 +193,7 @@ class Plan_history extends REST_Controller {
 	public function delete_delete($id = null) {
 		$data = new StdClass();
 		if (is_null($id)) {
-			$this->response(array('error' => true, 'message' => 'id not defined.', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'Vous n'avez défini aucun ID', 'data' => $data), 400);
 		}
 
 		$PlanHistory = $this->doctrine->em->find('Entities\PlanHistory', (int)$id);
@@ -224,7 +224,7 @@ class Plan_history extends REST_Controller {
 			$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
 
 		if (is_null($id)) {
-			$this->response(array('error' => true, 'message' => 'Id not defined.', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'Vous n'avez défini aucun ID', 'data' => $data), 400);
 		}
 
 		$Plan = $this->doctrine->em->find('Entities\Plan', (int)$id);

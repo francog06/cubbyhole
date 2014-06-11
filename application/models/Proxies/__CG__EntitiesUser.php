@@ -189,6 +189,12 @@ class User extends \Entities\User implements \Doctrine\ORM\Proxy\Proxy
         return parent::hasFilenameInRoot($filename);
     }
 
+    public function hasFoldernameInRoot($foldername)
+    {
+        $this->__load();
+        return parent::hasFoldernameInRoot($foldername);
+    }
+
     public function getActivePlanHistory()
     {
         $this->__load();
