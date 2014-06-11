@@ -53,7 +53,7 @@
                "MethodName":"Détail d'un utilisateur",
                "Synopsis":"Récupère les détails d'un utilisateur",
                "HTTPMethod":"GET",
-               "URI":"/user/register/:userId",
+               "URI":"/user/details/:userId",
                "RequiresOAuth":"N",
                "parameters":[
                   {
@@ -61,7 +61,23 @@
                      "Required":"Y",
                      "Default":"",
                      "Type":"string",
-                     "Description":"Une adresse email (e.g. cubbyhole@gmail.com)"
+                     "Description":"ID d'un utilisateur (e.g. 42)"
+                  }
+               ]
+            },
+            {
+               "MethodName":"Modification d'un utilisateur",
+               "Synopsis":"",
+               "HTTPMethod":"PUT",
+               "URI":"/user/update/:userId",
+               "RequiresOAuth":"N",
+               "parameters":[
+                  {
+                     "Name":"userId",
+                     "Required":"Y",
+                     "Default":"",
+                     "Type":"string",
+                     "Description":"ID d'un utilisateur (e.g. 42)"
                   }
                ]
             }
