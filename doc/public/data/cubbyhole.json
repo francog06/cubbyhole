@@ -1,0 +1,84 @@
+{
+   "endpoints":[
+      {
+         "name":"Utilisateurs",
+         "methods":[
+            {
+               "MethodName":"Identification d'un utilisateur",
+               "Synopsis":"",
+               "HTTPMethod":"POST",
+               "URI":"/user/login",
+               "RequiresOAuth":"N",
+               "parameters":[
+                  {
+                     "Name":"email",
+                     "Required":"Y",
+                     "Default":"",
+                     "Type":"string",
+                     "Location": "form",
+                     "Description":"Une adresse email (e.g. cubbyhole@gmail.com)"
+                  },
+                  {
+                     "Name":"password",
+                     "Required":"Y",
+                     "Default":"",
+                     "Type":"string",
+                     "Location": "form",
+                     "Description": "Un mot de passe"
+                  }
+               ]
+            },
+            {
+               "MethodName":"Inscription d'un utilisateur",
+               "Synopsis":"",
+               "HTTPMethod":"POST",
+               "URI":"/user/register",
+               "RequiresOAuth":"N",
+               "parameters":[
+                  {
+                     "Name":"email",
+                     "Required":"Y",
+                     "Default":"",
+                     "Type":"string",
+                     "Location": "form",
+                     "Description":"Une adresse email (e.g. cubbyhole@gmail.com)"
+                  },
+                  {
+                     "Name":"password",
+                     "Required":"Y",
+                     "Default":"",
+                     "Location": "form",
+                     "Type":"string",
+                     "Description": "Un mot de passe"
+                  }
+               ]
+            },
+            {
+               "MethodName":"Détail d'un utilisateur",
+               "Synopsis":"Récupère les détails d'un utilisateur",
+               "HTTPMethod":"GET",
+               "URI":"/user/register/:userId",
+               "RequiresOAuth":"N",
+               "parameters":[
+                  {
+                     "Name":"X-API-KEY",
+                     "Required":"Y",
+                     "Default":"",
+                     "Type":"string",
+                     "Location": "header",
+                     "Description":"Token passé à l'utilisateur lors de son identification"
+                  },
+                  {
+                     "Name":"userId",
+                     "Required":"Y",
+                     "Default":"",
+                     "Location": "query",
+                     "Type":"string",
+                     "Description":"Une adresse email (e.g. cubbyhole@gmail.com)"
+                  }
+               ]
+            }
+         ]
+      }
+   ]
+}
