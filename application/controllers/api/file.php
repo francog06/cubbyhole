@@ -145,11 +145,9 @@ class File extends REST_Controller {
 			$this->response(array('error' => true, 'message' => 'file not found', 'data' => $data), 404);
 		}
 
-		$user = $this->rest->user;
-		$shares = $file->getShares()->filter(function($e) use($user) {
-			return $e->getUser() == $user;
-		});
-		if ($file->getUser() != $user && count($shares->toArray()) == 0)
+		$share = $file->isSharedWith($this->rest->user);
+
+		if ($file->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL && !$share)
 			$this->response(array('error' => true, 'message' => "Ceci n'est pas votre fichier et n'a pas été partagé avec vous.", 'data' => $data), 400);
 
 		if ( file_exists($file->getAbsolutePath()) && is_file($file->getAbsolutePath()) ) {
@@ -207,10 +205,8 @@ class File extends REST_Controller {
 				if (is_null($user))
 					$this->response(array('error' => true, 'message' => "User don't exist (APIKEY).", 'data' => $data), 400);
 
-				$shares = $file->getShares()->filter(function($e) use($user) {
-					return $e->getUser() == $user;
-				});
-				if ($file->getUser() != $user && count($shares->toArray()) == 0)
+				$share = $file->isSharedWith($user);
+				if (!$share)
 					$this->response(array('error' => true, 'message' => "Ceci n'est pas votre fichier et n'a pas été partagé avec vous.", 'data' => $data), 400);
 			}
 		}
