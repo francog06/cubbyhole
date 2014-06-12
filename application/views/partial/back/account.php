@@ -28,9 +28,22 @@
   <h4>Autres informations</h4>
     <br>
     <ul style="text-align:left;">
-      <li>Vous êtes isncrit de puis le <b><?= $user->getRegistrationDate()->format("d/m/Y"); ?></b></li>
+      <li>Vous êtes inscrit de puis le <b><?= $user->getRegistrationDate()->format("d/m/Y"); ?></b></li>
       <li>Plan actuel : <?= $user_plan->getPlan()->getName(); ?> (<a href="/user/upgrade/">upgrader mon compte</a>)</li>
       <li>Expire le : <b><?= $user_plan->getExpirationPlanDate()->format("d/m/Y");; ?></b> (<i><?php $date = new DateTime("now"); echo $date->diff($user_plan->getExpirationPlanDate())->format("%a"); ?> jours restants</i>)</li>
+    </ul>
+  </div>
+  <div class="well" style="width:40%;float:left;">
+  <h4>Compte développeur</h4>
+    <br>
+    <ul style="text-align:left;">
+      <li>Voici votre api key:</b></li>
+      <div class="form-group">
+        <label for="inputEmail3" class="col-sm-4 control-label" style="text-align:left;"></label>
+        <div class="col-sm-11">
+          <input disabled type="text" class="form-control" value="<?= $this->session->userdata('user_token'); ?>">
+        </div>
+      </div>
     </ul>
   </div>
 </div>
@@ -55,7 +68,7 @@
           type: 'PUT',
           data:{email:email,password:password},
           headers:{
-              "X-API-KEY":"5422e102a743fd70a22ee4ff7c2ebbe8"
+              "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
           },
           success: function(result) {
               if(result.error == false){

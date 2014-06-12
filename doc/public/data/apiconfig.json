@@ -7,6 +7,8 @@
         "headers" : {
             "Accept": "application/json"    
         },
+        "booleanTrueVal": "1",
+        "booleanFalseVal": "0",
         "auth": "X-API-KEY",
         "keyParam": "X-API-KEY"
     }

@@ -357,16 +357,19 @@ class File extends REST_Controller {
 					$file->setFolder($folder);
 
 					foreach ($folder->getShares()->toArray() as $shareApply) {
-						$shareForFile = new Entities\Share;
+						if ( $this->rest->user == $file->getUser() || $share && $share->getUser() != $shareApply->getUser() ) {
+							if ( !$file->searchShareByUser($shareApply->getUser()) ) {
+								$shareForFile = new Entities\Share;
 
-						if ( !$share || ($share->getUser() != $shareApply->getUser() && $shareApply->getIsWritable() != $share->getIsWritable()) ) {
-							$shareForFile->setIsWritable($shareApply->getIsWritable());
-				            $shareForFile->setUser($shareApply->getUser());
-				            $shareForFile->setOwner($shareApply->getOwner());
-				            $shareForFile->setFile($file);
-				            $shareForFile->setDate(new \DateTime("now", new \DateTimeZone("Europe/Berlin")));
-				            $file->addShare($shareForFile);
-				            $this->doctrine->em->persist($shareApply);
+								$shareForFile->setIsWritable($shareApply->getIsWritable());
+					            $shareForFile->setUser($shareApply->getUser());
+					            $shareForFile->setOwner($shareApply->getOwner());
+					            $shareForFile->setFile($file);
+					            $shareForFile->setDate(new \DateTime("now", new \DateTimeZone("Europe/Berlin")));
+
+					            $file->addShare($shareForFile);
+					            $this->doctrine->em->persist($shareForFile);
+				        	}
 			        	}
 					}
 				}
@@ -419,7 +422,7 @@ class File extends REST_Controller {
 		}
 
 		// Verify is the file is not too big for the plan
-		if ( isset($_FILES['file']) && ($share->getIsWritable() || $this->rest->user == $file->getUser()) ) {
+		if ( isset($_FILES['file']) && ($this->rest->user == $file->getUser() || ($share && $share->getIsWritable())) ) {
 			$fileSize = $_FILES['file']['size']; // Valeur octale
 			$fileName = $_FILES['file']['name'];
 
@@ -499,7 +502,7 @@ class File extends REST_Controller {
 			$file->setLastUpdateDate(new DateTime('now', new DateTimeZone('Europe/Berlin')));
 			$file->setIsPublic(false);
 
-			if ( ($folder_id = $this->input->post('folder_id')) !== false ) {
+			if ( ($folder_id = $this->input->post('folder_id')) !== false && !empty($folder_id)) {
 				$folder = $this->doctrine->em->find('Entities\Folder', (int)$folder_id);
 				if (is_null($folder)) {
 					$this->response(array('error' => true, 'message' => 'Dossier non trouvé.', 'data' => $data), 404);
@@ -529,7 +532,7 @@ class File extends REST_Controller {
 		            $shareForFile->setFile($file);
 		            $shareForFile->setDate(new \DateTime("now", new \DateTimeZone("Europe/Berlin")));
 		            $file->addShare($shareForFile);
-		            $this->doctrine->em->persist($shareToApply);
+		            $this->doctrine->em->persist($shareForFile);
 				}
 			} else {
 				$i = 1;

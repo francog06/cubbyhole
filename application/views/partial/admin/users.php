@@ -47,7 +47,7 @@
                 url: '/api/user/delete/'+userId,
                 type: 'DELETE',
                 headers:{
-                    "X-API-KEY":"5422e102a743fd70a22ee4ff7c2ebbe8"
+                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
                 },
                 success: function(result) {
                     if(result.error == false){
@@ -88,7 +88,7 @@
                 url: '/api/user/details/'+userId,
                 type: 'GET',
                 headers:{
-                    "X-API-KEY":"5422e102a743fd70a22ee4ff7c2ebbe8"
+                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
                 },
                 success: function(result) {
                     if(result.data.user.id > 0){
@@ -169,7 +169,7 @@
                 url: '/api/user/update/'+$("#user_id").val(),
                 type: 'PUT',
                 headers:{
-                    "X-API-KEY":"5422e102a743fd70a22ee4ff7c2ebbe8",
+                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>",
                     "Content-Type":"application/x-www-form-urlencoded"
                 },
                 data:{id:$("#user_id").val(),email:$("#user_email").val(), is_admin:$("input[name=user_is_admin]:checked").val()},
@@ -199,7 +199,7 @@
                 url: '/api/user/register',
                 type: 'POST',
                 headers:{
-                    "X-API-KEY":"5422e102a743fd70a22ee4ff7c2ebbe8"
+                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
                 },
                 data:{id:$("#user_id").val(),password:$("#user_password").val(),email:$("#user_email").val(), is_admin:$("input[name=user_is_admin]:checked").val()},
                 success: function(result) {

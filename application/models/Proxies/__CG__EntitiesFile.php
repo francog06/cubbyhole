@@ -201,6 +201,12 @@ class File extends \Entities\File implements \Doctrine\ORM\Proxy\Proxy
         return parent::getShares();
     }
 
+    public function isSharedWith($user)
+    {
+        $this->__load();
+        return parent::isSharedWith($user);
+    }
+
     public function jsonSerialize()
     {
         $this->__load();

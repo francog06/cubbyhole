@@ -2,16 +2,7 @@
 
 require_once APPPATH . '/libraries/REST_Controller.php';
 
-/**
- * @class Share
- * @brief Toutes les méthodes possibles concernant les Share.
- */
 class Share extends REST_Controller {
-
-    /**
-     * @fn __construct()
-     * @brief Méthode de construction de Share
-     */
     function __construct()
     {
         parent::__construct();
@@ -20,13 +11,6 @@ class Share extends REST_Controller {
         $this->load->helper('email');
     }
 
-    /**
-     * @fn index_get()
-     * @brief Méthode pour récuperer tout les share.\n
-     * @URL{cubbyhole.name/api/share}\n
-     * @HTTPMethod{GET}
-     * @return $data
-     */
     public function index_get()
     {
         $data = new StdClass();
@@ -39,13 +23,6 @@ class Share extends REST_Controller {
         $this->response(array('error' => false, 'data' => $data), 200);
     }
 
-    /**
-     * @fn user_shares_get()
-     * @brief Méthode pour récuperer tout les share d'un utilisateur.\n
-     * @URL{api/user/details/:id/shares}\n
-     * @HTTPMethod{GET}
-     * @return $data
-     */
     public function user_shares_get($id = null)
     {
         $data = new StdClass();
@@ -114,14 +91,6 @@ class Share extends REST_Controller {
         $this->response(array('error' => false, 'message' => 'Récupérations des shares.', 'data' => $data), 200);
     }
 
-    /**
-     * @fn details_get()
-     * @brief Méthode pour récuperer les infos d'un share donné.\n
-     * @URL{cubbyhole.name/api/share/details:id}\n
-     * @HTTPMethod{GET}
-     * @param $id @REQUIRED
-     * @return $data
-     */
     public function details_get($id = null) {
         $data = new StdClass();
         if (is_null($id)) {
@@ -137,13 +106,6 @@ class Share extends REST_Controller {
         $this->response(array('error' => false, 'message' => 'Récupération du partage réussi.', 'data' => $data), 200);
     }
 
-    /**
-     * @fn create_post()
-     * @brief Méthode pour creer un share.\n
-     * @URL{cubbyhole.name/api/share/create}\n
-     * @HTTPMethod{POST}
-     * @return $data
-     */
     public function create_post() {
         $type = null;
         $data = new StdClass();
@@ -228,14 +190,6 @@ class Share extends REST_Controller {
         $this->response(array('error' => false, 'message' => 'Partage créé avec succès', 'data' => $data), 200);
     }
 
-    /**
-     * @fn update_put()
-     * @brief Méthode pour mettre a jour un share donné.\n
-     * @URL{cubbyhole.name/api/share/update:id}\n
-     * @HTTPMethod{PUT}
-     * @param $id @REQUIRED
-     * @return $data
-     */
     public function update_put($id = null) {
         $data = new StdClass();
         if (is_null($id)) {
@@ -247,7 +201,13 @@ class Share extends REST_Controller {
             $this->response(array('error' => true, 'message' => 'Partage non trouvé.', 'data' => $data), 400);
         }
 
+        if ($share->getOwner() != $this->rest->user)
+            $this->response(array('error' => true, 'message' => "Vous n'êtes pas autorisé à effectuer cet action.", 'data' => $data), 401);
+
         $share->setIsWritable( ($this->put('write') == "1" ? true : false) );
+
+        if ($share->getFolder())
+            $share->getFolder()->recursiveShare($share, $share->getUser());
 
         $this->doctrine->em->merge($share);
         $this->doctrine->em->flush();
@@ -256,14 +216,6 @@ class Share extends REST_Controller {
         $this->response(array('error' => false, 'message' => 'Mise à jour du partage réussie.', 'data' => $data), 200);
     }
 
-    /**
-     * @fn delete_delete()
-     * @brief Méthode pour supprimer un share donné.\n
-     * @URL{cubbyhole.name/api/share/delete:id}\n
-     * @HTTPMethod{DELETE}
-     * @param $id @REQUIRED
-     * @return $data
-     */
     public function delete_delete($id = null) {
         $data = new StdClass();
         if (is_null($id)) {
@@ -275,13 +227,16 @@ class Share extends REST_Controller {
             $this->response(array('error' => true, 'message' => 'Partage non trouvé.', 'data' => $data), 400);
         }
 
+        if ($share->getOwner() != $this->rest->user && $share->getUser() != $this->rest->user)
+            $this->response(array('error' => true, 'message' => "Vous n'êtes pas autorisé à effectuer cet action.", 'data' => $data), 401);
+
         if ($share->getFolder() != null) {
             $share->getFolder()->removeShare($share);
             $share->getFolder()->recursiveShare(null, $share->getUser());
             $this->doctrine->em->merge($share->getFolder());
         }
 
-        $this->doctrine->em->remove($share, $share->getUser());
+        $this->doctrine->em->remove($share);
         $this->doctrine->em->flush();
 
         $this->response(array('error' => false, 'message' => 'Partage supprimé.', 'data' => $data), 200);

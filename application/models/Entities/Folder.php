@@ -359,6 +359,23 @@ class Folder implements \JsonSerializable
     }
 
     /**
+     * Transform files & folders
+     * 
+     * @param Entities\User $user
+     * @return Folder
+     */
+    public function showOnlyShared(\Entities\User $user) {
+        $this->files = $this->files->filter(function($e) use ($user) {
+            return $e->isSharedWith($user);
+        });
+
+        $this->folders = $this->folders->filter(function($e) use ($user) {
+            return $e->isSharedWith($user);
+        });
+        return $this;
+    }
+
+    /**
      * Folder is shared with user
      * 
      * @param Entities\User $user
@@ -366,6 +383,19 @@ class Folder implements \JsonSerializable
      */
     public function isSharedWith($user) {
         foreach ($this->shares->toArray() as $share) {
+            if ($share->getUser() == $user)
+                return $share;
+        }
+        return false;
+    }
+
+    /**
+     * Get share shared to $user
+     * 
+     * @return Entities\Share
+     */
+    public function searchShareByUser($user) {
+        foreach ($this->shares as $share) {
             if ($share->getUser() == $user)
                 return $share;
         }
@@ -389,38 +419,53 @@ class Folder implements \JsonSerializable
                 }
             }
             else {
-                $share = new Share;
+                if ( ($share = $file->isSharedWith($sharedTo)) )  {
+                    $share->setIsWritable($shareToApply->getIsWritable());
+                    $ci->doctrine->em->merge($share);
+                }
+                else {
+                    $share = new Share;
 
-                $share->setIsWritable($shareToApply->getIsWritable());
-                $share->setUser($shareToApply->getUser());
-                $share->setOwner($shareToApply->getOwner());
-                $share->setDate(new \DateTime("now", new \DateTimeZone("Europe/Berlin")));
-                $share->setFile($file);
-                $shareToApply->getUser()->addSharedWithMe($share);
-                $ci->doctrine->em->persist($share);
+                    $share->setIsWritable($shareToApply->getIsWritable());
+                    $share->setUser($shareToApply->getUser());
+                    $share->setOwner($shareToApply->getOwner());
+                    $share->setDate(new \DateTime("now", new \DateTimeZone("Europe/Berlin")));
+                    $share->setFile($file);
+                    
+                    $ci->doctrine->em->persist($share);
+                    $file->addShare($share);
+                    $ci->doctrine->em->merge($file);
+                }
             }
         }
 
         // Apply share to folder
         foreach ($this->getFolders() as $folder) {
             if (is_null($shareToApply)) {
-                if ( ($share = $file->searchShareByUser($sharedTo)) !== false) {
-                    $file->removeShare($share);
+                if ( ($share = $folder->searchShareByUser($sharedTo)) !== false) {
+                    $folder->removeShare($share);
                     $ci->doctrine->em->remove($share);
                 }
             }
             else {
-                $share = new Share;
+                if ( ($share = $folder->isSharedWith($sharedTo)) )  {
+                    $share->setIsWritable($shareToApply->getIsWritable());
+                    $ci->doctrine->em->merge($share);
+                }
+                else {
+                    $share = new Share;
 
-                $share->setIsWritable($shareToApply->getIsWritable());
-                $share->setUser($shareToApply->getUser());
-                $share->setOwner($shareToApply->getOwner());
-                $share->setFolder($folder);
-                $share->setDate(new \DateTime("now", new \DateTimeZone("Europe/Berlin")));
-                $shareToApply->getUser()->addSharedWithMe($share);
-                $ci->doctrine->em->persist($share);
-                $folder->addShare($share);
-                $ci->doctrine->em->merge($folder);
+                    $share->setIsWritable($shareToApply->getIsWritable());
+                    $share->setUser($shareToApply->getUser());
+                    $share->setOwner($shareToApply->getOwner());
+                    $share->setFolder($folder);
+                    $share->setDate(new \DateTime("now", new \DateTimeZone("Europe/Berlin")));
+                    $shareToApply->getUser()->addSharedWithMe($share);
+
+                    $ci->doctrine->em->persist($share);
+                    $folder->addShare($share);
+                    $ci->doctrine->em->merge($folder);
+                }
             }
             $folder->recursiveShare($shareToApply, $sharedTo);
         }

@@ -42,6 +42,8 @@ class Folder extends REST_Controller {
 			$this->response(array('error' => true, 'message' => "Vous n'êtes pas autorisé à faire cette action.", 'data' => $data), 401);
 
 		$data->folder = $folder;
+		if ($share)
+			$data->folder = $folder->showOnlyShared($this->rest->user);
 		$this->response(array('error' => false, 'message' => 'Récupération du dossier réussie.', 'data' => $data), 200);
 	}
 
@@ -168,12 +170,21 @@ class Folder extends REST_Controller {
 			$folder->setName($name);
 		}
 
-		if ( ($folder_id = $this->put('folder_id')) !== false && $this->rest->user == $folder->getUser()) {
+		if ( ($folder_id = $this->put('folder_id')) !== false) {
 			if ((int)$folder_id == $folder->getId())
 				$this->response(array('error' => true, 'message' => "Vous ne pouvez pas déplacer un dossier dans lui même.", 'data' => $data), 400);
 
-			if ( $folder_id == "null")
+			if ( $folder_id == "null") {
+				$i = 1;
+				$folder_name = $folder->getName();
+				$original_name = $folder_name;
+				while ($folder->getUser()->hasFoldernameInRoot($folder_name)) {
+					$folder_name = $original_name . '(' . $i . ')';
+					$i++;
+				}
+				$folder->setName($folder_name);
 				$folder->setParent(null);
+			}
 			else {
 				$parentFolder = $this->doctrine->em->find('Entities\Folder', (int)$folder_id);
 				if (is_null($parentFolder)) {
@@ -184,7 +195,7 @@ class Folder extends REST_Controller {
 					$shareFolder = $parentFolder->isSharedWith($this->rest->user);
 
 					if ($parentFolder->getUser() != $this->rest->user && (!$shareFolder || !$shareFolder->getIsWritable()) )
-						$this->response(array('error' => true, 'message' => "Vous n'êtes pas autorisé à effectuer cet axtion.", 'data' => $data), 401);
+						$this->response(array('error' => true, 'message' => "Vous n'êtes pas autorisé à effectuer cet action.", 'data' => $data), 401);
 
 					$i = 1;
 					$original_name = $folder->getName();
@@ -197,15 +208,19 @@ class Folder extends REST_Controller {
 					$folder->setParent($parentFolder);
 					$folder->setUser($parentFolder->getUser());
 					foreach ($parentFolder->getShares()->toArray() as $shareToApply) {
-						$shareForFolder = new Entities\Share;
+						if ( $this->rest->user == $folder->getUser() || $share && $share->getUser() != $shareToApply->getUser() ) {
+							if ( !$folder->searchShareByUser($shareToApply->getUser()) ) {
+								$shareForFolder = new Entities\Share;
 
-						$shareForFolder->setIsWritable($shareToApply->getIsWritable());
-			            $shareForFolder->setUser($shareToApply->getUser());
-			            $shareForFolder->setOwner($shareToApply->getOwner());
-			            $shareForFolder->setFolder($folder);
-			            $shareForFolder->setDate(new \DateTime("now", new \DateTimeZone("Europe/Berlin")));
-			            $folder->addShare($shareForFolder);
-			            $this->doctrine->em->persist($shareToApply);
+								$shareForFolder->setIsWritable($shareToApply->getIsWritable());
+					            $shareForFolder->setUser($shareToApply->getUser());
+					            $shareForFolder->setOwner($shareToApply->getOwner());
+					            $shareForFolder->setFolder($folder);
+					            $shareForFolder->setDate(new \DateTime("now", new \DateTimeZone("Europe/Berlin")));
+					            $folder->addShare($shareForFolder);
+					            $this->doctrine->em->persist($shareToApply);
+				        	}
+				        }
 					}
 				}
 			}

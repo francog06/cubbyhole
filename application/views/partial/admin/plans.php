@@ -55,7 +55,7 @@
                 url: '/api/plan/delete/'+planId,
                 type: 'DELETE',
                 headers:{
-                    "X-API-KEY":"5422e102a743fd70a22ee4ff7c2ebbe8"
+                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
                 },
                 success: function(result) {
                     if(result.error == false){
@@ -88,7 +88,7 @@
                 url: '/api/plan/details/'+planId,
                 type: 'GET',
                 headers:{
-                    "X-API-KEY":"5422e102a743fd70a22ee4ff7c2ebbe8"
+                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
                 },
                 success: function(result) {
                     if(result.data.plan.id > 0){
@@ -215,7 +215,7 @@
                 url: '/api/plan/update/'+$("#plan_id").val(),
                 type: 'PUT',
                 headers:{
-                    "X-API-KEY":"5422e102a743fd70a22ee4ff7c2ebbe8",
+                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>",
                     "Content-Type":"application/x-www-form-urlencoded"
                 },
                 data:{name:$("#plan_name").val(),price:$("#plan_price").val(),duration:$("#plan_duration").val(),usable_storage_space:$("#plan_storage").val(),max_bandwidth:$("#plan_bandwidth").val(),daily_data_transfert:$("#plan_daily").val(),description:$("#plan_description").val(), is_default:$("input[name=plan_is_default]:checked").val(), is_active:$("input[name=plan_is_active]:checked").val()},
@@ -245,7 +245,7 @@
                 url: '/api/plan/create/',
                 type: 'POST',
                 headers:{
-                    "X-API-KEY":"5422e102a743fd70a22ee4ff7c2ebbe8",
+                    "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>",
                 },
                 data:{name:$("#plan_name").val(),price:$("#plan_price").val(),duration:$("#plan_duration").val(),usable_storage_space:$("#plan_storage").val(),max_bandwidth:$("#plan_bandwidth").val(),daily_data_transfert:$("#plan_daily").val(),description:$("#plan_description").val(), is_default:$("input[name=plan_is_default]:checked").val(), is_active:$("input[name=plan_is_active]:checked").val()},
                 success: function(result) {

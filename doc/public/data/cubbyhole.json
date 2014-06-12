@@ -91,7 +91,21 @@
                      "Required":"N",
                      "Default":"",
                      "Type":"string",
-                     "Dexription":"Modifie le mot de passe de l'utilisateur (e.g. azerty)"
+                     "Description":"Modifie le mot de passe de l'utilisateur (e.g. azerty)"
+                  },
+                  {
+                     "Name":"user_location_ip",
+                     "Required":"N",
+                     "Default":"",
+                     "Type":"string",
+                     "Description":"Modifie l'ip de l'utilisateur"
+                  },
+                  {
+                     "Name":"is_admin",
+                     "Required":"N",
+                     "Default":"",
+                     "Type":"boolean",
+                     "Description":"Modifie les droits d'administrateur d'un utilisateur (vous devez être administrateur pour changer cela)"
                   }
                ]
             }
