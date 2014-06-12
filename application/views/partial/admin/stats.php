@@ -1,32 +1,15 @@
 <div class="inner cover admin">
     <h1>Statistiques</h1>
-    <? //_p($users_country);
-    $result=[
-        1=>0,
-        2=>0,
-        3=>0,
-        4=>0,
-        5=>0,
-        6=>0,
-        7=>0,
-        8=>0,
-        9=>0,
-        10=>0,
-        11=>0,
-        12=>0];
-    $mois=null;
-    foreach($users as $user){
-        $date = "";
-        foreach ($user["registration_date"] as $v) {
-            $date = new DateTime($user["registration_date"]->date);
-        }
-        // résultat par mois
-        $mois = $date->format("m");
-        $result[intval($mois)]+=1;
-        //$date = $date->format("Y-m-d");
-        //echo date("Y-m-d",strtotime($date->format("Y-m-d")))."<br />";
-    }
-    ?>
+    <form class="form-inline" role="form" action="/admin/stats" method="post" style="margin-bottom:15px;">
+        <div class="form-group">
+            <label for="from">Du : </label> <input id="from" class="form-control" type="date" name="from" value="<?= $from; ?>" />
+        </div>
+        <div class="form-group">
+            <label for="to">au : </label> <input id="to" class="form-control" type="date" name="to" value="<?= $to; ?>" /> 
+        </div>
+        &nbsp; <button type="submit" class="btn btn-info">Créer rapport</button>
+    </form>
+
     <script type="text/javascript">$.bootstrapSortable();</script>
     <table class="table table-bordered ">
         <tr>
@@ -53,7 +36,7 @@
                         <tr>
                             <td>Utilisateurs avec le plan "<?= $plan; ?>"</td>
                             <td><?= $nb ?></td>
-                            <td><?= round(($nb/$nbUser)*100,1); ?>%</td>
+                            <td><?= @round(($nb/$nbUser)*100,1); ?>%</td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
@@ -172,6 +155,7 @@ $(function () {
             data: [<?php 
                 $data = 0;          
                     foreach($fsByUser[$nbPlans[$i-1]["id"]] as $user){ 
+                        //echo "console.log('".$user["size"]." / ".$user["usableStorage"]."');";
                         $data+=round($user["size"]/$user["usableStorage"],2);
                     }
                     $data= round($data/sizeof($fsByUser[$nbPlans[$i-1]["id"]]),2)*100; 
@@ -239,6 +223,11 @@ $(function () {
 
 });
 $(function () {
+    //get the date selon input date
+    var from = $("#from").val();
+    from = from.split("-");
+    if(from[1][0] == "0")
+        from[1] = from[1][1];
     $('#adminChart').highcharts({
         title:{
             text:"Nombre d'utilisateurs du service"
@@ -249,6 +238,7 @@ $(function () {
         xAxis: {
             type: 'datetime',
             maxZoom:24 * 3600 * 1000 * 31 // par mois
+
         },
         yAxis: {
             min:0,
@@ -256,33 +246,39 @@ $(function () {
                 text:"Inscriptions"
             }
         },
+        tooltip:{
+            headerFormat: '<b>{series.name}</b><br>',
+            pointFormat: '{point.x:%e %b. %Y} : <b>{point.y}</b>'
+        },
         series: [{
             name:"Nombre d'inscriptions cumulées",
             <?php 
                 $data="";
                 $value = 0;
-                foreach ($result as $k => $v) {
+                foreach ($users_reult as $k => $v) {
                     $value += $v;
                     $data .= $value.", ";
                 }
                 substr($data,0,-1);
             ?>
             data: [<?= $data; ?>],
-            pointStart: Date.UTC(2014, 0, 1),
-            pointInterval: 24 * 3600 * 1000 * 31 // par mois
+            pointStart: Date.UTC(from[0], from[1]-1, from[2]),
+            pointInterval: 24 * 3600 * 1000 // one day
+            //pointInterval: 24 * 3600 * 1000 * 31 // par mois
         },
         {
             name:"Nombre d'inscriptions",
             <?php 
                 $data="";
-                foreach ($result as $k => $v) {
+                foreach ($users_reult as $k => $v) {
                     $data .= $v.", ";
                 }
                 substr($data,0,-1);
             ?>
             data: [<?= $data; ?>],
-            pointStart: Date.UTC(2014, 0, 1),
-            pointInterval: 24 * 3600 * 1000 * 31 // par mois
+            pointStart: Date.UTC(from[0], from[1]-1, from[2]),
+            pointInterval: 24 * 3600 * 1000 // one day
+            //pointInterval: 24 * 3600 * 1000 * 31 // par mois
         }]
     });
 });
