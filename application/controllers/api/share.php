@@ -134,7 +134,7 @@ class Share extends REST_Controller {
         }
 
         $data->share = $share;
-        $this->response(array('error' => false, 'message' => 'Récupération du partage réussi.' 'data' => $data), 200);
+        $this->response(array('error' => false, 'message' => 'Récupération du partage réussi.', 'data' => $data), 200);
     }
 
     /**
@@ -253,7 +253,7 @@ class Share extends REST_Controller {
         $this->doctrine->em->flush();
 
         $data->share = $share;
-        $this->response(array('error' => false, 'message' => 'Mise à jour du partage réussie.' 'data' => $data), 200);
+        $this->response(array('error' => false, 'message' => 'Mise à jour du partage réussie.', 'data' => $data), 200);
     }
 
     /**

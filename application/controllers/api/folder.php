@@ -39,10 +39,10 @@ class Folder extends REST_Controller {
 
 		$share = $folder->isSharedWith($this->rest->user);
 		if ($folder->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL && !$share)
-			$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
+			$this->response(array('error' => true, 'message' => "Vous n'êtes pas autorisé à faire cette action.", 'data' => $data), 401);
 
 		$data->folder = $folder;
-		$this->response(array('error' => false, 'message' => 'Successfully retrieved folder details', 'data' => $data), 200);
+		$this->response(array('error' => false, 'message' => 'Récupération du dossier réussie.', 'data' => $data), 200);
 	}
 
 	public function remove_delete($id = null) {
@@ -116,14 +116,16 @@ class Folder extends REST_Controller {
 	            $this->doctrine->em->persist($shareToApply);
 			}
 		}
-
-		$i = 1;
-		$original_name = $folder_name;
-		while ($this->rest->user->hasFoldernameInRoot($folder_name)) {
-			$folder_name = $original_name . '(' . $i . ')';
-			$i++;
+		else
+		{
+			$i = 1;
+			$original_name = $folder_name;
+			while ($this->rest->user->hasFoldernameInRoot($folder_name)) {
+				$folder_name = $original_name . '(' . $i . ')';
+				$i++;
+			}
+			$folder->setName($folder_name);
 		}
-		$folder->setName($folder_name);
 
 		$this->doctrine->em->persist($folder);
 		$this->doctrine->em->flush();
@@ -168,7 +170,7 @@ class Folder extends REST_Controller {
 
 		if ( ($folder_id = $this->put('folder_id')) !== false && $this->rest->user == $folder->getUser()) {
 			if ((int)$folder_id == $folder->getId())
-				$this->response(array('error' => true, 'message' => "Vous ne pouvez pas déplacé un dossier dans lui même.", 'data' => $data), 400);
+				$this->response(array('error' => true, 'message' => "Vous ne pouvez pas déplacer un dossier dans lui même.", 'data' => $data), 400);
 
 			if ( $folder_id == "null")
 				$folder->setParent(null);
@@ -178,7 +180,7 @@ class Folder extends REST_Controller {
 					$this->response(array('error' => true, 'message' => 'Dossier parent non trouvé.', 'data' => $data), 400);
 				}
 
-				if ($parentFolder != $folder->getFolder()) {
+				if ($parentFolder != $folder->getParent()) {
 					$shareFolder = $parentFolder->isSharedWith($this->rest->user);
 
 					if ($parentFolder->getUser() != $this->rest->user && (!$shareFolder || !$shareFolder->getIsWritable()) )
@@ -192,7 +194,7 @@ class Folder extends REST_Controller {
 						$i++;
 					}
 					$folder->setName($name);
-					$folder->setParent($folder);
+					$folder->setParent($parentFolder);
 					$folder->setUser($parentFolder->getUser());
 					foreach ($parentFolder->getShares()->toArray() as $shareToApply) {
 						$shareForFolder = new Entities\Share;

@@ -1,4 +1,3 @@
-<?php /* NO LONGER USED 
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 require_once APPPATH . '/libraries/REST_Controller.php';

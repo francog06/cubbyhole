@@ -321,39 +321,54 @@ class File extends REST_Controller {
 			$this->response(array('error' => true, 'message' => "Vous ne pouvez pas effectuer cet action.", 'data' => $data), 401);
 
 		if ( ($folder_id = $this->post('folder_id')) !== false) {
-			$folder = $this->doctrine->em->find('Entities\Folder', (int)$folder_id);
-			if (is_null($folder)) {
-				$this->response(array('error' => true, 'message' => 'Dossier parent non trouvé', 'data' => $data), 404);
-			}
-
-			if ($folder != $file->getFolder()) {
-				$shareFolder = $folder->isSharedWith($this->rest->user);
-
-				if ($folder->getUser() != $this->rest->user && (!$shareFolder || !$shareFolder->getIsWritable()) )
-					$this->response(array('error' => true, 'message' => "Vous ne pouvez pas effectuer cet action.", 'data' => $data), 401);
-
-				$i = 1;
-				$fileName = $file->getName();
-				$infos = pathinfo($fileName);
-				while ($folder->hasFilenameAlreadyTaken($fileName)) {
-					$fileName = $infos['filename'] . '(' . $i . ').' . $infos['extension'];
-					$i++;
+			if ($folder_id == "null") {
+				if (!is_null($file->getFolder())) {
+					$i = 1;
+					$fileName = $file->getName();
+					$infos = pathinfo($fileName);
+					while ($this->rest->user->hasFilenameInRoot($fileName)) {
+						$fileName = $infos['filename'] . '(' . $i . ').' . $infos['extension'];
+						$i++;
+					}
+					$file->setName($fileName);
+					$file->setFolder(null);
 				}
-				$file->setName($fileName);
-				$file->setFolder($folder);
+			}
+			else {
+				$folder = $this->doctrine->em->find('Entities\Folder', (int)$folder_id);
+				if (is_null($folder)) {
+					$this->response(array('error' => true, 'message' => 'Dossier parent non trouvé', 'data' => $data), 404);
+				}
 
-				foreach ($folder->getShares()->toArray() as $shareApply) {
-					$shareForFile = new Entities\Share;
+				if ($folder != $file->getFolder()) {
+					$shareFolder = $folder->isSharedWith($this->rest->user);
 
-					if ( !$share || ($share->getUser() != $shareApply->getUser() && $shareApply->getIsWritable() != $share->getIsWritable()) ) {
-						$shareForFile->setIsWritable($shareApply->getIsWritable());
-			            $shareForFile->setUser($shareApply->getUser());
-			            $shareForFile->setOwner($shareApply->getOwner());
-			            $shareForFile->setFile($file);
-			            $shareForFile->setDate(new \DateTime("now", new \DateTimeZone("Europe/Berlin")));
-			            $file->addShare($shareForFile);
-			            $this->doctrine->em->persist($shareApply);
-		        	}
+					if ($folder->getUser() != $this->rest->user && (!$shareFolder || !$shareFolder->getIsWritable()) )
+						$this->response(array('error' => true, 'message' => "Vous ne pouvez pas effectuer cet action.", 'data' => $data), 401);
+
+					$i = 1;
+					$fileName = $file->getName();
+					$infos = pathinfo($fileName);
+					while ($folder->hasFilenameAlreadyTaken($fileName)) {
+						$fileName = $infos['filename'] . '(' . $i . ').' . $infos['extension'];
+						$i++;
+					}
+					$file->setName($fileName);
+					$file->setFolder($folder);
+
+					foreach ($folder->getShares()->toArray() as $shareApply) {
+						$shareForFile = new Entities\Share;
+
+						if ( !$share || ($share->getUser() != $shareApply->getUser() && $shareApply->getIsWritable() != $share->getIsWritable()) ) {
+							$shareForFile->setIsWritable($shareApply->getIsWritable());
+				            $shareForFile->setUser($shareApply->getUser());
+				            $shareForFile->setOwner($shareApply->getOwner());
+				            $shareForFile->setFile($file);
+				            $shareForFile->setDate(new \DateTime("now", new \DateTimeZone("Europe/Berlin")));
+				            $file->addShare($shareForFile);
+				            $this->doctrine->em->persist($shareApply);
+			        	}
+					}
 				}
 			}
 		}
@@ -384,13 +399,21 @@ class File extends REST_Controller {
 			}
 		}
 
-		if ( ($name = $this->post('name')) !== false && ($this->rest->user == $file->getUser() || $share->getIsWritable()) ) {
+		if ( ($name = $this->post('name')) !== false && ($this->rest->user == $file->getUser() || $share->getIsWritable()) && $name != $file->getName()) {
 			$i = 1;
 			$fileName = $name;
 			$infos = pathinfo($name);
-			while ($file->getFolder()->hasFilenameAlreadyTaken($fileName)) {
-				$fileName = $infos['filename'] . '(' . $i . ').' . $infos['extension'];
-				$i++;
+			if (is_null($file->getFolder())) {
+				while ($this->rest->user->hasFilenameInRoot($fileName)) {
+					$fileName = $infos['filename'] . '(' . $i . ').' . $infos['extension'];
+					$i++;
+				}
+			}
+			else {
+				while ($file->getFolder()->hasFilenameAlreadyTaken($fileName)) {
+					$fileName = $infos['filename'] . '(' . $i . ').' . $infos['extension'];
+					$i++;
+				}
 			}
 			$file->setName($fileName);
 		}
@@ -459,7 +482,7 @@ class File extends REST_Controller {
 				$this->response(array('error' => true, 'message' => "Vous n'avez pas assez d'espace libre.", 'data' => $data), 400);
 		}
 		else
-			$this->response(array('error' => true, 'message' => 'Fichier non trouvé.', 'data' => $data), 404);
+			$this->response(array('error' => true, 'message' => '`file` param non trouvé.', 'data' => $data), 404);
 
 		$this->load->library('upload', $this->uploadConfig);
 		if ( ! $this->upload->do_upload('file')) {
@@ -476,7 +499,7 @@ class File extends REST_Controller {
 			$file->setLastUpdateDate(new DateTime('now', new DateTimeZone('Europe/Berlin')));
 			$file->setIsPublic(false);
 
-			if ( ($folder_id = $this->input->post('folder_id')) ) {
+			if ( ($folder_id = $this->input->post('folder_id')) !== false ) {
 				$folder = $this->doctrine->em->find('Entities\Folder', (int)$folder_id);
 				if (is_null($folder)) {
 					$this->response(array('error' => true, 'message' => 'Dossier non trouvé.', 'data' => $data), 404);
@@ -508,6 +531,14 @@ class File extends REST_Controller {
 		            $file->addShare($shareForFile);
 		            $this->doctrine->em->persist($shareToApply);
 				}
+			} else {
+				$i = 1;
+				$infos = pathinfo($fileName);
+				while ($this->rest->user->hasFilenameInRoot($fileName)) {
+					$fileName = $infos['filename'] . '(' . $i . ').' . $infos['extension'];
+					$i++;
+				}
+				$file->setName($fileName);
 			}
 
 			$this->doctrine->em->persist($file);

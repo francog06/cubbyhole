@@ -338,7 +338,7 @@ class Folder implements \JsonSerializable
      */
     public function hasFilenameAlreadyTaken($filename) {
         foreach ($this->files->toArray() as $file) {
-            if ($file->getName() == $filename)
+            if (strtolower($file->getName()) == strtolower($filename))
                 return true;
         }
         return false;
@@ -352,7 +352,7 @@ class Folder implements \JsonSerializable
      */
     public function hasFoldernameAlreadyTaken($foldername) {
         foreach ($this->folders->toArray() as $folder) {
-            if ($folder->getName() == $foldername)
+            if (strtolower($folder->getName()) == strtolower($foldername))
                 return true;
         }
         return false;

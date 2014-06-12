@@ -329,7 +329,7 @@ class User implements \JsonSerializable
      */
     public function hasFilenameInRoot($filename) {
         $files = $this->files->filter(function($e) use($filename) {
-            return $e->getFolder() == null && $e->getName() == $filename;
+            return $e->getFolder() == null && strtolower($e->getName()) == strtolower($filename);
         });
 
         return (count($files) > 0);
@@ -344,7 +344,7 @@ class User implements \JsonSerializable
      */
     public function hasFoldernameInRoot($foldername) {
         $folders = $this->folders->filter(function($e) use($foldername) {
-            return $e->getParent() == null && $e->getName() == $foldername;
+            return $e->getParent() == null && strtolower($e->getName()) == strtolower($foldername);
         });
 
         return (count($folders) > 0);
