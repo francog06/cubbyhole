@@ -798,6 +798,7 @@ function getRoot(){
                 $("#cubbyhole tbody").html("");
                 if(result.error == false){
                     $(".breadcrumb").html("<a href='javascript:getRoot()'><span class='glyphicon glyphicon-home'></span></a>");
+                    //Loop forlders
                     for(var loop_folder in result.data.folders){
                         if(result.data.folders.hasOwnProperty(loop_folder)){
                             if(result.data.folders[loop_folder].share == null){
@@ -822,6 +823,83 @@ function getRoot(){
                             ').fadeIn();
                         }
                     }
+                    //Loop SHARE folders
+                    for(var loop_share_folder in result.data.shares.folders){
+                        if(result.data.shares.folders.hasOwnProperty(loop_share_folder)){
+                            sprite = "dossierPartage";
+                            type = "Dossier Partagé";
+                            if(result.data.shares.folders[loop_share_folder].is_writable == true){
+                                is_writable = '<div style="display:none">\
+                                        <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..." data-fname="'+result.data.shares.folders[loop_share_folder].folder.name+'">\
+                                            <span class="glyphicon glyphicon-pencil"></span> Editer\
+                                        </button>\
+                                        <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span> Supprimer</button></div>';
+                            } else is_writable = '';
+                            $("#cubbyhole tbody").append('\
+                                <tr class="folder" data-id="'+result.data.shares.folders[loop_share_folder].folder.id+'">\
+                                    <td class="drag"><a href="javascript:getFolder('+result.data.shares.folders[loop_share_folder].folder.id+')"><span class="sprite '+sprite+'"></span>'+result.data.shares.folders[loop_share_folder].folder.name+'</a></td>\
+                                    <td class="drag" data-value="a'+type+'">'+type+'</td>\
+                                    <td class="drag">'+result.data.shares.folders[loop_share_folder].folder.last_update_date.date+'</td>\
+                                    <td style="width:255px;">'+is_writable+'</td>\
+                                </tr>\
+                            ').fadeIn();
+                        }
+                    }
+                    //Loop share files
+                    for(var loop_file in result.data.shares.files){
+                        var extension = result.data.shares.files[loop_file].file.absolute_path;
+                        extension = extension.substr((~-extension.lastIndexOf(".") >>> 0) + 2);
+                        var sprite;
+                        switch(extension.toLowerCase()){
+                            case "csv": 
+                            case "xls": 
+                            case "xlsx": sprite = "excel"; type = "Classeur";
+                            break;
+                            case "png": 
+                            case "jpg": 
+                            case "gif": 
+                            case "psd": 
+                            case "jpeg": sprite = "picture"; type = "Image";
+                            break;
+                            case "ppt": 
+                            case "pptx": sprite = "powerpoint"; type = "Présentation";
+                            break;
+                            case "pdf": sprite = "pdf"; type = "PDF";
+                            break;
+                            case "doc":
+                            case "docx": sprite = "word"; type = "Document";
+                            break;
+                            case "zip":
+                            case "rar":
+                            case "tar":
+                            case "tar.gz":
+                            case "gzip": sprite = "zip"; type = "Archive";
+                            break;
+                            default: sprite = "file"; type = "Fichier";
+                            break;
+                        }
+                        type += " Partagé";
+                        var share;
+                        share="shared";
+                        if(result.data.shares.files.hasOwnProperty(loop_file)){
+                            if(result.data.shares.files[loop_file].is_writable == true){
+                                is_writable = '<div style="display:none">\
+                                        <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..." data-fname="'+result.data.shares.folders[loop_share_folder].folder.name+'">\
+                                            <span class="glyphicon glyphicon-pencil"></span> Editer\
+                                        </button>\
+                                        <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span> Supprimer</button></div>';
+                            } else is_writable = '';
+                            $("#cubbyhole tbody").append('\
+                                <tr class="'+share+'" data-id="'+result.data.shares.files[loop_file].file.id+'" data-key="'+result.data.shares.files[loop_file].file.access_key+'">\
+                                    <td class="drag"><a href="javascript:getFile('+result.data.shares.files[loop_file].file.id+')"><span class="fileSprite '+sprite+'"></span>'+result.data.shares.files[loop_file].file.name+'</a></td>\
+                                    <td class="drag">'+type+'</td>\
+                                    <td class="drag">'+result.data.shares.files[loop_file].file.last_update_date.date+'</td>\
+                                    <td style="width:255px;">'+is_writable+'</td>\
+                                </tr>\
+                            ').fadeIn();
+                        }
+                    }
+                    //Loop files
                     for(var loop_file in result.data.files){
                         var extension = result.data.files[loop_file].absolute_path;
                         extension = extension.substr((~-extension.lastIndexOf(".") >>> 0) + 2);
@@ -911,16 +989,39 @@ function getRoot(){
                             success: function(result){
                                 for(var i in result.data.shares){
                                     if(result.data.shares.hasOwnProperty(i)){
-                                        var write = result.data.shares[i].is_writable==true?"All":"Lecture seule";
+                                        if(result.data.shares[i].is_writable==true){
+                                            var write = '<option value="1" selected>Lecture + Modification/Suppression</option><option value="0">Lecture seulement</option>';
+                                        }else{
+                                            var write = '<option value="0" selected>Lecture seulement</option><option value="1">Lecture + Modification/Suppression</option>';
+                                        }
                                         $("#shareUsers tbody").append("\
                                             <tr data-shareid='"+result.data.shares[i].id+"'>\
                                                 <td>"+result.data.shares[i].user.email+"</td>\
-                                                <td>"+write+"</td>\
+                                                <td><select class='select_permission form-control' style='height: 24px;padding: 0px 12px;'>"+write+"</select></td>\
                                                 <td><button class='btn btn-danger btn-xs supprimerShare'><span class='glyphicon glyphicon-trash'></span> Supprimer</button></td>\
                                             </tr>\
                                         ");
                                     }
                                 }
+                                $(".select_permission").change(function(){
+                                    $.ajax({
+                                        url:"/api/share/update/"+$(this).parent().parent().attr("data-shareid"),
+                                        type:"PUT",
+                                        headers:{
+                                            "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+                                        },
+                                        data:{write:$(this).val()},
+                                        success: function(result) {
+                                            if(result.error == false){
+                                                $("div.resultShare").append('<div class="alert alert-success fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                                                $(parent).remove();
+                                            }
+                                            else{
+                                                $("div.result").append('<div class="alert alert-warning fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                                            }
+                                        }
+                                    })
+                                });
                                 $(".supprimerShare").click(function(){
                                     var parent = $(this).parent().parent();
                                     $.ajax({
@@ -1005,16 +1106,40 @@ function getRoot(){
                             success: function(result){
                                 for(var i in result.data.shares){
                                     if(result.data.shares.hasOwnProperty(i)){
-                                        var write = result.data.shares[i].is_writable==true?"All":"Lecture seule";
+                                        if(result.data.shares[i].is_writable==true){
+                                            var write = '<option value="1" selected>Lecture + Modification/Suppression</option><option value="0">Lecture seulement</option>';
+                                        }else{
+                                            var write = '<option value="0" selected>Lecture seulement</option><option value="1">Lecture + Modification/Suppression</option>';
+                                        }
                                         $("#shareUsers tbody").append("\
                                             <tr data-shareid='"+result.data.shares[i].id+"'>\
                                                 <td>"+result.data.shares[i].user.email+"</td>\
-                                                <td>"+write+"</td>\
+                                                <td><select class='select_permission form-control' style='height: 24px;padding: 0px 12px;'>"+write+"</select></td>\
                                                 <td><button class='btn btn-danger btn-xs supprimerShare'><span class='glyphicon glyphicon-trash'></span> Supprimer</button></td>\
                                             </tr>\
                                         ");
                                     }
                                 }
+                                $(".select_permission").change(function(){
+                                    $.ajax({
+                                        url:"/api/share/update/"+$(this).parent().parent().attr("data-shareid"),
+                                        type:"PUT",
+                                        headers:{
+                                            "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+                                        },
+                                        data:{write:$(this).val()},
+                                        success: function(result) {
+                                            if(result.error == false){
+                                                $("div.resultShare").append('<div class="alert alert-success fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                                                $(parent).remove();
+                                            }
+                                            else{
+                                                $("div.result").append('<div class="alert alert-warning fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                                            }
+                                        }
+                                    })
+                                });
+
                                 $(".supprimerShare").click(function(){
                                     var parent = $(this).parent().parent();
                                     $.ajax({
@@ -1225,6 +1350,7 @@ function getFolder(id){
                             ').fadeIn();
                         }
                     }
+                    
                     for(var loop_file in result.data.folder.files){
                         var extension = result.data.folder.files[loop_file].absolute_path;
                         extension = extension.substr((~-extension.lastIndexOf(".") >>> 0) + 2);
@@ -1311,34 +1437,58 @@ function getFolder(id){
                             success: function(result){
                                 for(var i in result.data.shares){
                                     if(result.data.shares.hasOwnProperty(i)){
-                                        var write = result.data.shares[i].is_writable==true?"All":"Lecture seule";
+                                        if(result.data.shares[i].is_writable==true){
+                                            var write = '<option value="1" selected>Lecture + Modification/Suppression</option><option value="0">Lecture seulement</option>';
+                                        }else{
+                                            var write = '<option value="0" selected>Lecture seulement</option><option value="1">Lecture + Modification/Suppression</option>';
+                                        }
                                         $("#shareUsers tbody").append("\
                                             <tr data-shareid='"+result.data.shares[i].id+"'>\
                                                 <td>"+result.data.shares[i].user.email+"</td>\
-                                                <td>"+write+"</td>\
+                                                <td><select class='select_permission form-control' style='height: 24px;padding: 0px 12px;'>"+write+"</select></td>\
                                                 <td><button class='btn btn-danger btn-xs supprimerShare'><span class='glyphicon glyphicon-trash'></span> Supprimer</button></td>\
                                             </tr>\
                                         ");
                                     }
                                 }
+                                $(".select_permission").change(function(){
+                                    $.ajax({
+                                        url:"/api/share/update/"+$(this).parent().parent().attr("data-shareid"),
+                                        type:"PUT",
+                                        headers:{
+                                            "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+                                        },
+                                        data:{write:$(this).val()},
+                                        success: function(result) {
+                                            if(result.error == false){
+                                                $("div.resultShare").append('<div class="alert alert-success fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                                                $(parent).remove();
+                                            }
+                                            else{
+                                                $("div.result").append('<div class="alert alert-warning fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                                            }
+                                        }
+                                    })
+                                });
+
                                 $(".supprimerShare").click(function(){
                                     var parent = $(this).parent().parent();
                                     $.ajax({
-                                    url:"/api/share/delete/"+$(this).parent().parent().attr("data-shareid"),
-                                    type:"DELETE",
-                                    headers:{
-                                        "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
-                                    },
-                                    success: function(result) {
-                                        if(result.error == false){
-                                            $("div.resultShare").append('<div class="alert alert-success fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
-                                            $(parent).remove();
+                                        url:"/api/share/delete/"+$(this).parent().parent().attr("data-shareid"),
+                                        type:"DELETE",
+                                        headers:{
+                                            "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+                                        },
+                                        success: function(result) {
+                                            if(result.error == false){
+                                                $("div.resultShare").append('<div class="alert alert-success fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                                                $(parent).remove();
+                                            }
+                                            else{
+                                                $("div.result").append('<div class="alert alert-warning fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                                            }
                                         }
-                                        else{
-                                            $("div.result").append('<div class="alert alert-warning fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
-                                        }
-                                    }
-                                })
+                                    })
                                 });
                             }
                         });
@@ -1405,16 +1555,39 @@ function getFolder(id){
                             success: function(result){
                                 for(var i in result.data.shares){
                                     if(result.data.shares.hasOwnProperty(i)){
-                                        var write = result.data.shares[i].is_writable==true?"All":"Lecture seule";
+                                        if(result.data.shares[i].is_writable==true){
+                                            var write = '<option value="1" selected>Lecture + Modification/Suppression</option><option value="0">Lecture seulement</option>';
+                                        }else{
+                                            var write = '<option value="0" selected>Lecture seulement</option><option value="1">Lecture + Modification/Suppression</option>';
+                                        }
                                         $("#shareUsers tbody").append("\
                                             <tr data-shareid='"+result.data.shares[i].id+"'>\
                                                 <td>"+result.data.shares[i].user.email+"</td>\
-                                                <td>"+write+"</td>\
+                                                <td><select class='select_permission form-control' style='height: 24px;padding: 0px 12px;'>"+write+"</select></td>\
                                                 <td><button class='btn btn-danger btn-xs supprimerShare'><span class='glyphicon glyphicon-trash'></span> Supprimer</button></td>\
                                             </tr>\
                                         ");
                                     }
                                 }
+                                $(".select_permission").change(function(){
+                                    $.ajax({
+                                        url:"/api/share/update/"+$(this).parent().parent().attr("data-shareid"),
+                                        type:"PUT",
+                                        headers:{
+                                            "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+                                        },
+                                        data:{write:$(this).val()},
+                                        success: function(result) {
+                                            if(result.error == false){
+                                                $("div.resultShare").append('<div class="alert alert-success fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                                                $(parent).remove();
+                                            }
+                                            else{
+                                                $("div.result").append('<div class="alert alert-warning fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
+                                            }
+                                        }
+                                    })
+                                });
                                 $(".supprimerShare").click(function(){
                                     var parent = $(this).parent().parent();
                                     $.ajax({
