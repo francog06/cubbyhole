@@ -307,7 +307,7 @@ class REST_Controller extends CI_Controller
 		// only allow ajax requests
 		if ( ! $this->input->is_ajax_request() AND config_item('rest_ajax_only'))
 		{
-			$this->response(array('status' => false, 'error' => 'Only AJAX requests are accepted.'), 505);
+			$this->response(array('error' => false, 'message' => 'Only AJAX requests are accepted.'), 505);
 		}
 	}
 
@@ -341,7 +341,7 @@ class REST_Controller extends CI_Controller
 		// Should we answer if not over SSL?
 		if (config_item('force_https') AND !$this->_detect_ssl())
 		{
-			$this->response(array('status' => false, 'error' => 'Unsupported protocol'), 403);
+			$this->response(array('error' => false, 'message' => 'Unsupported protocol'), 403);
 		}
 
 		$pattern = '/^(.*)\.('.implode('|', array_keys($this->_supported_formats)).')$/';
@@ -364,7 +364,7 @@ class REST_Controller extends CI_Controller
 			// Check to see if they can access the controller
 			if (!$this->_check_access())
 			{
-				$this->response(array('status' => false, 'error' => 'This API key does not have access to the requested controller.'), 401);
+				$this->response(array('error' => true, 'message' => 'This API key does not have access to the requested controller.'), 401);
 			}
 
 			if (config_item('rest_enable_logging') AND $log_method)
@@ -372,13 +372,13 @@ class REST_Controller extends CI_Controller
 				$this->_log_request();
 			}
 
-			$this->response(array('status' => false, 'error' => 'Invalid API Key.'), 403);
+			$this->response(array('error' => true, 'message' => 'Invalid API Key.'), 403);
 		}
 
 		// Sure it exists, but can they do anything with it?
 		if ( ! method_exists($this, $controller_method))
 		{
-			$this->response(array('status' => false, 'error' => 'Unknown method.'), 404);
+			$this->response(array('error' => true, 'message' => 'Unknown method.'), 404);
 		}
 
 		// Doing key related stuff? Can only do it if they have a key right?
@@ -387,7 +387,7 @@ class REST_Controller extends CI_Controller
 			// Check the limit
 			if (config_item('rest_enable_limits') AND !$this->_check_limit($controller_method))
 			{
-				$this->response(array('status' => false, 'error' => 'This API key has reached the hourly limit for this method.'), 401);
+				$this->response(array('error' => true, 'message' => 'This API key has reached the hourly limit for this method.'), 401);
 			}
 
 			// If no level is set use 0, they probably aren't using permissions
@@ -403,7 +403,7 @@ class REST_Controller extends CI_Controller
 			}
 
 			// They don't have good enough perms
-			$authorized OR $this->response(array('status' => false, 'error' => 'This API key does not have enough permissions.'), 401);
+			$authorized OR $this->response(array('error' => true, 'message' => 'This API key does not have enough permissions.'), 401);
 		}
 
 		// No key stuff, but record that stuff is happening
@@ -692,6 +692,8 @@ class REST_Controller extends CI_Controller
 		$this->rest->ignore_limits = FALSE;
 
 		// Find the key from server or arguments
+		if (isset($_REQUEST[$api_key_variable]))
+			$this->_args[$api_key_variable] = $_REQUEST[$api_key_variable];
 		if (($key = isset($this->_args[$api_key_variable]) ? $this->_args[$api_key_variable] : $this->input->server($key_name)))
 		{
 			if ( ! ($row = $this->rest->db->where(config_item('rest_key_column'), $key)->get(config_item('rest_keys_table'))->row()))
@@ -1080,7 +1082,7 @@ class REST_Controller extends CI_Controller
 	 */
 	public function mandatory_value($key = null, $method = null, $xss_clean = TRUE) {
 		if ($this->{$method}($key) === FALSE) {
-			$this->response(array('error' => true, 'error_message' => '`'.$key.'` is required'), 400);
+			$this->response(array('error' => true, 'message' => '`'.$key.'` is required'), 400);
 		}
 		return $this->{$method}($key, $xss_clean);
 	}
@@ -1458,7 +1460,7 @@ class REST_Controller extends CI_Controller
 
 		if (in_array($this->input->ip_address(), $blacklist))
 		{
-			$this->response(array('status' => false, 'error' => 'IP Denied'), 401);
+			$this->response(array('error' => true, 'message' => 'IP Denied'), 401);
 		}
 	}
 
@@ -1478,7 +1480,7 @@ class REST_Controller extends CI_Controller
 
 		if ( ! in_array($this->input->ip_address(), $whitelist))
 		{
-			$this->response(array('status' => false, 'error' => 'Not authorized'), 401);
+			$this->response(array('error' => true, 'message' => 'Not authorized'), 401);
 		}
 	}
 

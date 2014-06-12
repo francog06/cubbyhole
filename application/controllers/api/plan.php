@@ -32,15 +32,15 @@ class Plan extends REST_Controller {
 	{
 		$data = new StdClass();
 		if ($this->rest->level != ADMIN_KEY_LEVEL)
-			$this->response(array('error' => true, 'message' => "You can't update a plan", 'data' => $data), 401);
+			$this->response(array('error' => true, 'message' => "Vous ne pouvez pas modifier un plan.", 'data' => $data), 401);
 
 		if (is_null($id)) {
-			$this->response(array('error' => true, 'message' => 'id not defined.', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'Vous n\'avez défini aucun ID', 'data' => $data), 400);
 		}
 
 		$plan = $this->doctrine->em->find('Entities\Plan', (int)$id);
 		if (is_null($plan)) {
-			$this->response(array('error' => true, 'message' => 'plan not found.', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'Plan non trouvé.', 'data' => $data), 400);
 		}
 
 		if ( ($name = $this->put('name')) !== false ) {
@@ -86,7 +86,7 @@ class Plan extends REST_Controller {
 		$this->doctrine->em->merge($plan);
 		$this->doctrine->em->flush();
 		$data->plan = $plan;
-		$this->response(array('error' => false, 'message' => 'plan updated successfully.', 'data' => $data), 200);
+		$this->response(array('error' => false, 'message' => 'Plan mis à jour.', 'data' => $data), 200);
 
 	}
 
@@ -94,22 +94,22 @@ class Plan extends REST_Controller {
 	{
 		$data = new StdClass();
 		if (is_null($id)) {
-			$this->response(array('error' => true, 'message' => 'id not defined.', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'Vous n\'avez défini aucun ID', 'data' => $data), 400);
 		}
 
 		$plan = $this->doctrine->em->find('Entities\Plan', (int)$id);
 		if (is_null($plan)) {
-			$this->response(array('error' => true, 'message' => 'plan not found.', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'Plan non trouvé.', 'data' => $data), 400);
 		}
 		$data->plan = $plan;
-		$this->response(array('error' => false, 'message' => 'Plan successfully retrieved', 'data' => $data), 200);
+		$this->response(array('error' => false, 'message' => 'Récupération du plan réussie.', 'data' => $data), 200);
 	}
 
 	 public function create_post()
 	 {
 	 	$data = new StdClass();
 	 	if ($this->rest->level != ADMIN_KEY_LEVEL)
-			$this->response(array('error' => true, 'message' => "You can't create a plan", 'data' => $data), 401);
+			$this->response(array('error' => true, 'message' => "Vous ne pouvez pas créer un plan.", 'data' => $data), 401);
 
 		$plan_name = $this->mandatory_value('name', 'post');
 		$plan_description = $this->mandatory_value('description', 'post');
@@ -130,7 +130,7 @@ class Plan extends REST_Controller {
 
 		$result = $query->getArrayResult();
 		if (!empty($result)) {
-			$this->response(array('error' => true, 'message' => 'A plan  with that name is already specified.', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'Un plan avec ce nom exist déjà.', 'data' => $data), 400);
 		} else {
 			$plan = new Entities\Plan;
 
@@ -148,7 +148,7 @@ class Plan extends REST_Controller {
 			$this->doctrine->em->flush();
 
 			$data->plan = $plan;
-			$this->response(array('error' => false, 'message' => 'Plan successfully created.', 'data' => $data), 201);
+			$this->response(array('error' => false, 'message' => 'Plan créé.', 'data' => $data), 201);
 		}
 	 }
 
@@ -156,19 +156,19 @@ class Plan extends REST_Controller {
 	{
 		$data = new StdClass();
 		if ($this->rest->level != ADMIN_KEY_LEVEL)
-			$this->response(array('error' => true, 'message' => "You can't delete a plan"), 401);
+			$this->response(array('error' => true, 'message' => "Vous ne pouvez pas supprimer un plan."), 401);
 
 		if (is_null($id)) {
-			$this->response(array('error' => true, 'message' => 'id not defined.'), 400);
+			$this->response(array('error' => true, 'message' => 'Vous n\'avez défini aucun ID'), 400);
 		}
 
 		$plan = $this->doctrine->em->find('Entities\Plan', (int)$id);
 		if (is_null($plan)) {
-			$this->response(array('error' => true, 'message' => 'plan not found.'), 400);
+			$this->response(array('error' => true, 'message' => 'Plan non trouvé.'), 400);
 		}	 	
 
 		$this->doctrine->em->remove($plan);
 		$this->doctrine->em->flush();
-		$this->response(array('error' => false, 'message' => 'Plan: '. $plan->getName() . ' has been removed.', 'data' => $data), 200);
+		$this->response(array('error' => false, 'message' => 'Plan '. $plan->getName() . ' supprimé.', 'data' => $data), 200);
 	}
 }

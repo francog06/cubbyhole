@@ -1,0 +1,87 @@
+{
+   "endpoints":[
+      {
+         "name":"Utilisateurs",
+         "methods":[
+            {
+               "MethodName":"Identification d'un utilisateur",
+               "Synopsis":"",
+               "HTTPMethod":"POST",
+               "URI":"/user/login",
+               "RequiresOAuth":"N",
+               "parameters":[
+                  {
+                     "Name":"email",
+                     "Required":"Y",
+                     "Default":"",
+                     "Type":"string",
+                     "Description":"Une adresse email (e.g. cubbyhole@gmail.com)"
+                  },
+                  {
+                     "Name":"password",
+                     "Required":"Y",
+                     "Default":"",
+                     "Type":"string",
+                     "Description": "Un mot de passe"
+                  }
+               ]
+            },
+            {
+               "MethodName":"Inscription d'un utilisateur",
+               "Synopsis":"",
+               "HTTPMethod":"POST",
+               "URI":"/user/register",
+               "RequiresOAuth":"N",
+               "parameters":[
+                  {
+                     "Name":"email",
+                     "Required":"Y",
+                     "Default":"",
+                     "Type":"string",
+                     "Description":"Une adresse email (e.g. cubbyhole@gmail.com)"
+                  },
+                  {
+                     "Name":"password",
+                     "Required":"Y",
+                     "Default":"",
+                     "Type":"string",
+                     "Description": "Un mot de passe"
+                  }
+               ]
+            },
+            {
+               "MethodName":"Détail d'un utilisateur",
+               "Synopsis":"Récupère les détails d'un utilisateur",
+               "HTTPMethod":"GET",
+               "URI":"/user/details/:userId",
+               "RequiresOAuth":"N",
+               "parameters":[
+                  {
+                     "Name":"userId",
+                     "Required":"Y",
+                     "Default":"",
+                     "Type":"string",
+                     "Description":"ID d'un utilisateur (e.g. 42)"
+                  }
+               ]
+            },
+            {
+               "MethodName":"Modification d'un utilisateur",
+               "Synopsis":"",
+               "HTTPMethod":"PUT",
+               "URI":"/user/update/:userId",
+               "RequiresOAuth":"N",
+               "parameters":[
+                  {
+                     "Name":"userId",
+                     "Required":"Y",
+                     "Default":"",
+                     "Type":"string",
+                     "Description":"ID d'un utilisateur (e.g. 42)"
+                  }
+               ]
+            }
+         ]
+      }
+   ]
+}

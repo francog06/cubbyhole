@@ -1,3 +1,4 @@
+<?php /* NO LONGER USED 
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 require_once APPPATH . '/libraries/REST_Controller.php';
@@ -7,7 +8,6 @@ class Data_history extends REST_Controller {
 	{
 		parent::__construct();
 	}
-
 
 	//@GET ALL PLAN
 	public function index_get() 
@@ -26,14 +26,9 @@ class Data_history extends REST_Controller {
 		$DataHistory_country = $this->mandatory_value('country', 'post');
 		$DataHistory_file = $this->mandatory_value('file', 'post');
 
-		$DataHistory = $this->doctrine->em->find('Entities\DataHistory', $DataHistory_ip);
-		if (is_null($DataHistory)) {
-			$this->response(array('error' => true, 'message' => 'DataHistory not found.'), 400);
-		}
-
 		$File = $this->doctrine->em->find('Entities\File', $DataHistory_file);
 		if (is_null($File)) {
-			$this->response(array('error' => true, 'message' => 'File not found.'), 400);
+			$this->response(array('error' => true, 'message' => 'Fichier non trouvé.'), 400);
 		}
 
 		$DataHistoryNew = new Entities\DataHistory;
@@ -43,9 +38,10 @@ class Data_history extends REST_Controller {
 				->setFile($DataHistory_file);
 
 		$this->doctrine->em->persist($DataHistoryNew);
-		//$this->doctrine->em->flush();
+		$this->doctrine->em->flush();
 
-		$this->response(array('error' => false, 'message' => 'DataHistory successfully created.', 'DataHistory' => $DataHistoryNew), 201);
+		$data->data_history = $DataHistoryNew;
+		$this->response(array('error' => false, 'message' => 'DataHistory successfully created.', 'data' => $DataHistoryNew), 201);
 	
 	}
 
@@ -53,7 +49,7 @@ class Data_history extends REST_Controller {
 	public function update_put($id = null)
 	{
 		if (is_null($id)) {
-			$this->response(array('error' => true, 'message' => 'id not defined.'), 400);
+			$this->response(array('error' => true, 'message' => 'Vous n\'avez défini aucun ID'), 400);
 		}
 
 		$DataHistory = $this->doctrine->em->find('Entities\DataHistory', (int)$id);
@@ -97,7 +93,7 @@ class Data_history extends REST_Controller {
 	// @DELETE delete DataHistory
 	public function delete_delete($id = null) {
 		if (is_null($id)) {
-			$this->response(array('error' => true, 'message' => 'id not defined.'), 400);
+			$this->response(array('error' => true, 'message' => 'Vous n\'avez défini aucun ID'), 400);
 		}
 
 		$DataHistory = $this->doctrine->em->find('Entities\DataHistory', (int)$id);
@@ -115,7 +111,7 @@ class Data_history extends REST_Controller {
 	public function details_get($id = null) {
 		$data = new StdClass();
 		if (is_null($id)) {
-			$this->response(array('error' => true, 'message' => 'id not defined.', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'Vous n\'avez défini aucun ID', 'data' => $data), 400);
 		}
 
 		$DataHistory = $this->doctrine->em->find('Entities\DataHistory', (int)$id);
@@ -125,142 +121,4 @@ class Data_history extends REST_Controller {
 		$data->DataHistory = $DataHistory;
 		$this->response(array('error' => false, 'message' => 'DataHistory successfully retrieved', 'data' => $data), 200);
 	}
-
-
-
-	//RETRIEVE ALL IP WHOM DOWNLOADED A SPECIFIC FILE
-	public function  stat_ip($StatIpFile, $dateBegin = null, $dateEnd = null)
-	{
-		$query = $this->doctrine->em->createQueryBuilder()
-					->add('select', 'p.ip')
-					->add('from', 'Entities\DataHistory p')
-					->add('where', 'p.file = :file');
-					if($dateBegin && $dateEnd)
-					{
-						 $query->add('where', 'p.date BETWEEN :dateBegin AND :dateEnd')
-					    ->setParameter('dateBegin', new DateTime($dateBegin, new DateTimeZone('Europe/Berlin')))
-					    ->setParameter('dateEnd', new DateTime($dateEnd, new DateTimeZone('Europe/Berlin')));
-					}
-
-		$query->setParameter('file', $StatIpFile)
-		->getQuery();
-
-		$result = $query->getArrayResult();
-		$data = new StdClass();
-		$data->ip = $result;
-		if (empty($result)) 
-			$this->response(array('error' => true, 'data' => $data), 400);
-		else 
-			$this->response(array('error' => false, 'data ' => $data), 200);
-	}
-
-	//RETRIEVE ALL FILES DOWNLOADED BEETWEEN TWO DATES 
-	public function  stat_file($dateBegin, $dateEnd)
-	{
-		$query = $this->doctrine->em->createQueryBuilder()
-					->add('select', 'p.file')
-					->add('from', 'Entities\DataHistory p')
-					->add('where', 'p.date = :date')
-					->where('p.date BETWEEN :dateBegin AND :dateEnd')
-				    ->setParameter('dateBegin', new DateTime($dateBegin, new DateTimeZone('Europe/Berlin')))
-				    ->setParameter('dateEnd', new DateTime($dateEnd, new DateTimeZone('Europe/Berlin')))		
-					->getQuery();
-
-		$result = $query->getArrayResult();
-		$data = new StdClass();
-		$data->file = $result;
-		if (empty($result)) 
-			$this->response(array('error' => true, 'data' => $data), 400);
-		else 
-			$this->response(array('error' => false, 'data ' => $data), 200);
-	}
-
-	//RETRIEVE ALL DATA HISTORY BY COUNTRY CODE
-	public function stat_DataHistory($countryCode, $dateBegin = null, $dateEnd = null)
-	{
-
-	$query = $this->doctrine->em->createQueryBuilder()
-					->add('select', 'p')
-					->add('from', 'Entities\DataHistory p')
-					->add('where', 'p.country = :country');
-					if($dateBegin && $dateEnd)
-					{
-						 $query->add('where', 'p.date BETWEEN :dateBegin AND :dateEnd')
-					    ->setParameter('dateBegin', new DateTime($dateBegin, new DateTimeZone('Europe/Berlin')))
-					    ->setParameter('dateEnd', new DateTime($dateEnd, new DateTimeZone('Europe/Berlin')));
-					}
-					$query->setParameter('country', $countryCode)
-					->getQuery();
-
-	$result = $query->getArrayResult();
-	$data = new StdClass();
-	$data->DataHistory = $result;
-	if (empty($result)) 
-		$this->response(array('error' => true, 'data' => $data), 400);
-	else 
-		$this->response(array('error' => false, 'data ' => $data), 200);
-
-	}
-
-	//RETRIEVE MOST DOWNLOAD FILE EVERYWHERE
-	public function stat_mostDownloadFile($dateBegin = null, $dateEnd = null)
-	{
-		$query = $this->doctrine->em->createQueryBuilder()
-			->select('count(dh.file)')
-			->from('Entities\DataHistory', 'dh')
-			->add('where', 'dh.is_active = :active');
-			if($dateBegin && $dateEnd)
-			{
-				 $query->add('where', 'p.date BETWEEN :dateBegin AND :dateEnd')
-			    ->setParameter('dateBegin', new DateTime($dateBegin, new DateTimeZone('Europe/Berlin')))
-			    ->setParameter('dateEnd', new DateTime($dateEnd, new DateTimeZone('Europe/Berlin')));
-			}
-
-		$query->groupBy('dh.file')
-			->orderBy( 'dh.file DESC')
-			->setParameter('active', '1')
-			->getQuery();
-
-		$result = $query->getArrayResult();
-		$data = new StdClass();
-		$data->file = $result;
-		if (empty($result)) 
-			$this->response(array('error' => true, 'data' => $data), 400);
-		else 
-			$this->response(array('error' => false, 'data ' => $data), 200);
-	}
-
-
-	//RETRIEVE MOST DOWNLOAD FILE BY COUNTRY
-	public function stat_mostDownloadFileByCountry($countryCode, $dateBegin = null, $dateEnd = null)
-	{
-		$query = $this->doctrine->em->createQueryBuilder()
-			->select('count(dh.file)')
-			->from('Entities\DataHistory', 'dh')
-			->add('where', 'dh.is_active = :active AND dh.country =:country');
-			if($dateBegin && $dateEnd)
-			{
-				 $query->add('where', 'p.date BETWEEN :dateBegin AND :dateEnd')
-			    ->setParameter('dateBegin', new DateTime($dateBegin, new DateTimeZone('Europe/Berlin')))
-			    ->setParameter('dateEnd', new DateTime($dateEnd, new DateTimeZone('Europe/Berlin')));
-			}
-		$query->groupBy('dh.file')
-			->orderBy( 'dh.file DESC')
-			->setParameter('country', $countryCode)
-			->setParameter('active', '1')
-			->getQuery();
-
-		$result = $query->getArrayResult();
-		$data = new StdClass();
-		$data->file = $result;
-		if (empty($result)) 
-			$this->response(array('error' => true, 'data' => $data), 400);
-		else 
-			$this->response(array('error' => false, 'data ' => $data), 200);
-	}
-
-
-
-
-
 }

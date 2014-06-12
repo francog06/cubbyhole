@@ -321,6 +321,36 @@ class User implements \JsonSerializable
     }
 
     /**
+     * 
+     * Has file named `$filename` in his root
+     * 
+     * @param String $filename
+     * @return Boolean
+     */
+    public function hasFilenameInRoot($filename) {
+        $files = $this->files->filter(function($e) use($filename) {
+            return $e->getFolder() == null && $e->getName() == $filename;
+        });
+
+        return (count($files) > 0);
+    }
+
+    /**
+     * 
+     * Has folder named `$foldername` in his root
+     * 
+     * @param String $foldername
+     * @return Boolean
+     */
+    public function hasFoldernameInRoot($foldername) {
+        $folders = $this->folders->filter(function($e) use($foldername) {
+            return $e->getParent() == null && $e->getName() == $foldername;
+        });
+
+        return (count($folders) > 0);
+    }
+
+    /**
     * Get all users
     *
     * @return Doctrine\Common\Collections\Collection

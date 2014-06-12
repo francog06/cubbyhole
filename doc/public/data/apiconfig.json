@@ -1,0 +1,13 @@
+{
+    "cubbyhole": {
+        "name": "Cubbyhole API",
+        "protocol": "http",
+        "baseURL": "cubbyhole.name",
+        "publicPath": "/api",
+        "headers" : {
+            "Accept": "application/json"    
+        },
+        "auth": "X-API-KEY",
+        "keyParam": "X-API-KEY"
+    }
+}

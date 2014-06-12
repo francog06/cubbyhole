@@ -11,42 +11,34 @@ class Folder extends REST_Controller {
 	public function shares_get($id = null) {
 		$data = new StdClass();
 		if (is_null($id)) {
-			$this->response(array('error' => true, 'message' => 'id not defined.', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'Vous n\'avez défini aucun ID', 'data' => $data), 400);
 		}
 
 		$folder = $this->doctrine->em->find('Entities\Folder', (int)$id);
 		if (is_null($folder)) {
-			$this->response(array('error' => true, 'message' => 'folder not found', 'data' => $data), 404);
+			$this->response(array('error' => true, 'message' => 'Dossier non trouvé.', 'data' => $data), 404);
 		}
 
 		if ($folder->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL)
-			$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
+			$this->response(array('error' => true, 'message' => "Vous n'êtes pas autorisé à modifier cela.", 'data' => $data), 401);
 
 		$data->shares = $folder->getShares()->toArray();
-		$this->response(array('error' => false, 'message' => 'Successfully retrieved folder details.', 'data' => $data), 200);
+		$this->response(array('error' => false, 'message' => 'Récupération du dossier réussie.', 'data' => $data), 200);
 	}
 
 	public function details_get($id = null) {
 		$data = new StdClass();
 		if (is_null($id)) {
-			$this->response(array('error' => true, 'message' => 'id not defined.', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'Vous n\'avez défini aucun ID', 'data' => $data), 400);
 		}
 
 		$folder = $this->doctrine->em->find('Entities\Folder', (int)$id);
 		if (is_null($folder)) {
-			$this->response(array('error' => true, 'message' => 'folder not found.', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'Dossier non trouvé.', 'data' => $data), 400);
 		}
 
-		$shared_with_me = false;
-		$user = $this->rest->user;
-		$shares = $folder->getShares()->filter(function($e) use($user) {
-			return $e->getUser() == $user;
-		});
-
-		if ( count($shares->toArray()) == 1 )
-			$shared_with_me = true;
-
-		if ($folder->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL && !$shared_with_me)
+		$share = $folder->isSharedWith($this->rest->user);
+		if ($folder->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL && !$share)
 			$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
 
 		$data->folder = $folder;
@@ -56,22 +48,24 @@ class Folder extends REST_Controller {
 	public function remove_delete($id = null) {
 		$data = new StdClass();
 		if (is_null($id)) {
-			$this->response(array('error' => true, 'message' => 'id not defined.', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'Vous n\'avez défini aucun ID', 'data' => $data), 400);
 		}
 
 		$folder = $this->doctrine->em->find('Entities\Folder', (int)$id);
 		if (is_null($folder)) {
-			$this->response(array('error' => true, 'message' => 'folder not found.', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'Dossier non trouvé.', 'data' => $data), 400);
 		}
 
-		if ($folder->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL)
-			$this->response(array('error' => true, 'message' => "You are not allowed to do this.", 'data' => $data), 401);
+		$share = $folder->isSharedWith($this->rest->user);
+
+		if ($folder->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL && !$share->getIsWritable())
+			$this->response(array('error' => true, 'message' => "Vous n'êtes pas autorisé à faire cette action.", 'data' => $data), 401);
 
 		$files = $folder->getFiles()->toArray();
 		$this->doctrine->em->remove($folder);
 		$this->doctrine->em->flush();
 
-		$this->response(array('error' => false, 'message' => 'Folder has been removed.', 'data' => $data), 200);
+		$this->response(array('error' => false, 'message' => 'Dossier supprimé.', 'data' => $data), 200);
 	}
 
 	public function add_post() {
@@ -80,7 +74,7 @@ class Folder extends REST_Controller {
 		$user = $this->rest->user;
 
 		if (is_null($user)) {
-			$this->response(array('error' => true, 'message' => 'user not found.', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'Utilisateur non trouvé.', 'data' => $data), 400);
 		}
 
 		$folder = new Entities\Folder;
@@ -93,11 +87,43 @@ class Folder extends REST_Controller {
 		if ( ($folder_id = $this->input->post('folder_id')) !== false && !empty($folder_id)) {
 			$parentFolder = $this->doctrine->em->find('Entities\Folder', (int)$folder_id);
 			if (is_null($parentFolder)) {
-				$this->response(array('error' => true, 'message' => 'Parent folder not found.', 'data' => $data), 400);
+				$this->response(array('error' => true, 'message' => 'Dossier parent non trouvé.', 'data' => $data), 400);
 			}
 
+			$shareParentFolder = $parentFolder->isSharedWith($user);
+			if ($parentFolder->getUser() != $this->rest->user && (!$shareParentFolder || !$shareParentFolder->getIsWritable()) )
+				$this->response(array('error' => true, 'message' => "Vous n'êtes pas autorisé à faire cela.", 'data' => $data), 401);
+
+			$i = 1;
+			$original_name = $folder_name;
+			while ($parentFolder->hasFoldernameAlreadyTaken($folder_name)) {
+				$folder_name = $original_name . '(' . $i . ')';
+				$i++;
+			}
+			$folder->setName($folder_name);
+
 			$folder->setParent($parentFolder);
+			$folder->setUser($parentFolder->getUser());
+			foreach ($parentFolder->getShares()->toArray() as $shareToApply) {
+				$shareForFolder = new Entities\Share;
+
+				$shareForFolder->setIsWritable($shareToApply->getIsWritable());
+	            $shareForFolder->setUser($shareToApply->getUser());
+	            $shareForFolder->setOwner($shareToApply->getOwner());
+	            $shareForFolder->setFolder($folder);
+	            $shareForFolder->setDate(new \DateTime("now", new \DateTimeZone("Europe/Berlin")));
+	            $folder->addShare($shareForFolder);
+	            $this->doctrine->em->persist($shareToApply);
+			}
 		}
+
+		$i = 1;
+		$original_name = $folder_name;
+		while ($this->rest->user->hasFoldernameInRoot($folder_name)) {
+			$folder_name = $original_name . '(' . $i . ')';
+			$i++;
+		}
+		$folder->setName($folder_name);
 
 		$this->doctrine->em->persist($folder);
 		$this->doctrine->em->flush();
@@ -109,36 +135,84 @@ class Folder extends REST_Controller {
 	public function update_put($id = null) {
 		$data = new StdClass();
 		if (is_null($id)) {
-			$this->response(array('error' => true, 'message' => 'id not defined.', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'Vous n\'avez défini aucun ID', 'data' => $data), 400);
 		}
 
 		$folder = $this->doctrine->em->find('Entities\Folder', (int)$id);
 		if (is_null($folder)) {
-			$this->response(array('error' => true, 'message' => 'folder not found.', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'Dossier non trouvé.', 'data' => $data), 400);
 		}
 
-		if ( ($name = $this->put('name')) !== false && ($shared_with_me || $this->rest->user == $file->getUser()) )
+		$share = $folder->isSharedWith($this->rest->user);
+
+		if ($folder->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL && (!$share || !$share->getIsWritable()))
+			$this->response(array('error' => true, 'message' => "Vous n'êtes pas autorisé à faire cela.", 'data' => $data), 401);
+
+		if ( ($name = $this->put('name')) !== false && $name != $folder->getName()) {
+			$i = 1;
+			$original_name = $name;
+			if ($folder->getParent() != null) {
+				while ($folder->getParent()->hasFoldernameAlreadyTaken($name)) {
+					$name = $original_name . '(' . $i . ')';
+					$i++;
+				}
+			}
+			else {
+				while ($folder->getUser()->hasFoldernameInRoot($name)) {
+					$name = $original_name . '(' . $i . ')';
+					$i++;
+				}
+			}
 			$folder->setName($name);
+		}
 
 		if ( ($folder_id = $this->put('folder_id')) !== false && $this->rest->user == $folder->getUser()) {
 			if ((int)$folder_id == $folder->getId())
-				$this->response(array('error' => true, 'message' => "You can't move a folder into himself", 'data' => $data), 400);
+				$this->response(array('error' => true, 'message' => "Vous ne pouvez pas déplacé un dossier dans lui même.", 'data' => $data), 400);
 
 			if ( $folder_id == "null")
 				$folder->setParent(null);
 			else {
 				$parentFolder = $this->doctrine->em->find('Entities\Folder', (int)$folder_id);
 				if (is_null($parentFolder)) {
-					$this->response(array('error' => true, 'message' => 'Parent folder not found.', 'data' => $data), 400);
+					$this->response(array('error' => true, 'message' => 'Dossier parent non trouvé.', 'data' => $data), 400);
 				}
-				$folder->setParent($parentFolder);
+
+				if ($parentFolder != $folder->getFolder()) {
+					$shareFolder = $parentFolder->isSharedWith($this->rest->user);
+
+					if ($parentFolder->getUser() != $this->rest->user && (!$shareFolder || !$shareFolder->getIsWritable()) )
+						$this->response(array('error' => true, 'message' => "Vous n'êtes pas autorisé à effectuer cet axtion.", 'data' => $data), 401);
+
+					$i = 1;
+					$original_name = $folder->getName();
+					$name = $folder->getName();
+					while ($parentFolder->hasFoldernameAlreadyTaken($name)) {
+						$name = $original_name . '(' . $i . ')';
+						$i++;
+					}
+					$folder->setName($name);
+					$folder->setParent($folder);
+					$folder->setUser($parentFolder->getUser());
+					foreach ($parentFolder->getShares()->toArray() as $shareToApply) {
+						$shareForFolder = new Entities\Share;
+
+						$shareForFolder->setIsWritable($shareToApply->getIsWritable());
+			            $shareForFolder->setUser($shareToApply->getUser());
+			            $shareForFolder->setOwner($shareToApply->getOwner());
+			            $shareForFolder->setFolder($folder);
+			            $shareForFolder->setDate(new \DateTime("now", new \DateTimeZone("Europe/Berlin")));
+			            $folder->addShare($shareForFolder);
+			            $this->doctrine->em->persist($shareToApply);
+					}
+				}
 			}
 		}
 
 		if ( ($user_id = $this->post('user_id')) !== false && $this->rest->level == ADMIN_KEY_LEVEL) {
 			$user = $this->doctrine->em->find('Entities\User', (int)$user_id);
 			if (is_null($user)) {
-				$this->response(array('error' => true, 'message' => 'user not found.', 'data' => $data), 400);
+				$this->response(array('error' => true, 'message' => 'Utilisateur non trouvé.', 'data' => $data), 400);
 			}
 			$folder->setUser($user);
 		}
@@ -165,13 +239,13 @@ class Folder extends REST_Controller {
 		$user = $this->rest->user;
 
 		if ( !is_null($user_id) && $user->getId() != $user_id && $this->rest->level != ADMIN_KEY_LEVEL) {
-			$this->response(array('error' => true, 'message' => "You're not allowed to do that.", 'data' => $data), 401);
+			$this->response(array('error' => true, 'message' => "Vous n'êtes pas autoriser à effectuer cela.", 'data' => $data), 401);
 		}
 
 		if ( !is_null($user_id) && $this->rest->user->getId() != $user_id && $this->rest->level == ADMIN_KEY_LEVEL) 
 			$user = $this->doctrine->em->find('Entities\User', (int)$user_id);
 		if (is_null($user)) {
-			$this->response(array('error' => true, 'message' => 'user not found.', 'data' => $data), 400);
+			$this->response(array('error' => true, 'message' => 'Utilisateur non trouvé.', 'data' => $data), 400);
 		}
 
 		// User files & folders

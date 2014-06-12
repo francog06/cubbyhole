@@ -50,7 +50,7 @@ class Share extends REST_Controller {
     {
         $data = new StdClass();
         if (is_null($id)) {
-            $this->response(array('error' => true, 'message' => 'Id not defined.', 'data' => $data), 400);
+            $this->response(array('error' => true, 'message' => 'Vous n\'avez défini aucun ID', 'data' => $data), 400);
         }
 
         $user = $this->rest->user;
@@ -59,7 +59,7 @@ class Share extends REST_Controller {
             $user = $this->doctrine->em->find('Entities\User', (int)$id);
 
         // Files & folder shared with the user
-        $sharedFolders = $user->getSharedWithMe()->filter(function($e) {
+        $sharedFolders = $user->getSharedWithMe()->filter(function($e) use($user) {
             if ( ($folder = $e->getFolder()) != null) {
                 $parentFolder = $folder->getParent();
 
@@ -111,7 +111,7 @@ class Share extends REST_Controller {
 
         $data->files = $filesSharedRet;
         $data->folders = $foldersSharedRet;
-        $this->response(array('error' => false, 'message' => 'Successfully retrieved shares.', 'data' => $data), 200);
+        $this->response(array('error' => false, 'message' => 'Récupérations des shares.', 'data' => $data), 200);
     }
 
     /**
@@ -125,16 +125,16 @@ class Share extends REST_Controller {
     public function details_get($id = null) {
         $data = new StdClass();
         if (is_null($id)) {
-            $this->response(array('error' => true, 'message' => 'Id not defined.', 'data' => $data), 400);
+            $this->response(array('error' => true, 'message' => 'Vous n\'avez défini aucun ID', 'data' => $data), 400);
         }
 
         $share = $this->doctrine->em->find('Entities\Share', (int)$id);
         if (is_null($share)) {
-            $this->response(array('error' => true, 'message' => 'Share not found.', 'data' => $data), 400);
+            $this->response(array('error' => true, 'message' => 'Partage non trouvé.', 'data' => $data), 400);
         }
 
         $data->share = $share;
-        $this->response(array('error' => false, 'data' => $data), 200);
+        $this->response(array('error' => false, 'message' => 'Récupération du partage réussi.' 'data' => $data), 200);
     }
 
     /**
@@ -154,10 +154,10 @@ class Share extends REST_Controller {
         try {
             $user = Entities\User::getByEmail($email);
         } catch (Exception $e) {
-            $this->response(array('error' => true, 'message' => 'User not found', 'data' => $data), 404);
+            $this->response(array('error' => true, 'message' => 'Utilisateur non trouvé.', 'data' => $data), 404);
         }
         if (is_null($user)) {
-            $this->response(array('error' => true, 'message' => 'User not found', 'data' => $data), 404);
+            $this->response(array('error' => true, 'message' => 'Utilisateur non trouvé.', 'data' => $data), 404);
         }
 
         if ($user == $this->rest->user)
@@ -166,11 +166,11 @@ class Share extends REST_Controller {
         if ( ($file_id = $this->post('file')) !== false ) {
             $file = $this->doctrine->em->find('Entities\File', (int)$file_id);
             if (is_null($file)) {
-                $this->response(array('error' => true, 'message' => 'File not found', 'data' => $data), 404);
+                $this->response(array('error' => true, 'message' => 'Fichier non trouvé', 'data' => $data), 404);
             }
 
             if ($file->getUser() != $this->rest->user)
-                $this->response(array('error' => true, 'message' => "You can't share other user's file", 'data' => $data), 400);
+                $this->response(array('error' => true, 'message' => "Vous ne pouvez pas partager les fichiers d'un autre utilisateur. Namého", 'data' => $data), 400);
             $type = "file";
             $entity = $file;
         }
@@ -178,11 +178,11 @@ class Share extends REST_Controller {
         if ( ($folder_id = $this->post('folder')) !== false && is_null($type) ) {
             $folder = $this->doctrine->em->find('Entities\Folder', (int)$folder_id);
             if (is_null($folder)) {
-                $this->response(array('error' => true, 'message' => 'Folder not found', 'data' => $data), 404);
+                $this->response(array('error' => true, 'message' => 'Dossier non trouvé', 'data' => $data), 404);
             }
 
             if ($folder->getUser() != $this->rest->user)
-                $this->response(array('error' => true, 'message' => "You can't share other user's folder", 'data' => $data), 400);
+                $this->response(array('error' => true, 'message' => "Vous ne pouvez pas partager les dossiers d'un autre utilisateur. Namého", 'data' => $data), 400);
             $type = "folder";
             $entity = $folder;
         }
@@ -239,12 +239,12 @@ class Share extends REST_Controller {
     public function update_put($id = null) {
         $data = new StdClass();
         if (is_null($id)) {
-            $this->response(array('error' => true, 'message' => 'Id not defined.', 'data' => $data), 400);
+            $this->response(array('error' => true, 'message' => 'Vous n\'avez défini aucun ID', 'data' => $data), 400);
         }
 
         $share = $this->doctrine->em->find('Entities\Share', (int)$id);
         if (is_null($share)) {
-            $this->response(array('error' => true, 'message' => 'Share not found.', 'data' => $data), 400);
+            $this->response(array('error' => true, 'message' => 'Partage non trouvé.', 'data' => $data), 400);
         }
 
         $share->setIsWritable( ($this->put('write') == "1" ? true : false) );
@@ -253,7 +253,7 @@ class Share extends REST_Controller {
         $this->doctrine->em->flush();
 
         $data->share = $share;
-        $this->response(array('error' => false, 'data' => $data), 200);
+        $this->response(array('error' => false, 'message' => 'Mise à jour du partage réussie.' 'data' => $data), 200);
     }
 
     /**
@@ -267,12 +267,12 @@ class Share extends REST_Controller {
     public function delete_delete($id = null) {
         $data = new StdClass();
         if (is_null($id)) {
-            $this->response(array('error' => true, 'message' => 'id not defined.', 'data' => $data), 400);
+            $this->response(array('error' => true, 'message' => 'Vous n\'avez défini aucun ID', 'data' => $data), 400);
         }
 
         $share = $this->doctrine->em->find('Entities\Share', (int)$id);
         if (is_null($share)) {
-            $this->response(array('error' => true, 'message' => 'Share not found.', 'data' => $data), 400);
+            $this->response(array('error' => true, 'message' => 'Partage non trouvé.', 'data' => $data), 400);
         }
 
         if ($share->getFolder() != null) {
@@ -284,6 +284,6 @@ class Share extends REST_Controller {
         $this->doctrine->em->remove($share, $share->getUser());
         $this->doctrine->em->flush();
 
-        $this->response(array('error' => false, 'message' => 'Share has been removed.', 'data' => $data), 200);
+        $this->response(array('error' => false, 'message' => 'Partage supprimé.', 'data' => $data), 200);
     }
 }
