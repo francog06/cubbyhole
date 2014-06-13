@@ -91,7 +91,7 @@ namespace CubbyHole
             Task<string> Tjson = Request.GetResponseAsync(request);
             string json = await Tjson;
 
-            Debug.WriteLine("Json Login: " + json);
+         //   Debug.WriteLine("Json Login: " + json);
             Response<LoginResponse> resp = JsonConvert.DeserializeObject<Response<LoginResponse>>(json);
             Response<User> respUser = JsonConvert.DeserializeObject<Response<User>>(json);
 
@@ -127,7 +127,7 @@ namespace CubbyHole
 
             Task<string> Tjson = Request.GetResponseAsync(request);
             string json = await Tjson;
-            Debug.WriteLine("JSON FolderUserRoot/root: " + json);
+       //     Debug.WriteLine("JSON FolderUserRoot/root: " + json);
 
             Response<FolderResponse> resp = JsonConvert.DeserializeObject<Response<FolderResponse>>(json);
 
@@ -139,24 +139,22 @@ namespace CubbyHole
             else
             {
                 Debug.WriteLine("FolderUserRoot OK");
-                Debug.WriteLine(resp.message);
+            //    Debug.WriteLine(resp.message);
 
                 FolderResponse data = new FolderResponse();
                 data = resp.data;
                 // EMPILE FIFO AND LIFO
                 foreach(Folder el in data.folders)
                 {
+                    el.local_path = Properties.Settings.Default.ApplicationFolder;
                     myfolder.Push(el);
-                    el.local_path = Properties.Settings.Default.ApplicationFolder;
-                    Console.WriteLine("Foreach folder: " + el.name);
-                    
+                //  Console.WriteLine("Foreach folder: " + el.name);
                 }
-
-                foreach (CubbyHole.ApiClasses.File el in data.files)
+                foreach (CubbyHole.ApiClasses.File il in data.files)
                 {
-                    myfile.Enqueue(el);
-                    el.local_path = Properties.Settings.Default.ApplicationFolder;
-                    Console.WriteLine("Foreach file: " + el.name);
+                    il.local_path = Properties.Settings.Default.ApplicationFolder;
+                    myfile.Enqueue(il);
+                //  Console.WriteLine("Foreach file: " + il.name);
                 }
                 return true;
             }
@@ -165,17 +163,16 @@ namespace CubbyHole
         async public static Task<bool> DepileFolder()
         {
           do {
-              Console.WriteLine("DEPILEFOLER");
+          //    Console.WriteLine("DEPILEFOLER");
               Folder fol = myfolder.Pop();
-              Console.WriteLine("myfolder.Count: {0}", myfolder.Count);
-
+            
               string folderName =  fol.name;
               int folderId = fol.id;
               bool detailsFolder = await DetailsFolder(folderId);
 
-         if (detailsFolder)
-             createFolderLocal(fol.local_path, folderName);
-         
+             // Console.WriteLine("fol.local_path: {0}", fol.local_path);
+              if (detailsFolder)
+                  createFolderLocal(fol.local_path, folderName);
           } while (myfolder.Count > 0);
 
            return true;         
@@ -185,12 +182,18 @@ namespace CubbyHole
         {
             do
             {
+
                 CubbyHole.ApiClasses.File fil =  myfile.Dequeue();
                 string fileName = fil.name;
+                string filePath = "";
+                if (fil.local_path == Properties.Settings.Default.ApplicationFolder)
+                    filePath = fil.local_path + "\\" + fileName;
+                else
+                    filePath = fil.local_path;
                 int fileId = fil.id;
-                Console.WriteLine("fileId {0} - fileName {1}", fileId , fileName);
-                await Synchronize(fileId, fileName);
 
+                Console.WriteLine("fileId {0} - fileName  ({1}) -  PATH {2}", fileId, fileName, filePath);
+                await Synchronize(fileId, filePath);
             } while (myfile.Count > 0);
         }
 
@@ -204,7 +207,7 @@ namespace CubbyHole
 
             Task<string> Tjson = Request.GetResponseAsync(request);
             string json = await Tjson;
-            Debug.WriteLine("JSON DetailsFolder: " + json);
+         //   Debug.WriteLine("JSON DetailsFolder: " + json);
             Response<FolderResponse> resp = JsonConvert.DeserializeObject<Response<FolderResponse>>(json);
             
             if (resp.error)
@@ -219,18 +222,17 @@ namespace CubbyHole
                 //Debug.WriteLine(" DetailsFolder DATA: " + resp.data.folder.folders.Count);
                  foreach (Folder el in data.folder.folders)
                 {
-                    myfolder.Push(el);
-                    el.local_path += Properties.Settings.Default.ApplicationFolder;
-
-                    Console.WriteLine("DetailsFolder folder: " + el.name);
+                     el.local_path = Properties.Settings.Default.ApplicationFolder + "\\" + resp.data.folder.name;
+                     myfolder.Push(el);
+                   // Console.WriteLine("DetailsFolder folder: " + el.local_path);
                 } 
                 foreach (CubbyHole.ApiClasses.File el in data.folder.files)
                 {
+                    Console.WriteLine("DetailsFolder files name: " + resp.data.folder.name + " el name file: " + el.name);
+                    el.local_path = Properties.Settings.Default.ApplicationFolder + "\\" + resp.data.folder.name + "\\" + el.name;
                     myfile.Enqueue(el);
-                    el.local_path += Properties.Settings.Default.ApplicationFolder;
-                    Console.WriteLine("DetailsFolder file: " + el.name);
                 }
-                Debug.WriteLine(" DetailsFolder OK");
+               // Debug.WriteLine(" DetailsFolder OK");
                 return true;
             }
 
@@ -241,14 +243,12 @@ namespace CubbyHole
             string pathcomplete = "";
             pathcomplete = path + "\\" + name;
 
-            Console.WriteLine("Application folder: " + pathcomplete);
+            Console.WriteLine("createFolderLocal " + pathcomplete);
 
             try
             {
-                // Try to create the directory.
                 DirectoryInfo di = Directory.CreateDirectory(pathcomplete);
-                Console.WriteLine("The directory was created successfully at {0}.", Directory.GetCreationTime(pathcomplete));
-
+               // Console.WriteLine("The directory was created successfully at {0}.", Directory.GetCreationTime(pathcomplete));
             }
             catch (Exception e)
             {
@@ -265,8 +265,9 @@ namespace CubbyHole
 
             Task<string> Tjson = Request.GetResponseAsync(request);
             string json = await Tjson;
-            byte[] test = System.Text.Encoding.UTF8.GetBytes(json);
-            System.IO.File.WriteAllBytes(Properties.Settings.Default.ApplicationFolder + "\\" + file, test);
+            byte[] rawData = System.Text.Encoding.UTF8.GetBytes(json);
+            Console.WriteLine("FILE SYNCHO " + file);
+            System.IO.File.WriteAllBytes(file, rawData);
 
             return true;
         } 
