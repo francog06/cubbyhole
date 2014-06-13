@@ -68,7 +68,7 @@
                      "Required":"Y",
                      "Default":"",
                      "Type":"string",
-                     "Description":"ID d'un utilisateur (e.g. 42)"
+                     "Description":"Identifiant unique d'un utilisateur (e.g. 42)"
                   }
                ]
             },
@@ -84,7 +84,7 @@
                      "Required":"Y",
                      "Default":"",
                      "Type":"string",
-                     "Description":"ID d'un utilisateur (e.g. 42)"
+                     "Description":"Identifiant unique d'un utilisateur (e.g. 42)"
                   },
                   {
                      "Name":"email",
@@ -144,7 +144,52 @@
                      "Required":"Y",
                      "Default":"",
                      "Type":"string",
-                     "Description":"ID d'un utilisateur (e.g. 42)"
+                     "Description":"Identifiant unique d'un utilisateur (e.g. 42)"
+                  }
+               ]
+            }
+         ]
+      },
+      {
+         "name":"Fichiers",
+         "methods":[
+            {
+               "MethodName":"Récupération des détails d'un fichier",
+               "Synopsis":"",
+               "HTTPMethod":"GET",
+               "URI":"/file/details/:fileId",
+               "RequiresOAuth":"N",
+               "parameters":[
+                  {
+                     "Name":"fileId",
+                     "Required":"Y",
+                     "Default":"",
+                     "Type":"string",
+                     "Description":"Identifiant unique du fichier (e.g. 42)"
+                  }
+               ]
+            },
+            {
+               "MethodName":"Téléchargement d'un fichier avec quotat",
+               "Synopsis":"Cette méthode requiert votre ApiKey si il vous est partagé ou un accessKey si il est publique",
+               "HTTPMethod":"GET",
+               "URI":"/file/download/:fileId",
+               "RequiresOAuth":"N",
+               "parameters":[
+                  {
+                     "Name":"fileId",
+                     "Required":"Y",
+                     "Default":"",
+                     "Type":"string",
+                     "Description":"Identifiant unique du fichier (e.g. 42)"
+                  },
+                  {
+                     "Name":"acessKey",
+                     "Required":"N",
+                     "Default":"",
+                     "Location": "path",
+                     "Type":"string",
+                     "Description":"Clé d'accès au fichier fournis lors d'un partage publique"
                   }
                ]
             }

@@ -189,7 +189,7 @@ class File extends REST_Controller {
 
 		$file = $this->doctrine->em->find('Entities\File', (int)$id);
 		if (is_null($file)) {
-			show_404();
+			$this->response(array('error' => true, 'message' => 'Fichier non trouvé.', 'data' => $data), 404);
 		}
 
 		if (isset($_REQUEST['X-API-KEY'])) {
@@ -257,7 +257,7 @@ class File extends REST_Controller {
 		    exit;
 		}
 		else {
-			show_404();
+			$this->response(array('error' => true, 'message' => 'Fichier non trouvé.', 'data' => $data), 404);
 		}
 	}
 
