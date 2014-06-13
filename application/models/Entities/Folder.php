@@ -372,6 +372,18 @@ class Folder implements \JsonSerializable
         $this->folders = $this->folders->filter(function($e) use ($user) {
             return $e->isSharedWith($user);
         });
+
+        $this->files = $this->files->map(function($e) use ($user) {
+            $share = $e->isSharedWith($user);
+            $e->is_writable = (!$share ? false : $share->getIsWritable());
+            return $e;
+        });
+
+        $this->folders = $this->folders->map(function($e) use ($user) {
+            $share = $e->isSharedWith($user);
+            $e->is_writable = (!$share ? false : $share->getIsWritable());
+            return $e;
+        });
         return $this;
     }
 

@@ -38,7 +38,7 @@ class File extends REST_Controller {
 			$this->response(array('error' => true, 'message' => "Vous ne pouvez pas effectuer cet action.", 'data' => $data), 401);
 
 		$data->shares = $file->getShares()->toArray();
-		$this->response(array('error' => false, 'message' => 'Récupération du fichier réussie.', 'data' => $data), 200);
+		$this->response(array('error' => false, 'message' => 'Récupération des partages réussie.', 'data' => $data), 200);
 	}
 
 	public function thumbnail_get($id = null) {
@@ -110,6 +110,22 @@ class File extends REST_Controller {
 			$fileMime = getimagesize($file->getAbsolutePath());
 
 			if ($fileMime !== false) {
+				$source_image = false;
+			    switch($fileMime["mime"]) {
+			    	case "image/jpeg":
+					case "image/jpeg":
+					case "image/gif":
+					case "image/png":
+						$source_image = true;
+					break;
+					default: 
+						$source_image = false;
+					break;
+			    }
+
+			    if (!$source_image)
+			    	$this->response(array('error' => true, 'message' => 'Aucune preview disponible', 'data' => $data), 400);
+
 			    header('Content-Type: ' . $fileMime['mime']);
 			    header('Expires: 0');
 			    header('Cache-Control: must-revalidate');
@@ -117,7 +133,6 @@ class File extends REST_Controller {
 			    header('Content-Length: ' . filesize($file->getAbsolutePath()));
 			    flush();
 			    set_time_limit(0);
-
 			    readfile($file->getAbsolutePath());
 			    exit;
 			}
@@ -234,7 +249,7 @@ class File extends REST_Controller {
 
 			$totalDownloaded = count($downloads->toArray()) * $file->getSize(); // Mo
 			$planHistory = $file->getUser()->getActivePlanHistory();
-			if ($totalDownloaded + $file->getSize() > $planHistory->getPlan()->getDailyDataTransfert()) {
+			if ( $totalDownloaded + $file->getSize() > $planHistory->getPlan()->getDailyDataTransfert() ) {
 				$this->response(array('error' => true, 'message' => "Vous ne pouvez pas télécharger ce fichier (Quotat dépassé)", 'data' => $data), 400);
 			}
 		}

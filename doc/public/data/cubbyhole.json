@@ -73,6 +73,38 @@
                ]
             },
             {
+               "MethodName":"Root d'un utilisateur",
+               "Synopsis":"Récupère les dossiers & fichier root de l'utilisateur",
+               "HTTPMethod":"GET",
+               "URI":"/user/details/:userId/root",
+               "RequiresOAuth":"N",
+               "parameters":[
+                  {
+                     "Name":"userId",
+                     "Required":"Y",
+                     "Default":"",
+                     "Type":"string",
+                     "Description":"Identifiant unique d'un utilisateur (e.g. 42)"
+                  }
+               ]
+            },
+            {
+               "MethodName":"Shares d'un utilisateur",
+               "Synopsis":"Récupère les dossiers/fichiers partagés à l'utilisateur",
+               "HTTPMethod":"GET",
+               "URI":"/user/details/:userId/shares",
+               "RequiresOAuth":"N",
+               "parameters":[
+                  {
+                     "Name":"userId",
+                     "Required":"Y",
+                     "Default":"",
+                     "Type":"string",
+                     "Description":"Identifiant unique d'un utilisateur (e.g. 42)"
+                  }
+               ]
+            },
+            {
                "MethodName":"Modification d'un utilisateur",
                "Synopsis":"",
                "HTTPMethod":"PUT",
@@ -171,7 +203,7 @@
             },
             {
                "MethodName":"Téléchargement d'un fichier avec quotat",
-               "Synopsis":"Cette méthode requiert votre ApiKey si il vous est partagé ou un accessKey si il est publique",
+               "Synopsis":"Cette méthode requiert votre ApiKey si il vous est partagé ou un accessKey si il est publique. Lance le téléchargement.",
                "HTTPMethod":"GET",
                "URI":"/file/download/:fileId",
                "RequiresOAuth":"N",
@@ -184,12 +216,67 @@
                      "Description":"Identifiant unique du fichier (e.g. 42)"
                   },
                   {
-                     "Name":"acessKey",
+                     "Name":"accessKey",
                      "Required":"N",
                      "Default":"",
                      "Location": "path",
                      "Type":"string",
                      "Description":"Clé d'accès au fichier fournis lors d'un partage publique"
+                  }
+               ]
+            },
+            {
+               "MethodName":"Preview du fichier",
+               "Synopsis":"Renvoit une preview du fichier si ce dernier est une image. Ne requiert pas d'ApiKey",
+               "HTTPMethod":"GET",
+               "URI":"/file/details/:fileId/preview",
+               "RequiresOAuth":"N",
+               "parameters":[
+                  {
+                     "Name":"fileId",
+                     "Required":"Y",
+                     "Default":"",
+                     "Type":"string",
+                     "Description":"Identifiant unique du fichier (e.g. 42)"
+                  },
+                  {
+                     "Name":"hash",
+                     "Required":"Y",
+                     "Default":"ab14d0415c485464a187d5a9c97cc27c",
+                     "Type":"path",
+                     "Description":"Hash d'accès à la preview"
+                  }
+               ]
+            },
+            {
+               "MethodName":"Thumbnail du fichier",
+               "Synopsis":"Renvoit une thumbnail du fichier si ce dernier est une image. Ne requiert pas d'ApiKey",
+               "HTTPMethod":"GET",
+               "URI":"/file/details/:fileId/thumbnail",
+               "RequiresOAuth":"N",
+               "parameters":[
+                  {
+                     "Name":"fileId",
+                     "Required":"Y",
+                     "Default":"",
+                     "Type":"string",
+                     "Description":"Identifiant unique du fichier (e.g. 42)"
+                  }
+               ]
+            },
+            {
+               "MethodName":"Partages du fichier",
+               "Synopsis":"Renvoit les partages du fichier. Vous devez être le propriétaire du fichier !",
+               "HTTPMethod":"GET",
+               "URI":"/file/details/:fileId/shares",
+               "RequiresOAuth":"N",
+               "parameters":[
+                  {
+                     "Name":"fileId",
+                     "Required":"Y",
+                     "Default":"",
+                     "Type":"string",
+                     "Description":"Identifiant unique du fichier (e.g. 42)"
                   }
                ]
             }

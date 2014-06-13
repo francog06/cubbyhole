@@ -52,6 +52,7 @@ $route['api/file/details/(:num)/thumbnail'] = "api/file/thumbnail/$1";
 
 /* SHARES SPECIAL ROUTE */
 $route['api/user/details/(:num)/shares'] = "api/share/user_shares/$1";
+$route['api/user/details/(:num)/root'] = "api/folder/user_root/$1";
 
 //$route['api/(:any)/format.(:any)'] = "api/$1/format.$3"; // api/{controller}/{method}/{format}
 
