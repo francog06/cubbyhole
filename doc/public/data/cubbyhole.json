@@ -46,6 +46,13 @@
                      "Default":"",
                      "Type":"string",
                      "Description": "Un mot de passe"
+                  },
+                  {
+                     "Name":"is_admin",
+                     "Required":"N",
+                     "Default":"",
+                     "Type":"boolean",
+                     "Description":"Modifie les droits d'administrateur d'un utilisateur (vous devez être administrateur pour changer cela)"
                   }
                ]
             },
@@ -106,6 +113,38 @@
                      "Default":"",
                      "Type":"boolean",
                      "Description":"Modifie les droits d'administrateur d'un utilisateur (vous devez être administrateur pour changer cela)"
+                  }
+               ]
+            },
+            {
+               "MethodName":"Récupération du mot de passe utilisateur",
+               "Synopsis":"Envois un e-mail à l'utilisateur concernant ses identifiants de connexion.",
+               "HTTPMethod":"POST",
+               "URI":"/user/forget/:userId",
+               "RequiresOAuth":"N",
+               "parameters":[
+                  {
+                     "Name":"email",
+                     "Required":"Y",
+                     "Default":"",
+                     "Type":"string",
+                     "Description":"Email d'un utilisateur (e.g. email@gmail.com)"
+                  }
+               ]
+            },
+            {
+               "MethodName":"Suppression d'un utilisateur",
+               "Synopsis":"",
+               "HTTPMethod":"DELETE",
+               "URI":"/user/delete/:userId",
+               "RequiresOAuth":"N",
+               "parameters":[
+                  {
+                     "Name":"userId",
+                     "Required":"Y",
+                     "Default":"",
+                     "Type":"string",
+                     "Description":"ID d'un utilisateur (e.g. 42)"
                   }
                ]
             }

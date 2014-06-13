@@ -32,7 +32,7 @@ Entities\User:
     shared_with_me:
       targetEntity: Share
       mappedBy: user
-      cascade: ["persist", "merge"]
+      cascade: ["persist", "merge", "remove"]
       onDelete: CASCADE
     plan_historys:
       targetEntity: PlanHistory
