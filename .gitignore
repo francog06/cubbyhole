@@ -10,3 +10,6 @@ application/logs/*
 application/uploads/
 
 .idea/
+
+winApp/CubbyHole/CubbyHole/obj/
+winApp/CubbyHole/CubbyHole/bin/
