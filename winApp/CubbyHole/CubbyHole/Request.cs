@@ -21,6 +21,7 @@ using System.Runtime.InteropServices;
 using System.Xml;
 using System.ComponentModel;
 using System.Runtime.Serialization.Formatters.Binary;
+using DSOFile;
 
 
 namespace CubbyHole
@@ -168,9 +169,33 @@ namespace CubbyHole
             
               string folderName =  fol.name;
               int folderId = fol.id;
+              string folPath = fol.local_path;
               bool detailsFolder = await DetailsFolder(folderId);
+              
+              OleDocumentProperties myFile = new DSOFile.OleDocumentProperties();
+              myFile.Open(folPath, false, DSOFile.dsoFileOpenOptions.dsoOptionDefault);
+              object val = folderId;
+              Random m = new Random();
+              string test = "IdFOlder"; //+ m.NextDouble().ToString();
+              Console.WriteLine("DSOFILE NAME: {0}", test);
+              foreach (DSOFile.CustomProperty property in myFile.CustomProperties)
+              {
+                  Console.WriteLine("property.Name: {0}", property.Name);
+             //   if (property.Name == test)
+            //    {
+                    //Property exists
+                    //End the task here (return;) oder edit the property
+                   // property.set_Value(val);
+                    //property.Remove();
+                    Console.WriteLine("PROPERTU GET {0}", property.get_Value().ToString());
+              //  }
+              }
+              myFile.CustomProperties.Add("IdFOlder", ref val);
+         //   myFile.CustomProperties.
+              myFile.Save();
+              myFile.Close(true);
 
-             // Console.WriteLine("fol.local_path: {0}", fol.local_path);
+              // Console.WriteLine("fol.local_path: {0}", fol.local_path);
               if (detailsFolder)
                   createFolderLocal(fol.local_path, folderName);
           } while (myfolder.Count > 0);
@@ -182,7 +207,6 @@ namespace CubbyHole
         {
             do
             {
-
                 CubbyHole.ApiClasses.File fil =  myfile.Dequeue();
                 string fileName = fil.name;
                 string filePath = "";
@@ -243,7 +267,7 @@ namespace CubbyHole
             string pathcomplete = "";
             pathcomplete = path + "\\" + name;
 
-            Console.WriteLine("createFolderLocal " + pathcomplete);
+           // Console.WriteLine("createFolderLocal " + pathcomplete);
 
             try
             {

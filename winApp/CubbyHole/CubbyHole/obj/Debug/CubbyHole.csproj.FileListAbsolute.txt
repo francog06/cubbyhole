@@ -32,6 +32,13 @@ C:\Users\Mathieu\Documents\cubbyhole\winApp\CubbyHole\CubbyHole\bin\Debug\CubbyH
 C:\Users\Mathieu\Documents\cubbyhole\winApp\CubbyHole\CubbyHole\bin\Debug\CubbyHole.pdb
 C:\Users\Mathieu\Documents\cubbyhole\winApp\CubbyHole\CubbyHole\bin\Debug\Newtonsoft.Json.dll
 C:\Users\Mathieu\Documents\cubbyhole\winApp\CubbyHole\CubbyHole\bin\Debug\Newtonsoft.Json.xml
+C:\wamp\www\SourceTreeGit\cubbyhole\winApp\CubbyHole\CubbyHole\bin\Debug\CubbyHole.exe.config
+C:\wamp\www\SourceTreeGit\cubbyhole\winApp\CubbyHole\CubbyHole\bin\Debug\CubbyHole.exe
+C:\wamp\www\SourceTreeGit\cubbyhole\winApp\CubbyHole\CubbyHole\bin\Debug\CubbyHole.pdb
+C:\wamp\www\SourceTreeGit\cubbyhole\winApp\CubbyHole\CubbyHole\bin\Debug\Newtonsoft.Json.dll
+C:\wamp\www\SourceTreeGit\cubbyhole\winApp\CubbyHole\CubbyHole\bin\Debug\Newtonsoft.Json.xml
+C:\wamp\www\SourceTreeGit\cubbyhole\winApp\CubbyHole\CubbyHole\obj\Debug\Interop.DSOFile.dll
+C:\wamp\www\SourceTreeGit\cubbyhole\winApp\CubbyHole\CubbyHole\obj\Debug\CubbyHole.csproj.ResolveComReference.cache
 C:\wamp\www\SourceTreeGit\cubbyhole\winApp\CubbyHole\CubbyHole\obj\Debug\LoginForm.baml
 C:\wamp\www\SourceTreeGit\cubbyhole\winApp\CubbyHole\CubbyHole\obj\Debug\MainWindow.baml
 C:\wamp\www\SourceTreeGit\cubbyhole\winApp\CubbyHole\CubbyHole\obj\Debug\LoginForm.g.cs
@@ -41,11 +48,5 @@ C:\wamp\www\SourceTreeGit\cubbyhole\winApp\CubbyHole\CubbyHole\obj\Debug\CubbyHo
 C:\wamp\www\SourceTreeGit\cubbyhole\winApp\CubbyHole\CubbyHole\obj\Debug\CubbyHole.g.resources
 C:\wamp\www\SourceTreeGit\cubbyhole\winApp\CubbyHole\CubbyHole\obj\Debug\CubbyHole.Properties.Resources.resources
 C:\wamp\www\SourceTreeGit\cubbyhole\winApp\CubbyHole\CubbyHole\obj\Debug\CubbyHole.csproj.GenerateResource.Cache
-C:\wamp\www\SourceTreeGit\cubbyhole\winApp\CubbyHole\CubbyHole\bin\Debug\CubbyHole.exe.config
-C:\wamp\www\SourceTreeGit\cubbyhole\winApp\CubbyHole\CubbyHole\bin\Debug\CubbyHole.exe
-C:\wamp\www\SourceTreeGit\cubbyhole\winApp\CubbyHole\CubbyHole\bin\Debug\CubbyHole.pdb
-C:\wamp\www\SourceTreeGit\cubbyhole\winApp\CubbyHole\CubbyHole\bin\Debug\Newtonsoft.Json.dll
-C:\wamp\www\SourceTreeGit\cubbyhole\winApp\CubbyHole\CubbyHole\bin\Debug\Newtonsoft.Json.xml
 C:\wamp\www\SourceTreeGit\cubbyhole\winApp\CubbyHole\CubbyHole\obj\Debug\CubbyHole.exe
 C:\wamp\www\SourceTreeGit\cubbyhole\winApp\CubbyHole\CubbyHole\obj\Debug\CubbyHole.pdb
-C:\wamp\www\SourceTreeGit\cubbyhole\winApp\CubbyHole\CubbyHole\obj\Debug\CubbyHole.csprojResolveAssemblyReference.cache
