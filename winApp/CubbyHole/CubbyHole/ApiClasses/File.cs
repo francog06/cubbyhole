@@ -16,5 +16,7 @@ namespace CubbyHole.ApiClasses
         public bool is_public { get; set; }
         public string access_key { get; set; }
         public float size { get; set; }
+        public string local_path { get; set; }
+
     }
 }

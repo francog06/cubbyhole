@@ -70,6 +70,7 @@
     <Compile Include="ApiClasses\Folder.cs" />
     <Compile Include="ApiClasses\Response.cs" />
     <Compile Include="ApiClasses\User.cs" />
+    <Compile Include="ApiResponses\DetailsResponse.cs" />
     <Compile Include="ApiResponses\LoginResponse.cs" />
     <Compile Include="ApiResponses\FolderResponse.cs" />
     <Compile Include="Request.cs" />
