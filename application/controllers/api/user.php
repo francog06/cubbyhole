@@ -244,4 +244,12 @@ class User extends REST_Controller {
 
 		$this->response(array('error' => false, 'message' => 'Mail envoyé.', 'data' => $data), 200);
 	}
+
+	public function synchronize_done() {
+		$user = $this->rest->user;
+
+		$user->setLastSynchronizeCall(new DateTime("now", new DateTimeZone("Europe/Berlin")));
+		$this->doctrine->em->merge($user);
+		$this->doctrine->flush();
+	}
 }

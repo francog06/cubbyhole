@@ -206,7 +206,6 @@ class Folder extends REST_Controller {
 					}
 					$folder->setName($name);
 					$folder->setParent($parentFolder);
-					$folder->setUser($parentFolder->getUser());
 					foreach ($parentFolder->getShares()->toArray() as $shareToApply) {
 						if ( $this->rest->user == $folder->getUser() || $share && $share->getUser() != $shareToApply->getUser() ) {
 							if ( !$folder->searchShareByUser($shareToApply->getUser()) ) {
@@ -221,6 +220,11 @@ class Folder extends REST_Controller {
 					            $this->doctrine->em->persist($shareToApply);
 				        	}
 				        }
+					}
+					$folder->setUser($parentFolder->getUser());
+					foreach ($folder->getShares() as $share) {
+						$share->setOwner($parentFolder->getUser());
+						$this->doctrine->em->merge($share);
 					}
 				}
 			}

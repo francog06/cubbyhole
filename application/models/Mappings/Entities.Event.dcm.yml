@@ -1,0 +1,28 @@
+Entities\Event:
+  type: entity
+  table: event
+  fields:
+    id:
+      type: integer
+      id: true
+      generator:
+        strategy: AUTO
+    date:
+      type: datetime
+      nullable: false
+    folder_id:
+      type: integer
+      nullable: true
+    file_id:
+      type: integer
+      nullable: true
+    status:
+      type: string
+      columnDefinition: ENUM('CREATE', 'UPDATE', 'DELETE', 'MOVE')
+  manyToOne:
+    user:
+      targetEntity: User
+      inversedBy: events
+      joinColumn:
+        name: user_id
+        referencedColumnName: id

@@ -313,6 +313,14 @@ class File extends REST_Controller {
 			$this->response(array('error' => true, 'message' => "Vous en pouvez pas effectuer cet action.", 'data' => $data), 401);
 
 		@unlink($file->getAbsolutePath());
+		$event = new Entities\Event;
+		$event->setDate(new DateTime("now", new DateTimeZone("Europe/Berlin")))
+				->setStatus("DELETE")
+				->setFileId($file->getId())
+				->setUser($file->getUser());
+
+		$this->doctrine->em->persist($event);
+
 		$this->doctrine->em->remove($file);
 		$this->doctrine->em->flush();
 
@@ -331,6 +339,7 @@ class File extends REST_Controller {
 		}
 
 		$share = $file->isSharedWith($this->rest->user);
+		$wasMoved = false;
 
 		if ($file->getUser() != $this->rest->user && $this->rest->level != ADMIN_KEY_LEVEL && (!$share || !$share->getIsWritable()))
 			$this->response(array('error' => true, 'message' => "Vous ne pouvez pas effectuer cet action.", 'data' => $data), 401);
@@ -387,8 +396,14 @@ class File extends REST_Controller {
 				        	}
 			        	}
 					}
+					$file->setUser($folder->getUser());
+					foreach ($file->getShares() as $share) {
+						$share->setOwner($folder->getUser());
+						$this->doctrine->em->merge($share);
+					}
 				}
 			}
+			$wasMoved = true;
 		}
 
 		if ( ($user_id = $this->post('user_id')) !== false && $this->rest->level == ADMIN_KEY_LEVEL ) {
@@ -469,6 +484,26 @@ class File extends REST_Controller {
 		$file->setLastUpdateDate(new DateTime('now', new DateTimeZone('Europe/Berlin')));
 		$this->doctrine->em->merge($file);
 		$this->doctrine->em->flush($file);
+
+		$event = new Entities\Event;
+			$event->setDate(new DateTime("now", new DateTimeZone("Europe/Berlin")))
+					->setStatus("UPDATE")
+					->setFileId($file->getId())
+					->setUser($file->getUser());
+
+		$this->doctrine->em->persist($event);
+
+		if ($wasMoved) {
+			$event = new Entities\Event;
+				$event->setDate(new DateTime("now", new DateTimeZone("Europe/Berlin")))
+						->setStatus("MOVE")
+						->setFileId($file->getId())
+						->setUser($file->getUser());
+			$this->doctrine->em->persist($event);
+		}
+
+		$this->doctrine->em->flush();
+
 		$data->file = $file;
 		$this->response(array('error' => false, 'message' => 'Fichier mis à jour.', 'data' => $data), 200);
 	}
@@ -561,6 +596,16 @@ class File extends REST_Controller {
 
 			$this->doctrine->em->persist($file);
 			$this->doctrine->em->flush();
+
+			$event = new Entities\Event;
+			$event->setDate(new DateTime("now", new DateTimeZone("Europe/Berlin")))
+					->setStatus("CREATE")
+					->setFileId($file->getId())
+					->setUser($file->getUser());
+
+			$this->doctrine->em->persist($event);
+			$this->doctrine->em->flush();
+
 			$data->file = $file;
 			$this->response(array('error' => false, 'message' => 'Fichier créé.', 'data' => $data), 200);
 		}

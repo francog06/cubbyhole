@@ -369,7 +369,7 @@ class Folder implements \JsonSerializable
             return $e->isSharedWith($user);
         });
 
-        $this->folders = $this->folders->filter(function($e) use ($user) {
+        $this->folders = $this->folders->filter(function($e) use($user) {
             return $e->isSharedWith($user);
         });
 
