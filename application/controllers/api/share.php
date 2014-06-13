@@ -165,11 +165,14 @@ class Share extends REST_Controller {
         if ($type == "folder") {
             $share->setFolder($folder);
             $folder->recursiveShare($share);
+            $folder->addShare($share);
         }
-        if ($type == "file")
+        if ($type == "file") {
             $share->setFile($file);
+            $file->addShare($file);
+        }
 
-        $user->addSharedWithMe($share);
+//        $user->addSharedWithMe($share);
         $this->doctrine->em->merge($user);
         $this->doctrine->em->persist($share);
         $this->doctrine->em->flush();
