@@ -11,5 +11,5 @@ application/uploads/
 
 .idea/
 
-winApp/CubbyHole/CubbyHole/obj/
-winApp/CubbyHole/CubbyHole/bin/
+winApp/CubbyHole/CubbyHole/obj/*
+winApp/CubbyHole/CubbyHole/bin/*
