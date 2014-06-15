@@ -238,15 +238,6 @@ class Folder extends REST_Controller {
 			$folder->setUser($user);
 		}
 
-		if ( ($is_public = $this->put('is_public')) !== false && $this->rest->user == $folder->getUser()) {
-			$folder->setIsPublic( $is_public == "0" ? false : true );
-			if ($folder->getIsPublic() == true) {
-				$folder->setAccessKey(substr(md5(time()), 15));
-			} else {
-				$folder->setAccessKey(null);
-			}
-		}
-
 		$folder->setLastUpdateDate(new DateTime('now', new DateTimeZone('Europe/Berlin')));
 		$this->doctrine->em->merge($folder);
 		$this->doctrine->em->flush();
