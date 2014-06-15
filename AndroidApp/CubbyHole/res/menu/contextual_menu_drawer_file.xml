@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/context_file_rename"
+        android:icon="@drawable/cubby_noimage"
+        android:showAsAction="always"
+        android:title="Renommer">
+    </item>
+    <item
+        android:id="@+id/context_file_move"
+        android:icon="@drawable/cubby_download"
+        android:showAsAction="always"
+        android:title="Deplacer">
+    </item>
+    <item
+        android:id="@+id/context_file_export"
+        android:icon="@drawable/cubby_file"
+        android:showAsAction="always"
+        android:title="Exporter">
+    </item>
+    <item
+        android:id="@+id/context_file_delete"
+        android:icon="@drawable/cubby_delete"
+        android:showAsAction="always"
+        android:title="Supprimer">
+    </item>
+
+</menu>

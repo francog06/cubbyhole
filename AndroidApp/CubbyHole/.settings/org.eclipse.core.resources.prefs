@@ -1,0 +1,12 @@
+eclipse.preferences.version=1
+encoding//src/com/supinfo/cubbyhole/mobileapp/activities/DetailActivity.java=UTF-8
+encoding//src/com/supinfo/cubbyhole/mobileapp/activities/Home.java=UTF-8
+encoding//src/com/supinfo/cubbyhole/mobileapp/activities/LoginActivity.java=UTF-8
+encoding//src/com/supinfo/cubbyhole/mobileapp/activities/ManagePersmissionsActivity.java=UTF-8
+encoding//src/com/supinfo/cubbyhole/mobileapp/activities/RegisterActivity.java=UTF-8
+encoding//src/com/supinfo/cubbyhole/mobileapp/activities/RetrievePasswordActivity.java=UTF-8
+encoding//src/com/supinfo/cubbyhole/mobileapp/adapters/GenericListAdapter.java=UTF-8
+encoding//src/com/supinfo/cubbyhole/mobileapp/adapters/MoveListAdapter.java=UTF-8
+encoding//src/com/supinfo/cubbyhole/mobileapp/quickactions/DirectoryChooserDialog.java=UTF-8
+encoding//src/com/supinfo/cubbyhole/mobileapp/utils/Data.java=UTF-8
+encoding//src/com/supinfo/cubbyhole/mobileapp/utils/Utils.java=UTF-8
