@@ -28,7 +28,7 @@ class Home extends CI_Controller {
 
 	public function download()
 	{
-		$viewModel["view"] = "front/download";
+		$viewModel["view"] = "front/telecharger";
 		$viewModel["menu_active"] = "telecharger";
 		$viewModel["layout"] = "yes";
 		$this->load->view('layouts/main', $viewModel);
