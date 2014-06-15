@@ -519,7 +519,7 @@ class User implements \JsonSerializable
      * @return public object
      */
     public function jsonSerialize() {
-        $excludes = ["plan_historys", "shares", "shared_with_me", "folders", "files"];
+        $excludes = ["plan_historys", "shares", "shared_with_me", "folders", "files", "events"];
         $json = [];
 
         $this->folders = $this->folders->filter(function($_) {
@@ -594,4 +594,68 @@ class User implements \JsonSerializable
         return $result;
     }
 
+    /**
+     * @var datetime $last_synchronize_call
+     */
+    private $last_synchronize_call;
+
+
+    /**
+     * Set last_synchronize_call
+     *
+     * @param datetime $lastSynchronizeCall
+     * @return User
+     */
+    public function setLastSynchronizeCall($lastSynchronizeCall)
+    {
+        $this->last_synchronize_call = $lastSynchronizeCall;
+        return $this;
+    }
+
+    /**
+     * Get last_synchronize_call
+     *
+     * @return datetime 
+     */
+    public function getLastSynchronizeCall()
+    {
+        return $this->last_synchronize_call;
+    }
+    /**
+     * @var \Doctrine\Common\Collections\ArrayCollection
+     */
+    private $events;
+
+
+    /**
+     * Add events
+     *
+     * @param Entities\Event $events
+     * @return User
+     */
+    public function addEvent(\Entities\Event $events)
+    {
+        $this->events[] = $events;
+        return $this;
+    }
+
+    /**
+     * Remove events
+     *
+     * @param Entities\Event $events
+     */
+    public function removeEvent(\Entities\Event $events)
+    {
+        $this->events->removeElement($events);
+    }
+
+    /**
+     * Get events
+     *
+     * @return Doctrine\Common\Collections\Collection 
+     */
+    public function getEvents()
+    {
+        return $this->events;
+    }
 }

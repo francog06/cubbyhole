@@ -28,7 +28,15 @@ Entities\User:
     is_admin:
       type: boolean
       nullable: false
+    last_synchronize_call:
+      type: datetime
+      nullable: true
   oneToMany:
+    events:
+      targetEntity: Event
+      mappedBy: user
+      cascade: ["persist", "merge", "remove"]
+      onDelete: CASCADE
     shared_with_me:
       targetEntity: Share
       mappedBy: user

@@ -243,10 +243,40 @@ class User extends \Entities\User implements \Doctrine\ORM\Proxy\Proxy
         return parent::jsonSerialize();
     }
 
+    public function setLastSynchronizeCall($lastSynchronizeCall)
+    {
+        $this->__load();
+        return parent::setLastSynchronizeCall($lastSynchronizeCall);
+    }
+
+    public function getLastSynchronizeCall()
+    {
+        $this->__load();
+        return parent::getLastSynchronizeCall();
+    }
+
+    public function addEvent(\Entities\Event $events)
+    {
+        $this->__load();
+        return parent::addEvent($events);
+    }
+
+    public function removeEvent(\Entities\Event $events)
+    {
+        $this->__load();
+        return parent::removeEvent($events);
+    }
+
+    public function getEvents()
+    {
+        $this->__load();
+        return parent::getEvents();
+    }
+
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'email', 'password', 'registration_date', 'user_location_ip', 'is_admin', 'shared_with_me', 'plan_historys', 'folders', 'files', 'shares');
+        return array('__isInitialized__', 'id', 'email', 'password', 'registration_date', 'user_location_ip', 'is_admin', 'last_synchronize_call', 'events', 'shared_with_me', 'plan_historys', 'folders', 'files', 'shares');
     }
 
     public function __clone()

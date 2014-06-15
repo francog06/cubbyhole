@@ -75,7 +75,6 @@ namespace CubbyHole
             bool response = await Request.doLogin(UserName, Password, Label);
             if (response)
             {
-
                 this.notifyIcon1.Icon = new System.Drawing.Icon("logo.ico");
       
                 Debug.WriteLine("Minimize application");
@@ -89,8 +88,7 @@ namespace CubbyHole
                     notifyIcon1.ShowBalloonTip(500);
                     this.Hide();
                     this.notifyIcon1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon1_MouseDoubleClick);
-                    //await Request.Synchronize(Properties.Settings.Default.IdUser);
-                    await Request.FolderUserRoot(Properties.Settings.Default.IdUser);
+                    DownLoadLocal();
                     
                 }
                 else
@@ -98,6 +96,33 @@ namespace CubbyHole
                     notifyIcon1.Visible = false;
                 }
             }
+        }
+
+
+        async private void DownLoadLocal()
+        {
+      //      await Request.Synchronize(103);
+            //API ROOT
+         bool responseRoot =   await Request.FolderUserRoot(Properties.Settings.Default.IdUser);
+         Console.WriteLine("DownLoadLocal okay {0}", responseRoot);
+
+            // root ok
+         if (responseRoot)
+         {
+             bool responseDepileFolder = await Request.DepileFolder();
+
+             //si folder empty
+             if (responseDepileFolder)
+             {
+                 Request.DepileFiles();
+             }
+
+
+         }
+
+
+           // await Request.Synchronize(105);
+         
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e)

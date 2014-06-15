@@ -14,5 +14,8 @@ namespace CubbyHole.ApiClasses
         public ApiDateTime last_update_date { get; set; }
         public bool is_public { get; set; }
         public string access_key { get; set; }
+        public string local_path { get; set; }
+        public List<Folder> folders { get; set; }
+        public List<File> files { get; set; }
     }
 }

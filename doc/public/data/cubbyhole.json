@@ -21,7 +21,7 @@
                      "Name":"password",
                      "Required":"Y",
                      "Default":"",
-                     "Type":"string",
+                     "Type":"password",
                      "Description": "Un mot de passe"
                   }
                ]
@@ -44,7 +44,7 @@
                      "Name":"password",
                      "Required":"Y",
                      "Default":"",
-                     "Type":"string",
+                     "Type":"password",
                      "Description": "Un mot de passe"
                   },
                   {
@@ -52,7 +52,7 @@
                      "Required":"N",
                      "Default":"",
                      "Type":"boolean",
-                     "Description":"Modifie les droits d'administrateur d'un utilisateur (vous devez être administrateur pour changer cela)"
+                     "Description":"Modifie les droits d'administrateur d'un utilisateur. Administrateur uniquement."
                   }
                ]
             },
@@ -129,7 +129,7 @@
                      "Name":"password",
                      "Required":"N",
                      "Default":"",
-                     "Type":"string",
+                     "Type":"password",
                      "Description":"Modifie le mot de passe de l'utilisateur (e.g. azerty)"
                   },
                   {
@@ -226,6 +226,30 @@
                ]
             },
             {
+               "MethodName":"Téléchargement d'un fichier sans quotat",
+               "Synopsis":"Permet le téléchargement du fichier sans créer de quotat (utilisé pour la synchronisation des clients mobiles & desktop).",
+               "HTTPMethod":"GET",
+               "URI":"/file/synchronize/:fileId",
+               "RequiresOAuth":"N",
+               "parameters":[
+                  {
+                     "Name":"fileId",
+                     "Required":"Y",
+                     "Default":"",
+                     "Type":"string",
+                     "Description":"Identifiant unique du fichier (e.g. 42)"
+                  },
+                  {
+                     "Name":"hash",
+                     "Required":"N",
+                     "Default":"",
+                     "Location": "path",
+                     "Type":"string",
+                     "Description":"Clé d'accès au fichier fournis lors d'un partage publique"
+                  }
+               ]
+            },
+            {
                "MethodName":"Preview du fichier",
                "Synopsis":"Renvoit une preview du fichier si ce dernier est une image. Ne requiert pas d'ApiKey",
                "HTTPMethod":"GET",
@@ -242,7 +266,7 @@
                   {
                      "Name":"hash",
                      "Required":"Y",
-                     "Default":"ab14d0415c485464a187d5a9c97cc27c",
+                     "Default":"", // ab14d0415c485464a187d5a9c97cc27c,
                      "Type":"path",
                      "Description":"Hash d'accès à la preview"
                   }
@@ -266,9 +290,76 @@
             },
             {
                "MethodName":"Partages du fichier",
-               "Synopsis":"Renvoit les partages du fichier. Vous devez être le propriétaire du fichier !",
+               "Synopsis":"Renvoit les partages du fichier. Vous devez être le propriétaire du fichier.",
                "HTTPMethod":"GET",
                "URI":"/file/details/:fileId/shares",
+               "RequiresOAuth":"N",
+               "parameters":[
+                  {
+                     "Name":"fileId",
+                     "Required":"Y",
+                     "Default":"",
+                     "Type":"string",
+                     "Description":"Identifiant unique du fichier (e.g. 42)"
+                  }
+               ]
+            },
+            {
+               "MethodName":"Modification du fichier",
+               "Synopsis":"Modifie le fichier. Vous devez être propriétaire du fichier.",
+               "HTTPMethod":"POST",
+               "URI":"/file/update/:fileId",
+               "RequiresOAuth":"N",
+               "parameters":[
+                  {
+                     "Name":"fileId",
+                     "Required":"Y",
+                     "Default":"",
+                     "Type":"string",
+                     "Description":"Identifiant unique du fichier (e.g. 42)"
+                  },
+                  {
+                     "Name":"file",
+                     "Required":"N",
+                     "Default":"",
+                     "Type":"file",
+                     "Description": "Nouveau fichier"
+                  },
+                  {
+                     "Name":"name",
+                     "Required":"N",
+                     "Default":"",
+                     "Type":"string",
+                     "Description": "Nom du fichier (avec extension)"
+                  },
+                  {
+                     "Name":"folder_id",
+                     "Required":"N",
+                     "Default":"",
+                     "Type":"string",
+                     "Description": "Dossier de destination du fichier (envoyez `null` pour le mettre dans le root)"
+                  },
+                  {
+                     "Name":"user_id",
+                     "Required":"N",
+                     "Default":"",
+                     "Type":"string",
+                     "Description": "Identifiant unique d'un utilisateur. Administrateur uniquement."
+                  },
+                  {
+                     "Name":"is_public",
+                     "Required":"N",
+                     "Default":"",
+                     "Type":"boolean",
+                     "Description": "Le fichier doit-il être publique ? (0- Non, 1- Oui)"
+                  }
+               ]
+            },
+            {
+               "MethodName":"Suppression du fichier",
+               "Synopsis":"Supprime le fichier. Vous devez être propriétaire du fichier.",
+               "HTTPMethod":"DELETE",
+               "URI":"/file/remove/:fileId",
                "RequiresOAuth":"N",
                "parameters":[
                   {

@@ -19,6 +19,9 @@ using Microsoft.Win32;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Xml;
+using System.ComponentModel;
+using System.Runtime.Serialization.Formatters.Binary;
+using DSOFile;
 
 
 namespace CubbyHole
@@ -26,6 +29,10 @@ namespace CubbyHole
 
     public static class Request
     {
+
+        private static Stack<Folder> myfolder = new Stack<Folder>();
+        private static Queue<CubbyHole.ApiClasses.File> myfile = new Queue<CubbyHole.ApiClasses.File>();
+
         async public static Task<string> GetResponseAsync(this WebRequest request)
         {
             if (request == null)
@@ -85,7 +92,7 @@ namespace CubbyHole
             Task<string> Tjson = Request.GetResponseAsync(request);
             string json = await Tjson;
 
-            Debug.WriteLine("Json Login: " + json);
+         //   Debug.WriteLine("Json Login: " + json);
             Response<LoginResponse> resp = JsonConvert.DeserializeObject<Response<LoginResponse>>(json);
             Response<User> respUser = JsonConvert.DeserializeObject<Response<User>>(json);
 
@@ -121,70 +128,172 @@ namespace CubbyHole
 
             Task<string> Tjson = Request.GetResponseAsync(request);
             string json = await Tjson;
-            Debug.WriteLine("JSON FolderUserRoot/root: " + json);
+       //     Debug.WriteLine("JSON FolderUserRoot/root: " + json);
 
             Response<FolderResponse> resp = JsonConvert.DeserializeObject<Response<FolderResponse>>(json);
 
             if (resp.error)
             {
                 Debug.WriteLine("ERROR FolderUserRoot");
-                return false;
+                return false; ; 
             }
             else
             {
+                Debug.WriteLine("FolderUserRoot OK");
+            //    Debug.WriteLine(resp.message);
+
                 FolderResponse data = new FolderResponse();
                 data = resp.data;
-                foreach( Folder  el in data.folders)
+                // EMPILE FIFO AND LIFO
+                foreach(Folder el in data.folders)
                 {
-                    Debug.WriteLine("USER ID: " + el.id);
+                    el.local_path = Properties.Settings.Default.ApplicationFolder;
+                    myfolder.Push(el);
+                //  Console.WriteLine("Foreach folder: " + el.name);
                 }
-
-                /*   CubbyHole.ApiClasses.Folder fol = respFol.data;
-                     Debug.WriteLine("RespFol Name: " + fol.user);  */
-
-                Debug.WriteLine("FolderUserRoot OK");
-                Debug.WriteLine(resp.message);
+                foreach (CubbyHole.ApiClasses.File il in data.files)
+                {
+                    il.local_path = Properties.Settings.Default.ApplicationFolder;
+                    myfile.Enqueue(il);
+                //  Console.WriteLine("Foreach file: " + il.name);
+                }
                 return true;
             }
         }
 
-        async public static Task<bool> Synchronize(int id) 
+        async public static Task<bool> DepileFolder()
         {
-            WebRequest request; //api/file/synchronize/{:ID}?hash=ab14d0415c485464a187d5a9c97cc27c
-            request = WebRequest.Create(Properties.Settings.Default.SiteUrl + "api/file/synchronize/" + id + "?hash=ab14d0415c485464a187d5a9c97cc27c");
+          do {
+          //    Console.WriteLine("DEPILEFOLER");
+              Folder fol = myfolder.Pop();
+            
+              string folderName =  fol.name;
+              int folderId = fol.id;
+              string folPath = fol.local_path;
+              bool detailsFolder = await DetailsFolder(folderId);
+              
+              OleDocumentProperties myFile = new DSOFile.OleDocumentProperties();
+              myFile.Open(folPath, false, DSOFile.dsoFileOpenOptions.dsoOptionDefault);
+              object val = folderId;
+              Random m = new Random();
+              string test = "IdFOlder"; //+ m.NextDouble().ToString();
+              Console.WriteLine("DSOFILE NAME: {0}", test);
+              foreach (DSOFile.CustomProperty property in myFile.CustomProperties)
+              {
+                  Console.WriteLine("property.Name: {0}", property.Name);
+             //   if (property.Name == test)
+            //    {
+                    //Property exists
+                    //End the task here (return;) oder edit the property
+                   // property.set_Value(val);
+                    //property.Remove();
+                    Console.WriteLine("PROPERTU GET {0}", property.get_Value().ToString());
+              //  }
+              }
+              myFile.CustomProperties.Add("IdFOlder", ref val);
+         //   myFile.CustomProperties.
+              myFile.Save();
+              myFile.Close(true);
+
+              // Console.WriteLine("fol.local_path: {0}", fol.local_path);
+              if (detailsFolder)
+                  createFolderLocal(fol.local_path, folderName);
+          } while (myfolder.Count > 0);
+
+           return true;         
+       }
+
+        async public static void DepileFiles()
+        {
+            do
+            {
+                CubbyHole.ApiClasses.File fil =  myfile.Dequeue();
+                string fileName = fil.name;
+                string filePath = "";
+                if (fil.local_path == Properties.Settings.Default.ApplicationFolder)
+                    filePath = fil.local_path + "\\" + fileName;
+                else
+                    filePath = fil.local_path;
+                int fileId = fil.id;
+
+                Console.WriteLine("fileId {0} - fileName  ({1}) -  PATH {2}", fileId, fileName, filePath);
+                await Synchronize(fileId, filePath);
+            } while (myfile.Count > 0);
+        }
+
+        
+        async public static Task<bool> DetailsFolder(int id)
+        {
+            WebRequest request;
+            request = WebRequest.Create(Properties.Settings.Default.SiteUrl + "api/folder/details/" + id);
             request.Method = "GET";
             request.Headers.Add("X-API-KEY", Properties.Settings.Default.Token);
 
-    
-      /*   using (WebResponse response = request.GetResponse())
-                {
-                    using (Stream stream = response.GetResponseStream())
-                    {
-                        XmlTextReader reader = new XmlTextReader(stream);
-                        //debut
-
-                    }
-            }        */
-
-
             Task<string> Tjson = Request.GetResponseAsync(request);
             string json = await Tjson;
-            Debug.WriteLine("JSON SYNCHRO: " + json);
-
-            Response<CubbyHole.ApiClasses.File> resp = JsonConvert.DeserializeObject<Response<CubbyHole.ApiClasses.File>>(json);
-
+         //   Debug.WriteLine("JSON DetailsFolder: " + json);
+            Response<FolderResponse> resp = JsonConvert.DeserializeObject<Response<FolderResponse>>(json);
+            
             if (resp.error)
             {
-                Debug.WriteLine("ERROR SYNCHRONIZE");
+                Debug.WriteLine("ERROR DetailsFolder");
                 return false;
             }
             else
             {
-                Debug.WriteLine("OKAY  SYNCHRONIZE");
+                FolderResponse data = resp.data;
 
+                //Debug.WriteLine(" DetailsFolder DATA: " + resp.data.folder.folders.Count);
+                 foreach (Folder el in data.folder.folders)
+                {
+                     el.local_path = Properties.Settings.Default.ApplicationFolder + "\\" + resp.data.folder.name;
+                     myfolder.Push(el);
+                   // Console.WriteLine("DetailsFolder folder: " + el.local_path);
+                } 
+                foreach (CubbyHole.ApiClasses.File el in data.folder.files)
+                {
+                    Console.WriteLine("DetailsFolder files name: " + resp.data.folder.name + " el name file: " + el.name);
+                    el.local_path = Properties.Settings.Default.ApplicationFolder + "\\" + resp.data.folder.name + "\\" + el.name;
+                    myfile.Enqueue(el);
+                }
+               // Debug.WriteLine(" DetailsFolder OK");
                 return true;
             }
 
+        }
+
+        public static void createFolderLocal(string path, string name)
+        {
+            string pathcomplete = "";
+            pathcomplete = path + "\\" + name;
+
+           // Console.WriteLine("createFolderLocal " + pathcomplete);
+
+            try
+            {
+                DirectoryInfo di = Directory.CreateDirectory(pathcomplete);
+               // Console.WriteLine("The directory was created successfully at {0}.", Directory.GetCreationTime(pathcomplete));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("The process failed: {0}", e.ToString());
+            } 
+        }
+
+        async public static Task<bool> Synchronize(int id, string file) 
+        {
+            WebRequest request; 
+            request = WebRequest.Create(Properties.Settings.Default.SiteUrl + "api/file/synchronize/" + id + "?hash=ab14d0415c485464a187d5a9c97cc27c");
+            request.Method = "GET";
+            request.Headers.Add("X-API-KEY", Properties.Settings.Default.Token);
+
+            Task<string> Tjson = Request.GetResponseAsync(request);
+            string json = await Tjson;
+            byte[] rawData = System.Text.Encoding.UTF8.GetBytes(json);
+            Console.WriteLine("FILE SYNCHO " + file);
+            System.IO.File.WriteAllBytes(file, rawData);
+
+            return true;
         } 
 
     }
