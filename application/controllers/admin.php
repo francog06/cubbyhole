@@ -42,8 +42,8 @@ class Admin extends CI_Controller {
 		$to = $this->input->post("to");
 
 		if($from == false || $to == false){
-			$users = Entities\User::getAllUsersByPeriod(mktime(0, 0, 0, date("m"), date("d"), date("Y")-1), mktime(0, 0, 0, date("m"), date("d")+1, date("Y")));
-			$viewModel["from"] = date('Y-m-d',strtotime("-1 year"));
+			$users = Entities\User::getAllUsersByPeriod(mktime(0, 0, 0, date("m")-3, date("d"), date("Y")), mktime(0, 0, 0, date("m"), date("d")+1, date("Y")));
+			$viewModel["from"] = date('Y-m-d',strtotime("-3 month"));
 			$viewModel["to"] = date('Y-m-d'); 
 		}
 		else{
@@ -67,7 +67,7 @@ class Admin extends CI_Controller {
 		$result=array();
 		//On calcule le nombre de jours entre from et to pour créer l'array
 		if($from == false || $to == false){
-			$nbJours = (mktime(0, 0, 0, date("m"), date("d")+1, date("Y")) - mktime(0, 0, 0, date("m"), date("d"), date("Y")-1))/86400; 
+			$nbJours = (mktime(0, 0, 0, date("m"), date("d")+1, date("Y")) - mktime(0, 0, 0, date("m")-3, date("d"), date("Y")))/86400; 
 		}
 		else{
 			$nbJours = (($to+(3600*24)) - $from)/86400; 
@@ -87,7 +87,7 @@ class Admin extends CI_Controller {
 
 	        // résultat par jour/mois/annee
 	        if($from == false || $to == false)
-	        	$jourmois = (mktime(0, 0, 0,$date->format("m"),$date->format("d"),$date->format("Y")) - mktime(0, 0, 0, date("m"), date("d"), date("Y")-1))/86400;
+	        	$jourmois = (mktime(0, 0, 0,$date->format("m"),$date->format("d"),$date->format("Y")) - mktime(0, 0, 0, date("m")-3, date("d"), date("Y")))/86400;
 	        else
 	        	$jourmois = (strtotime($date->format("Y-m-d")) - $from)/86400;
 
@@ -96,7 +96,7 @@ class Admin extends CI_Controller {
 	    $viewModel["users_reult"] = $result;
 
 
-		$viewModel["nbUser"] = sizeof($users);
+	  	$viewModel["nbUser"] = sizeof($users);
 		//moyenne pour storage (gauge)
 		$fsByUser = array();
 		foreach($users as $user){
@@ -130,7 +130,7 @@ class Admin extends CI_Controller {
 		
 		//Geolocation
 		if($from == false || $to == false)
-			$users_ip = Entities\User::getAllIpUsers(mktime(0, 0, 0, date("m"), date("d"), date("Y")-1), mktime(0, 0, 0, date("m"), date("d")+1, date("Y")));
+			$users_ip = Entities\User::getAllIpUsers(mktime(0, 0, 0, date("m")-3, date("d"), date("Y")), mktime(0, 0, 0, date("m"), date("d")+1, date("Y")));
 		else
 			$users_ip = Entities\User::getAllIpUsers($from,$to);
 		$users_country = array("Autres"=>0);
@@ -144,6 +144,91 @@ class Admin extends CI_Controller {
 
 		}
 		$viewModel["users_country"] = $users_country;
+
+		//Graphique Total download par période
+		$nbDownload = array();
+		$resultDownload = array();
+		//On prend tous les plans
+		foreach ($nbPlans as $plan) {
+			$plan = Entities\Plan::getPlanById($plan["id"]);
+			$resultDownload[$plan->getId()] = array();
+			// On prend tous les downloads data_history pour chaque plan
+			if($from == false || $to == false)
+				$nbDownload[$plan->getId()]= $plan->getTotalDownloads(mktime(0, 0, 0, date("m")-3, date("d"), date("Y")), mktime(0, 0, 0, date("m"), date("d")+1, date("Y")));
+			else
+				$nbDownload[$plan->getId()]= $plan->getTotalDownloads($from,$to);
+		}
+		//Puis pour chaque plan, on trie le nbre par jour
+		//_p($nbPlans);
+
+			for($i=1;$i<=sizeof($nbPlans);$i++){
+
+				//On calcule le nombre de jours entre from et to pour créer l'array
+				if($from == false || $to == false){
+					$nbJours = (mktime(0, 0, 0, date("m"), date("d")+1, date("Y")) - mktime(0, 0, 0, date("m")-3, date("d"), date("Y")))/86400; 
+				}
+				else{
+					$nbJours = (($to+(3600*24)) - $from)/86400; 
+				}
+				for($j=0;$j<$nbJours;$j++){
+					$resultDownload[$nbPlans[$i-1]["id"]][$j]=0;
+				}
+
+				foreach($nbDownload[$i] as $down){
+			        $date = $down->getDate();  
+			         // résultat par jour/mois/annee
+			        if($from == false || $to == false)
+			        	$jourmois = (mktime(0, 0, 0,$date->format("m"),$date->format("d"),$date->format("Y")) - mktime(0, 0, 0, date("m")-3, date("d"), date("Y")))/86400;
+			        else
+			        	$jourmois = (strtotime($date->format("Y-m-d")) - $from)/86400;
+
+			        @$resultDownload[$nbPlans[$i-1]["id"]][$jourmois]+=1;
+				}
+			}
+		
+		$viewModel["nbDownloads"] = $resultDownload;
+
+		//Graphique Total Shares par période
+		$nbShare = array();
+		$resulShare = array();
+		//On prend tous les plans
+		foreach ($nbPlans as $plan) {
+			$plan = Entities\Plan::getPlanById($plan["id"]);
+			$resultShare[$plan->getId()] = array();
+			// On prend tous les downloads data_history pour chaque plan
+			if($from == false || $to == false)
+				$nbShare[$plan->getId()]= $plan->getTotalShares(mktime(0, 0, 0, date("m")-3, date("d"), date("Y")), mktime(0, 0, 0, date("m"), date("d")+1, date("Y")));
+			else
+				$nbShare[$plan->getId()]= $plan->getTotalShares($from,$to);
+		}
+		//Puis pour chaque plan, on trie le nbre par jour
+		//_p($nbPlans);
+
+			for($i=1;$i<=sizeof($nbPlans);$i++){
+				//On calcule le nombre de jours entre from et to pour créer l'array
+				if($from == false || $to == false){
+					$nbJours = (mktime(0, 0, 0, date("m"), date("d")+1, date("Y")) - mktime(0, 0, 0, date("m")-3, date("d"), date("Y")))/86400; 
+				}
+				else{
+					$nbJours = (($to+(3600*24)) - $from)/86400; 
+				}
+				for($j=0;$j<$nbJours;$j++){
+					$resultShare[$nbPlans[$i-1]["id"]][$j]=0;
+				}
+
+				foreach($nbShare[$i] as $down){
+			        $date = $down->getDate();  
+			         // résultat par jour/mois/annee
+			        if($from == false || $to == false)
+			        	$jourmois = (mktime(0, 0, 0,$date->format("m"),$date->format("d"),$date->format("Y")) - mktime(0, 0, 0, date("m")-3, date("d"), date("Y")))/86400;
+			        else
+			        	$jourmois = (strtotime($date->format("Y-m-d")) - $from)/86400;
+
+			        @$resultShare[$nbPlans[$i-1]["id"]][$jourmois]+=1;
+				}
+			}
+		
+		$viewModel["nbShares"] = $resultShare;
 
 		$viewModel["view"] = "admin/stats";
 		$viewModel["menu_active"] = "admin";

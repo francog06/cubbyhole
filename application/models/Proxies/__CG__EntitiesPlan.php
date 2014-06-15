@@ -201,6 +201,18 @@ class Plan extends \Entities\Plan implements \Doctrine\ORM\Proxy\Proxy
         return parent::getPlanById($id);
     }
 
+    public function getTotalDownloads($from, $to)
+    {
+        $this->__load();
+        return parent::getTotalDownloads($from, $to);
+    }
+
+    public function getTotalShares($from, $to)
+    {
+        $this->__load();
+        return parent::getTotalShares($from, $to);
+    }
+
 
     public function __sleep()
     {

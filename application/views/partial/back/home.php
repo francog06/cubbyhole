@@ -192,7 +192,7 @@
         //event.relatedTarget.textContent = 'Dropped';
         event.target.classList.remove('drop-target');
         //alert($(event.relatedTarget).attr("data-id"));
-        if($(event.relatedTarget).parent().attr("class") == "file"){
+        if($(event.relatedTarget).parent().hasClass("file")){
             $.ajax({
                 url: '/api/file/update/'+$(event.relatedTarget).parent().attr("data-id"),
                 type: 'POST',
@@ -213,7 +213,7 @@
                 }
             });
         }
-        else if($(event.relatedTarget).parent().attr("class") == "folder"){
+        else if($(event.relatedTarget).parent().hasClass("folder")){
             $.ajax({
                 url: '/api/folder/update/'+$(event.relatedTarget).parent().attr("data-id"),
                 type: 'PUT',
@@ -234,7 +234,7 @@
                 }
             });
         }
-        else alert('error');
+        else alert('errorrrrr');
         
     });
     interact('.parentFolder')
@@ -260,7 +260,7 @@
             //event.relatedTarget.textContent = 'Dropped';
             event.target.classList.remove('drop-target');
             //alert($(event.relatedTarget).attr("data-id"));
-            if($(event.relatedTarget).parent().attr("class") == "file"){
+            if($(event.relatedTarget).parent().hasClass("file")){
                 $.ajax({
                     url: '/api/file/update/'+$(event.relatedTarget).parent().attr("data-id"),
                     type: 'POST',
@@ -281,7 +281,7 @@
                     }
                 });
             }
-            else if($(event.relatedTarget).parent().attr("class") == "folder"){
+            else if($(event.relatedTarget).parent().hasClass("folder")){
                 $.ajax({
                     url: '/api/folder/update/'+$(event.relatedTarget).parent().attr("data-id"),
                     type: 'PUT',
@@ -773,18 +773,16 @@
 
 function getFile(id){
     if(id > 0){
-        
-        var $preparingFileModal  = $('#loadingModal');
-        $preparingFileModal.modal("show");
+        //var $preparingFileModal  = $('#loadingModal');
+        //$preparingFileModal.modal("show");
         $.fileDownload("/api/file/download/"+id+"?X-API-KEY=<?= $this->session->userdata('user_token'); ?>",{
             successCallback: function (url) { $preparingFileModal.modal("hide"); }
         })
-            .done(function(){alert("test");$preparingFileModal.modal("hide");})
-            .fail(function(){alert("fuck"); $preparingFileModal.modal("hide");});
+            .fail(function(){alert("Download nerfed"); $preparingFileModal.modal("hide");});
         return false; 
     }
 }
-
+var okShare = false;
 function getRoot(){
     $('#folder_id').val("");
     $('#loadingModal').modal("show");
@@ -836,15 +834,22 @@ function getRoot(){
                                         <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span> Supprimer</button></div>';
                             } else is_writable = '';
                             $("#cubbyhole tbody").append('\
-                                <tr class="folder" data-id="'+result.data.shares.folders[loop_share_folder].folder.id+'">\
-                                    <td class="drag"><a href="javascript:getFolder('+result.data.shares.folders[loop_share_folder].folder.id+')"><span class="sprite '+sprite+'"></span>'+result.data.shares.folders[loop_share_folder].folder.name+'</a></td>\
-                                    <td class="drag" data-value="a'+type+'">'+type+'</td>\
-                                    <td class="drag">'+result.data.shares.folders[loop_share_folder].folder.last_update_date.date+'</td>\
+                                <tr class="folder folderShared" data-id="'+result.data.shares.folders[loop_share_folder].folder.id+'">\
+                                    <td><a href="javascript:getFolder('+result.data.shares.folders[loop_share_folder].folder.id+')"><span class="sprite '+sprite+'"></span>'+result.data.shares.folders[loop_share_folder].folder.name+'</a></td>\
+                                    <td data-value="a'+type+'">'+type+'</td>\
+                                    <td>'+result.data.shares.folders[loop_share_folder].folder.last_update_date.date+'</td>\
                                     <td style="width:255px;">'+is_writable+'</td>\
                                 </tr>\
                             ').fadeIn();
                         }
                     }
+                    //Catch click to getFolder pour savoir si dossier share ou non
+                    $("tr.folder td a").click(function(){
+                        okShare = false;
+                    });
+                    $("tr.folder.folderShared td a").click(function(){
+                        okShare = true;
+                    });
                     //Loop share files
                     for(var loop_file in result.data.shares.files){
                         var extension = result.data.shares.files[loop_file].file.absolute_path;
@@ -971,15 +976,16 @@ function getRoot(){
                         $("#edit_folder_id").val($(this).parent().parent().parent().attr("data-id"));
                         $("#edit_folder_name").val($(this).attr("data-fname"));
                     });
-                     //Click modal partage
+
+                     //Click modal partage FOLDER
                     $("button.partagerFolder").click(function(){
+                        $("#shareUser").unbind();
                         folderpartageid = $(this).parent().parent().parent().attr("data-id");
                         $("#shareFolder").val(folderpartageid); 
                         $("#sharewithall").css("display","none");
                         $("#partageModal").modal("show");
 
-
-                        //List share user
+                        //List share user FOLDER
                         $.ajax({
                             url:"/api/folder/details/"+folderpartageid+"/shares",
                             type:"GET",
@@ -1044,10 +1050,7 @@ function getRoot(){
                             }
                         });
 
-                        
-
-
-                        //Share With user
+                        //Share With user FOLDER
                         $("#shareUser").submit(function(e){
                            e.preventDefault();
                            $.ajax({
@@ -1072,11 +1075,11 @@ function getRoot(){
                                 }
                             })
                         });
-
-
                     });
-
+                    
+                    //Partage FILE
                      $("button.partager").click(function(){
+                        $("#shareUser").unbind();
                         filepartageid = $(this).parent().parent().parent().attr("data-id");
                         filepartagekey = $(this).parent().parent().parent().attr("data-key");
                         $("#sharewithall").css("display","block");
@@ -1161,10 +1164,6 @@ function getRoot(){
                                 });
                             }
                         });
-
-                        
-
-
                         //Share With user
                         $("#shareUser").submit(function(e){
                            e.preventDefault();
@@ -1301,8 +1300,13 @@ function getFolder(id){
             success: function(result) {
                 $("#cubbyhole tbody").html("");
                 if(result.error == false){
+                    if(okShare == true)
+                        var okShare_result = "class='isShared'";
+                    else
+                        okShare_result = "";
+
                     if($(".breadcrumb a[data-id='"+id+"']").length == 0){
-                        $(".breadcrumb").append("<a data-id='"+result.data.folder.id+"' href='javascript:getFolder("+result.data.folder.id+")'> / "+result.data.folder.name+"</a>");
+                        $(".breadcrumb").append("<a "+okShare_result+" data-id='"+result.data.folder.id+"' href='javascript:getFolder("+result.data.folder.id+")'> / "+result.data.folder.name+"</a>");
                     }
                     else{
                         var pos = $(".breadcrumb a").index($(".breadcrumb a[data-id='"+id+"']")); 
@@ -1310,16 +1314,17 @@ function getFolder(id){
                     }
                     var pos = $(".breadcrumb a").index($(".breadcrumb a[data-id='"+id+"']")); 
                     var parent = $(".breadcrumb a").slice(pos-1);
+
                     if($(parent).attr("data-id") == undefined){
                         funct = "getRoot";
-                        parent_id = '';
+                        parent_id = 'null';
                     }
                     else{
                         funct = "getFolder";
                         parent_id = $(parent).attr("data-id");
                     }
                     $("#cubbyhole tbody").append('\
-                        <tr class="parentFolder" data-id="null">\
+                        <tr class="parentFolder" data-id="'+parent_id+'">\
                             <td><a href="javascript:'+funct+'('+parent_id+')"><span class="glyphicon glyphicon-backward"></span> &nbsp; ...</a></td>\
                             <td data-value="a">Dossier Parent</td>\
                             <td data-value="0">--</td>\
@@ -1328,6 +1333,23 @@ function getFolder(id){
                     ').fadeIn();
                     for(var loop_folder in result.data.folder.folders){
                         if(result.data.folder.folders.hasOwnProperty(loop_folder)){
+                            // On enlève le btn partage sur les folder si on est dans un dossier partagé
+                            if($(".breadcrumb a").hasClass("isShared")){
+                                btnPartage = '';
+                                folderClass = 'folder folderShared';
+                                if(result.data.folder.folders[loop_folder].is_writable == true){
+                                    is_writable2 = '<button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..." data-fname="'+result.data.folder.folders[loop_folder].name+'"><span class="glyphicon glyphicon-pencil"></span> Editer</button> \
+                                        <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span> Supprimer</button></div>'
+                                }
+                                else is_writable2 = '';
+                            }
+                            else{
+                                btnPartage = '<button type="button" class="btn btn-xs btn-warning partagerFolder"><span class="glyphicon glyphicon-link"></span> Partager</button>\ ';
+                                folderClass = 'folder';
+                                is_writable2 = '<button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..." data-fname="'+result.data.folder.folders[loop_folder].name+'"><span class="glyphicon glyphicon-pencil"></span> Editer</button> \
+                                        <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span> Supprimer</button></div>'
+                            }
+
                             if(result.data.folder.folders[loop_folder].share == null){
                                 sprite = "dossier";
                                 type = "Dossier";
@@ -1336,20 +1358,28 @@ function getFolder(id){
                                 sprite = "dossierPartage";
                                 type = "Dossier Partagé";
                             }
+
+
                             $("#cubbyhole tbody").append('\
-                                <tr class="folder" data-id="'+result.data.folder.folders[loop_folder].id+'">\
+                                <tr class="'+folderClass+'" data-id="'+result.data.folder.folders[loop_folder].id+'">\
                                     <td class="drag"><a href="javascript:getFolder('+result.data.folder.folders[loop_folder].id+')"><span class="sprite '+sprite+'"></span>'+result.data.folder.folders[loop_folder].name+'</a></td>\
                                     <td class="drag" data-value="a'+type+'">'+type+'</td>\
                                     <td class="drag">'+result.data.folder.folders[loop_folder].last_update_date.date+'</td>\
                                     <td style="width:255px;"><div style="display:none">\
-                                        <button type="button" class="btn btn-xs btn-warning partagerFolder"><span class="glyphicon glyphicon-link"></span> Partager</button>\
-                                        <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..." data-fname="'+result.data.folder.folders[loop_folder].name+'"><span class="glyphicon glyphicon-pencil"></span> Editer</button> \
-                                        <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span> Supprimer</button></div>\
+                                        '+btnPartage+'\
+                                        '+is_writable2+'\
                                     </td>\
                                 </tr>\
                             ').fadeIn();
                         }
                     }
+                    //Catch click to getFolder pour savoir si dossier share ou non
+                    $("tr.folder td a").click(function(){
+                        okShare = false;
+                    });
+                    $("tr.folder.folderShared td a").click(function(){
+                        okShare = true;
+                    });
                     
                     for(var loop_file in result.data.folder.files){
                         var extension = result.data.folder.files[loop_file].absolute_path;
@@ -1385,15 +1415,31 @@ function getFolder(id){
                         }
                         result.data.folder.files[loop_file].share != null?type += " Partagé":"";
                         if(result.data.folder.files.hasOwnProperty(loop_file)){
+                             // On enlève le btn partage sur les files si on est dans un dossier partagé
+                            if($(".breadcrumb a").hasClass("isShared")){
+                                btnPartage = '';
+                                fileClass = 'file';
+                                if(result.data.folder.files[loop_file].is_writable == true){
+                                    is_writable2 = '<button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..." data-fname="'+result.data.folder.files[loop_file].name+'"><span class="glyphicon glyphicon-pencil"></span> Editer</button> \
+                                        <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span> Supprimer</button></div>'
+                                }
+                                else is_writable2 = '';
+                            }
+                            else{
+                                btnPartage = '<button type="button" class="btn btn-xs btn-warning partager"><span class="glyphicon glyphicon-link"></span> Partager</button>\ ';
+                                fileClass = 'file';
+                                is_writable2 = '<button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..." data-fname="'+result.data.folder.files[loop_file].name+'"><span class="glyphicon glyphicon-pencil"></span> Editer</button> \
+                                        <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span> Supprimer</button></div>'
+                            }
+
                             $("#cubbyhole tbody").append('\
-                                <tr class="file" data-id="'+result.data.folder.files[loop_file].id+'">\
+                                <tr class="'+fileClass+'" data-id="'+result.data.folder.files[loop_file].id+'">\
                                     <td class="drag"><a href="javascript:getFile('+result.data.folder.files[loop_file].id+')"><span class="fileSprite '+sprite+'"></span>'+result.data.folder.files[loop_file].name+'</a></td>\
                                     <td class="drag">'+type+'</td>\
                                     <td class="drag">'+result.data.folder.files[loop_file].last_update_date.date+'</td>\
-                                    <td style="width:235px;"><div style="display:none">\
-                                        <button type="button" class="btn btn-xs btn-warning partager"><span class="glyphicon glyphicon-link"></span> Partager</button>\
-                                        <button type="button" class="btn btn-xs btn-info editer" data-loading-text="Loading..." data-fname="'+result.data.folder.files[loop_file].name+'"><span class="glyphicon glyphicon-pencil"></span> Editer</button> \
-                                        <button type="button" class="btn btn-xs btn-danger supprimer"><span class="glyphicon glyphicon-trash"></span> Supprimer</button></div>\
+                                    <td style="width:255px;"><div style="display:none">\
+                                        '+btnPartage+'\
+                                        '+is_writable2+'\
                                     </td>\
                                 </tr>\
                             ').fadeIn();
@@ -1421,6 +1467,7 @@ function getFolder(id){
                     });
                      //Click modal partage
                     $("button.partagerFolder").click(function(){
+                        $("#shareUser").unbind();
                         folderpartageid = $(this).parent().parent().parent().attr("data-id");
                         $("#shareFolder").val(folderpartageid); 
                         $("#sharewithall").css("display","none");
@@ -1510,7 +1557,7 @@ function getFolder(id){
                                     $("#loadingModal").modal("hide");
                                     if(result.error == false){
                                          $("div.resultShare").append('<div class="alert alert-success fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
-                                         document.location.href="/";
+                                         //document.location.href="/";
                                     }else{
                                          $("div.resultShare").append('<div class="alert alert-danger fade in"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+result["message"]+'</div>');
                                     }
@@ -1526,6 +1573,7 @@ function getFolder(id){
                     });
 
                      $("button.partager").click(function(){
+                        $("#shareUser").unbind();
                         filepartageid = $(this).parent().parent().parent().attr("data-id");
                         filepartagekey = $(this).parent().parent().parent().attr("data-key");
                         $("#sharewithall").css("display","block");

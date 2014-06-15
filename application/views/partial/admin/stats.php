@@ -64,14 +64,7 @@
                                     <? }else echo '<h4 style="text-align:center;font-family: "Lucida Grande", "Lucida Sans Unicode", Arial;padding-bottom:8px;">Aucune data à analyser</h4>'; ?>
                                 </td>
                                 <td>
-                                    <? if(isset($fsByUser[$nbPlans[$i-1]["id"]])) { ?>
-                                        <div style="width:20%;height:180px;" id="adminPlansGauge<?= $i; ?>_2"></div>
-                                    <? } ?>
-                                </td>
-                                <td>
-                                    <? if(isset($fsByUser[$nbPlans[$i-1]["id"]])) { ?>
-                                        <div style="width:20%;height:180px;" id="adminPlansGauge<?= $i; ?>_3"></div>
-                                    <? } ?>
+                                   <div style="width:610px;height:180px;" id="adminChart_gauge<?= $i; ?>"></div>
                                 </td>
                             </tr>
                         </table> 
@@ -171,54 +164,76 @@ $(function () {
             }
         }]
     }));
-    $('#adminPlansGauge<?= $i; ?>_2').highcharts(Highcharts.merge(gaugeOptions, {
-        yAxis: {
-            min: 0,
-            max: 100,     
+
+    //get the date selon input date
+    var from = $("#from").val();
+    from = from.split("-");
+    if(from[1][0] == "0")
+        from[1] = from[1][1];
+    $('#adminChart_gauge<?= $i; ?>').highcharts({
+        title:{
+            text:"Utilisation du partage de fichiers"
         },
-        title: {
-            text: 'Utilisation du partage'
-        }, 
-        credits: {
-            enabled: false
+        chart: {
+            zoomType: 'x'
+        },
+        xAxis: {
+            type: 'datetime',
+            maxZoom:24 * 3600 * 1000 * 31 // par mois
+
+        },
+        yAxis: {
+            min:0
+        },
+        plotOptions: {
+                area: {
+                    marker: {
+                        radius: 1
+                    },
+                    lineWidth: 1,
+                    states: {
+                        hover: {
+                            lineWidth: 1
+                        }
+                    },
+                    threshold: null
+                }
+            },
+        tooltip:{
+            headerFormat: '<b>{series.name}</b><br>',
+            pointFormat: '{point.x:%e %b. %Y} : <b>{point.y}</b>'
         },
         series: [{
-            name: 'Share',
-            data: [10],
-            dataLabels: {
-                format: '<div style="text-align:center"><span style="font-size:16px;color:' + 
-                    ((Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black') + '">{y}</span><br/>' + 
-                    '<span style="font-size:12px;color:silver">%</span></div>'
-            },
-            tooltip: {
-                valueSuffix: '%'
-            }
-        }]
-    }));
-    $('#adminPlansGauge<?= $i; ?>_3').highcharts(Highcharts.merge(gaugeOptions, {
-        yAxis: {
-            min: 0,
-            max: 100,     
+            name:"Nombre de téléchargements",
+            <?php 
+                $data="";
+                $value = 0;
+                foreach ($nbDownloads[$i] as $k => $v) {
+                    $data .= $v.", ";
+                }
+                substr($data,0,-1);
+            ?>
+            data: [<?= $data; ?>],
+            pointStart: Date.UTC(from[0], from[1]-1, from[2]),
+            pointInterval: 24 * 3600 * 1000 // one day
+            //pointInterval: 24 * 3600 * 1000 * 31 // par mois
         },
-        title: {
-            text: 'Utilisation du débit'
-        }, 
-        credits: {
-            enabled: false
-        },
-        series: [{
-            name: 'Speed',
-            data: [90],
-            dataLabels: {
-                format: '<div style="text-align:center"><span style="font-size:16px;color:' + 
-                    ((Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black') + '">{y}</span><br/>' + 
-                    '<span style="font-size:12px;color:silver">%</span></div>'
-            },
-            tooltip: {
-                valueSuffix: '%'
-            }
+        {
+            name:"Nombre de partages créés",
+            <?php 
+                $data="";
+                foreach ($nbShares[$i] as $k => $v) {
+                    $data .= $v.", ";
+                }
+                substr($data,0,-1);
+            ?>
+            data: [<?= $data; ?>],
+            pointStart: Date.UTC(from[0], from[1]-1, from[2]),
+            pointInterval: 24 * 3600 * 1000 // one day
+            //pointInterval: 24 * 3600 * 1000 * 31 // par mois
         }]
-    }));
+    });
+    
     <?php endif; endfor; ?>
 
 });
@@ -246,6 +261,20 @@ $(function () {
                 text:"Inscriptions"
             }
         },
+        plotOptions: {
+                area: {
+                    marker: {
+                        radius: 1
+                    },
+                    lineWidth: 1,
+                    states: {
+                        hover: {
+                            lineWidth: 1
+                        }
+                    },
+                    threshold: null
+                }
+            },
         tooltip:{
             headerFormat: '<b>{series.name}</b><br>',
             pointFormat: '{point.x:%e %b. %Y} : <b>{point.y}</b>'
@@ -307,7 +336,19 @@ $(function () {
                         color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
                     }
                 }
-            }
+            },
+            area: {
+                    marker: {
+                        radius: 2
+                    },
+                    lineWidth: 1,
+                    states: {
+                        hover: {
+                            lineWidth: 2
+                        }
+                    },
+                    threshold: null
+                }
         },
         series: [{
             type: 'pie',

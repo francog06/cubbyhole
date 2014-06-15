@@ -2,6 +2,7 @@
 
 namespace Entities;
 
+use Doctrine\Common\Collections;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -407,5 +408,59 @@ class Plan implements \JsonSerializable
         $plan = $ci->doctrine->em->find("Entities\Plan", $id);
         return $plan;
                
+    }
+
+    /**
+     * Get plan by id
+     * 
+     *  @return Doctrine\Common\Collections\Collection  
+     */
+    public function getTotalDownloads($from,$to){
+         if(is_null($from) || is_null($to))
+            return false;
+
+        $ci =& get_instance();
+        $query = $ci->doctrine->em->createQueryBuilder()
+                    ->select('d')
+                    ->add('from', 'Entities\DataHistory d')
+                    ->add("where","d.date >= '".date("Y-m-d",$from)."' AND d.date <= '".date("Y-m-d",$to)."'")
+                    ->add("orderBy", "d.date ASC")
+                    ->getQuery();
+
+        $result = new Collections\ArrayCollection($query->getResult());
+        $plan = $this;
+
+        $download = $result->filter(function($e) use ($plan) {
+            return $e->getFile()->getUser()->getActivePlanHistory()->getPlan() == $plan; 
+        });
+
+        return $download;
+    }
+
+    /**
+     * Get plan by id
+     * 
+     *  @return Doctrine\Common\Collections\Collection  
+     */
+    public function getTotalShares($from,$to){
+         if(is_null($from) || is_null($to))
+            return false;
+
+        $ci =& get_instance();
+        $query = $ci->doctrine->em->createQueryBuilder()
+                    ->select('s')
+                    ->add('from', 'Entities\Share s')
+                    ->add("where","s.date >= '".date("Y-m-d",$from)."' AND s.date <= '".date("Y-m-d",$to)."'")
+                    ->add("orderBy", "s.date ASC")
+                    ->getQuery();
+
+        $result = new Collections\ArrayCollection($query->getResult());
+        $plan = $this;
+
+        $shares = $result->filter(function($e) use ($plan) {
+            return $e->getOwner()->getActivePlanHistory()->getPlan() == $plan; 
+        });
+
+        return $shares;
     }
 }
