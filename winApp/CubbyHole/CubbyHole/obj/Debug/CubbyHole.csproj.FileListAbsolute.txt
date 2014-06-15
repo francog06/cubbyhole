@@ -50,3 +50,5 @@ C:\wamp\www\SourceTreeGit\cubbyhole\winApp\CubbyHole\CubbyHole\obj\Debug\CubbyHo
 C:\wamp\www\SourceTreeGit\cubbyhole\winApp\CubbyHole\CubbyHole\obj\Debug\CubbyHole.csproj.GenerateResource.Cache
 C:\wamp\www\SourceTreeGit\cubbyhole\winApp\CubbyHole\CubbyHole\obj\Debug\CubbyHole.exe
 C:\wamp\www\SourceTreeGit\cubbyhole\winApp\CubbyHole\CubbyHole\obj\Debug\CubbyHole.pdb
+C:\wamp\www\SourceTreeGit\cubbyhole\winApp\CubbyHole\CubbyHole\obj\Debug\CubbyHole.csprojResolveAssemblyReference.cache
+C:\wamp\www\SourceTreeGit\cubbyhole\winApp\CubbyHole\CubbyHole\obj\Debug\Interop.InteropExtensionLib.dll

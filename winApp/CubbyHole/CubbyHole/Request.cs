@@ -22,6 +22,9 @@ using System.Xml;
 using System.ComponentModel;
 using System.Runtime.Serialization.Formatters.Binary;
 using DSOFile;
+using System.Runtime.InteropServices.ComTypes;
+
+
 
 
 namespace CubbyHole
@@ -164,44 +167,87 @@ namespace CubbyHole
         async public static Task<bool> DepileFolder()
         {
           do {
-          //    Console.WriteLine("DEPILEFOLER");
               Folder fol = myfolder.Pop();
             
               string folderName =  fol.name;
               int folderId = fol.id;
               string folPath = fol.local_path;
               bool detailsFolder = await DetailsFolder(folderId);
-              
-              OleDocumentProperties myFile = new DSOFile.OleDocumentProperties();
-              myFile.Open(folPath, false, DSOFile.dsoFileOpenOptions.dsoOptionDefault);
+            //  ManageMetaData(folPath, folderId);
+
+
+             /* OleDocumentProperties myFileMetaData = new DSOFile.OleDocumentProperties();
+              myFileMetaData.Open(folPath, false, DSOFile.dsoFileOpenOptions.dsoOptionDefault);
               object val = folderId;
               Random m = new Random();
-              string test = "IdFOlder"; //+ m.NextDouble().ToString();
-              Console.WriteLine("DSOFILE NAME: {0}", test);
-              foreach (DSOFile.CustomProperty property in myFile.CustomProperties)
+              string FolderId = "FolderID";
+              if (myFileMetaData.CustomProperties.Count == 0)
               {
-                  Console.WriteLine("property.Name: {0}", property.Name);
-             //   if (property.Name == test)
-            //    {
-                    //Property exists
-                    //End the task here (return;) oder edit the property
-                   // property.set_Value(val);
-                    //property.Remove();
-                    Console.WriteLine("PROPERTU GET {0}", property.get_Value().ToString());
-              //  }
+                  Console.WriteLine("NO property");
+                  myFileMetaData.CustomProperties.Add(FolderId, ref val);
               }
-              myFile.CustomProperties.Add("IdFOlder", ref val);
-         //   myFile.CustomProperties.
-              myFile.Save();
-              myFile.Close(true);
-
-              // Console.WriteLine("fol.local_path: {0}", fol.local_path);
+              else
+              {
+                  foreach (DSOFile.CustomProperty property in myFileMetaData.CustomProperties)
+                  {
+                      if (property.Name == FolderId)
+                      {
+                          Console.WriteLine("property.Name {0}", property.Name);
+                          property.set_Value(val);
+                          Console.WriteLine("PROPERTy Value {0}", property.get_Value().ToString());
+                      }
+                  }
+               }
+              myFileMetaData.Save();
+              myFileMetaData.Close(true);
+          */
               if (detailsFolder)
                   createFolderLocal(fol.local_path, folderName);
           } while (myfolder.Count > 0);
 
            return true;         
        }
+
+
+         public static void ManageMetaData(string filename, int id)
+        {
+
+            Console.WriteLine("filename {0}", filename);
+
+            OleDocumentProperties myFileMetaData = new DSOFile.OleDocumentProperties();
+            myFileMetaData.Open(filename, false, DSOFile.dsoFileOpenOptions.dsoOptionDefault);
+            object val = id;
+            Random m = new Random();
+            string MetaDataName = "FolderID";
+
+            //open yout selected file
+           myFileMetaData.SummaryProperties.Author = "test frere";
+          //  Console.WriteLine(" myFileMetaData  {0}", myFileMetaData.SummaryProperties.Author);
+            //you can set properties with summaryproperties.nameOfProperty = value; for example
+
+            //after making changes, you need to use this line to save them
+             
+            if (myFileMetaData.CustomProperties.Count == 0)
+            {
+                Console.WriteLine("here");
+                myFileMetaData.CustomProperties.Add(MetaDataName, ref val);
+            }
+            else
+           {
+               foreach (DSOFile.CustomProperty property in myFileMetaData.CustomProperties)
+                {
+                    if (property.Name == MetaDataName)
+                    {
+                        Console.WriteLine("property.Name {0}", property.Name);
+                        property.set_Value(val);
+                        Console.WriteLine("PROPERTy Value {0}", property.get_Value().ToString());
+                    }
+                }
+            } 
+            myFileMetaData.Save();
+            myFileMetaData.Close(true);
+
+        }
 
         async public static void DepileFiles()
         {
@@ -210,13 +256,27 @@ namespace CubbyHole
                 CubbyHole.ApiClasses.File fil =  myfile.Dequeue();
                 string fileName = fil.name;
                 string filePath = "";
+                int fileId = fil.id;
                 if (fil.local_path == Properties.Settings.Default.ApplicationFolder)
                     filePath = fil.local_path + "\\" + fileName;
                 else
                     filePath = fil.local_path;
-                int fileId = fil.id;
 
-                Console.WriteLine("fileId {0} - fileName  ({1}) -  PATH {2}", fileId, fileName, filePath);
+                Console.WriteLine("filePath {0}", filePath);
+
+
+               OleDocumentProperties myFileMetaData = new OleDocumentProperties();
+                myFileMetaData.Open(filePath, false, dsoFileOpenOptions.dsoOptionDefault);
+
+                myFileMetaData.SummaryProperties.Author = fileId.ToString();
+                Console.WriteLine("fileId {0}", myFileMetaData.SummaryProperties.Author);
+                myFileMetaData.Save();
+                myFileMetaData.Close(true);
+
+
+
+                
+            //   ManageMetaData(filePath, fileId);
                 await Synchronize(fileId, filePath);
             } while (myfile.Count > 0);
         }
