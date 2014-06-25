@@ -338,26 +338,48 @@
     /* ------------------
         DRAG AND DROP UPLOAD FILE
     --------------------- */
-    
-    obj.on('dragenter', function (e) 
+
+    $(document).on('dragenter', function (e) 
     {
         e.stopPropagation();
         e.preventDefault();
-        $(this).css('border', '2px solid #ccc');
     });
-    obj.on('dragover', function (e) 
+
+    $(document).on('dragover', function (e) 
     {
-         e.stopPropagation();
-         e.preventDefault();
+      e.stopPropagation();
+      e.preventDefault();
+      obj.css('border', '2px dotted #0B85A1');
     });
-    obj.on('drop', function (e) 
+
+    $(document).on('drop', function (e) 
     {
-         $(this).css('border', '2px dashed #ccc');
-         e.preventDefault();
-         var files = e.originalEvent.dataTransfer.files;
-     
-         //We need to send dropped files to Server
-         handleFileUpload(files,obj);
+        e.stopPropagation();
+        e.preventDefault();
+    });
+
+    $(function() {
+        console.log(obj);
+        obj.on('dragenter', function (e) 
+        {
+            e.stopPropagation();
+            e.preventDefault();
+            $(this).css('border', '2px solid #ccc');
+        });
+        obj.on('dragover', function (e) 
+        {
+             e.stopPropagation();
+             e.preventDefault();
+        });
+        obj.on('drop', function (e) 
+        {
+             $(this).css('border', '2px dashed #ccc');
+             e.preventDefault();
+             var files = e.originalEvent.dataTransfer.files;
+         
+             //We need to send dropped files to Server
+             handleFileUpload(files,obj);
+        });
     });
 
     function handleFileUpload(files,obj)
@@ -1090,9 +1112,9 @@ function getRoot(){
                             $("#shared_y").addClass("active");
                             $("#publicPartage").fadeIn();
                             $("#shareUrl").val("http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+filepartagekey);
-                            $("#facebook").attr("href","https://www.facebook.com/sharer/sharer.php?u=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+filepartagekey);
-                            $("#twitter").attr("href","http://twitter.com/intent/tweet/?url=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+filepartagekey+"&text=Télécharge ce fichier depuis Cubbyhole !");
-                            $("#mail").attr("href","mailto:?subject=Cubbyhole&body=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+filepartagekey+"&text=Télécharge ce fichier depuis Cubbyhole !");
+                            $("#facebook").attr('target', '_blank').attr("href","https://www.facebook.com/sharer/sharer.php?u=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+filepartagekey);
+                            $("#twitter").attr('target', '_blank').attr("href","http://twitter.com/intent/tweet/?url=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+filepartagekey+"&text=Télécharge ce fichier depuis Cubbyhole !");
+                            $("#mail").attr('target', '_blank').attr("href","mailto:?subject=Cubbyhole&body=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+filepartagekey+"&text=Télécharge ce fichier depuis Cubbyhole !");
                         }
                         else {
                             $("#shared_n").addClass("active");
@@ -1204,9 +1226,9 @@ function getRoot(){
                                     $("#loadingModal").modal("hide");
                                     if(result.error == false){
                                         $("#shareUrl").val("http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+result.data.file.access_key);
-                                        $("#facebook").attr("href","https://www.facebook.com/sharer/sharer.php?u=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+result.data.file.access_key);
-                                        $("#twitter").attr("href","http://twitter.com/intent/tweet/?url=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+result.data.file.access_key+"&text=Télécharge ce fichier depuis Cubbyhole !");
-                                        $("#mail").attr("href","mailto:?subject=Cubbyhole&body=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+result.data.file.access_key+"&text=Télécharge ce fichier depuis Cubbyhole !");
+                                        $("#facebook").attr('target', '_blank').attr("href","https://www.facebook.com/sharer/sharer.php?u=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+result.data.file.access_key);
+                                        $("#twitter").attr('target', '_blank').attr("href","http://twitter.com/intent/tweet/?url=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+result.data.file.access_key+"&text=Télécharge ce fichier depuis Cubbyhole !");
+                                        $("#mail").attr('target', '_blank').attr("href","mailto:?subject=Cubbyhole&body=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+result.data.file.access_key+"&text=Télécharge ce fichier depuis Cubbyhole !");
                                     }
                                 }
                             })
@@ -1701,9 +1723,9 @@ function getFolder(id){
                                     $("#loadingModal").modal("hide");
                                     if(result.error == false){
                                         $("#shareUrl").val("http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+result.data.file.access_key);
-                                        $("#facebook").attr("href","https://www.facebook.com/sharer/sharer.php?u=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+result.data.file.access_key);
-                                        $("#twitter").attr("href","http://twitter.com/intent/tweet/?url=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+result.data.file.access_key+"&text=Télécharge ce fichier depuis Cubbyhole !");
-                                        $("#mail").attr("href","mailto:?subject=Cubbyhole&body=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+result.data.file.access_key+"&text=Télécharge ce fichier depuis Cubbyhole !");
+                                        $("#facebook").attr('target', '_blank').attr("href","https://www.facebook.com/sharer/sharer.php?u=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+result.data.file.access_key);
+                                        $("#twitter").attr('target', '_blank').attr("href","http://twitter.com/intent/tweet/?url=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+result.data.file.access_key+"&text=Télécharge ce fichier depuis Cubbyhole !");
+                                        $("#mail").attr('target', '_blank').attr("href","mailto:?subject=Cubbyhole&body=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+result.data.file.access_key+"&text=Télécharge ce fichier depuis Cubbyhole !");
                                     }
                                 }
                             })
