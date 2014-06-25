@@ -56,8 +56,6 @@ namespace CubbyHole
 
         async private void Identification_Click(object sender, RoutedEventArgs e)
         {
-            userName.Text = "igor.morenosemedo@supinfo.com";
-            password.Password = "test";
             this.UserName = userName.Text;
             this.Password =  password.Password;
 
@@ -79,7 +77,7 @@ namespace CubbyHole
                     this.Hide();
                     this.notifyIcon1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon1_MouseDoubleClick);
                     DownLoadLocal();
-                    Request.watch();
+                   // Request.watch();
                 }
                 else
                 {

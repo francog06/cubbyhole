@@ -503,12 +503,12 @@ namespace CubbyHole
                 
                 //ManageMetaData(filePath, fileId);
                OleDocumentProperties myFileMetaData = new OleDocumentProperties();
-                myFileMetaData.Open(filePath, false, dsoFileOpenOptions.dsoOptionDefault);
+             /*   myFileMetaData.Open(filePath, false, dsoFileOpenOptions.dsoOptionDefault);
 
                 myFileMetaData.SummaryProperties.Author = fileId.ToString();
                 Console.WriteLine("fileId {0}", myFileMetaData.SummaryProperties.Author);
                 myFileMetaData.Save();
-                myFileMetaData.Close(true);
+                myFileMetaData.Close(true);*/
                 isSynchronizeFinished = false;
             } while (myfile.Count > 0);
             isSynchronizeFinished = true;
