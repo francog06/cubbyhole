@@ -22,6 +22,9 @@ using System.Xml;
 using System.ComponentModel;
 using System.Runtime.Serialization.Formatters.Binary;
 using DSOFile;
+using System.Runtime.InteropServices.ComTypes;
+
+
 
 
 namespace CubbyHole
@@ -32,6 +35,9 @@ namespace CubbyHole
 
         private static Stack<Folder> myfolder = new Stack<Folder>();
         private static Queue<CubbyHole.ApiClasses.File> myfile = new Queue<CubbyHole.ApiClasses.File>();
+        private static bool isSynchronizeFinished = false;
+        private static FileSystemWatcher _fileWatcher;
+        private static FileSystemWatcher _dirWatcher;
 
         async public static Task<string> GetResponseAsync(this WebRequest request)
         {
@@ -119,6 +125,172 @@ namespace CubbyHole
             }
         }
 
+        async public static Task<bool> CreateFolder(string folderName)
+        {
+            WebRequest request;
+            request = WebRequest.Create(Properties.Settings.Default.SiteUrl + "api/folder/add");
+            request.Method = "POST";
+            request.ContentType = "application/x-www-form-urlencoded";
+
+            ArrayList queryList = new ArrayList();
+            queryList.Add(string.Format("{0}={1}", "name", folderName));
+
+            string Parameters = String.Join("&", (String[])queryList.ToArray(typeof(string)));
+            request.ContentLength = Parameters.Length;
+
+            StreamWriter sw = new StreamWriter(request.GetRequestStream());
+            sw.Write(Parameters);
+            sw.Close();
+
+            Task<string> Tjson = Request.GetResponseAsync(request);
+            string json = await Tjson;
+
+            Debug.WriteLine("Json CreateFolder: " + json);
+            Response<FolderResponse> resp = JsonConvert.DeserializeObject<Response<FolderResponse>>(json);
+
+            if (resp.error)
+            {
+                return false;
+            }
+            else
+            {
+                FolderResponse data = resp.data;
+                return true;
+            }
+        }
+
+        async public static Task<bool> UpdateFolder(int folderId)
+        {
+            WebRequest request;
+            request = WebRequest.Create(Properties.Settings.Default.SiteUrl + "api/folder/update/" + folderId);
+            request.Method = "PUT";
+            request.ContentType = "application/x-www-form-urlencoded";
+
+
+            Task<string> Tjson = Request.GetResponseAsync(request);
+            string json = await Tjson;
+
+               Debug.WriteLine("Json UpdateFolder: " + json);
+            Response<FolderResponse> resp = JsonConvert.DeserializeObject<Response<FolderResponse>>(json);
+
+            if (resp.error)
+            {
+                return false;
+            }
+            else
+            {
+                FolderResponse data = resp.data;
+                return true;
+            }
+        }
+
+        async public static Task<bool> RemoveFolder(int folderId)
+        {
+            WebRequest request;
+            request = WebRequest.Create(Properties.Settings.Default.SiteUrl + "api/folder/remove/" + folderId);
+            request.Method = "DELETE";
+            request.ContentType = "application/x-www-form-urlencoded";
+
+            Task<string> Tjson = Request.GetResponseAsync(request);
+            string json = await Tjson;
+
+              Debug.WriteLine("Json RemoveFolder: " + json);
+            Response<FolderResponse> resp = JsonConvert.DeserializeObject<Response<FolderResponse>>(json);
+
+            if (resp.error)
+            {
+                return false;
+            }
+            else
+            {
+                FolderResponse data = resp.data;
+                return true;
+            }
+        }
+
+
+        async public static Task<bool> CreateFile(string fileName)
+        {
+            WebRequest request;
+            request = WebRequest.Create(Properties.Settings.Default.SiteUrl + "api/file/add");
+            request.Method = "POST";
+            request.ContentType = "application/x-www-form-urlencoded";
+
+            ArrayList queryList = new ArrayList();
+            queryList.Add(string.Format("{0}={1}", "name", fileName));
+
+            string Parameters = String.Join("&", (String[])queryList.ToArray(typeof(string)));
+            request.ContentLength = Parameters.Length;
+
+            StreamWriter sw = new StreamWriter(request.GetRequestStream());
+            sw.Write(Parameters);
+            sw.Close();
+
+            Task<string> Tjson = Request.GetResponseAsync(request);
+            string json = await Tjson;
+
+               Debug.WriteLine("Json CreateFile: " + json);
+            Response<FolderResponse> resp = JsonConvert.DeserializeObject<Response<FolderResponse>>(json);
+
+            if (resp.error)
+            {
+                return false;
+            }
+            else
+            {
+                FolderResponse data = resp.data;
+                return true;
+            }
+        }
+
+        async public static Task<bool> UpdateFile(int fileId)
+        {
+            WebRequest request;
+            request = WebRequest.Create(Properties.Settings.Default.SiteUrl + "api/file/update/" + fileId);
+            request.Method = "POST";
+            request.ContentType = "application/x-www-form-urlencoded";
+
+            Task<string> Tjson = Request.GetResponseAsync(request);
+            string json = await Tjson;
+
+               Debug.WriteLine("Json UpdateFile: " + json);
+            Response<FolderResponse> resp = JsonConvert.DeserializeObject<Response<FolderResponse>>(json);
+
+            if (resp.error)
+            {
+                return false;
+            }
+            else
+            {
+                FolderResponse data = resp.data;
+                return true;
+            }
+        }
+
+        async public static Task<bool> RemoveFile(int fileId)
+        {
+            WebRequest request;
+            request = WebRequest.Create(Properties.Settings.Default.SiteUrl + "api/file/remove/" + fileId);
+            request.Method = "DELETE";
+            request.ContentType = "application/x-www-form-urlencoded";
+
+            Task<string> Tjson = Request.GetResponseAsync(request);
+            string json = await Tjson;
+
+               Debug.WriteLine("Json RemoveFile: " + json);
+            Response<FolderResponse> resp = JsonConvert.DeserializeObject<Response<FolderResponse>>(json);
+
+            if (resp.error)
+            {
+                return false;
+            }
+            else
+            {
+                FolderResponse data = resp.data;
+                return true;
+            }
+        }
+        
         async public static Task<bool> FolderUserRoot(int id)
         {
             WebRequest request;
@@ -164,44 +336,153 @@ namespace CubbyHole
         async public static Task<bool> DepileFolder()
         {
           do {
-          //    Console.WriteLine("DEPILEFOLER");
               Folder fol = myfolder.Pop();
             
               string folderName =  fol.name;
               int folderId = fol.id;
               string folPath = fol.local_path;
               bool detailsFolder = await DetailsFolder(folderId);
-              
-              OleDocumentProperties myFile = new DSOFile.OleDocumentProperties();
-              myFile.Open(folPath, false, DSOFile.dsoFileOpenOptions.dsoOptionDefault);
-              object val = folderId;
-              Random m = new Random();
-              string test = "IdFOlder"; //+ m.NextDouble().ToString();
-              Console.WriteLine("DSOFILE NAME: {0}", test);
-              foreach (DSOFile.CustomProperty property in myFile.CustomProperties)
-              {
-                  Console.WriteLine("property.Name: {0}", property.Name);
-             //   if (property.Name == test)
-            //    {
-                    //Property exists
-                    //End the task here (return;) oder edit the property
-                   // property.set_Value(val);
-                    //property.Remove();
-                    Console.WriteLine("PROPERTU GET {0}", property.get_Value().ToString());
-              //  }
-              }
-              myFile.CustomProperties.Add("IdFOlder", ref val);
-         //   myFile.CustomProperties.
-              myFile.Save();
-              myFile.Close(true);
+              //ManageMetaData(folPath, folderId);
 
-              // Console.WriteLine("fol.local_path: {0}", fol.local_path);
+
               if (detailsFolder)
                   createFolderLocal(fol.local_path, folderName);
+
+              OleDocumentProperties myFileMetaData = new OleDocumentProperties();
+              myFileMetaData.Open(folPath, false, dsoFileOpenOptions.dsoOptionDefault);
+
+              myFileMetaData.SummaryProperties.Author = folderId.ToString();
+              Console.WriteLine("folderId {0}", myFileMetaData.SummaryProperties.Author);
+              myFileMetaData.Save();
+              myFileMetaData.Close(true); 
+
           } while (myfolder.Count > 0);
 
            return true;         
        }
+
+        public static void watch()
+        {
+                _fileWatcher = new FileSystemWatcher(Properties.Settings.Default.ApplicationFolder);
+                _fileWatcher.IncludeSubdirectories = true;
+                _fileWatcher.Path = Properties.Settings.Default.ApplicationFolder;
+                _fileWatcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.FileName
+                                            | NotifyFilters.Size | NotifyFilters.CreationTime;
+                _fileWatcher.Filter = "*.*";
+                _fileWatcher.Changed += new FileSystemEventHandler(OnChanged);
+                _fileWatcher.Created += new FileSystemEventHandler(OnChanged);
+                _fileWatcher.Deleted += new FileSystemEventHandler(OnChanged);
+                _fileWatcher.Renamed += new RenamedEventHandler(OnChanged);
+                _fileWatcher.EnableRaisingEvents = true;
+
+                _dirWatcher = new FileSystemWatcher(Properties.Settings.Default.ApplicationFolder);
+                _dirWatcher.Path = Properties.Settings.Default.ApplicationFolder;
+                _dirWatcher.IncludeSubdirectories = true;
+                _dirWatcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.DirectoryName
+                                        | NotifyFilters.Size | NotifyFilters.CreationTime; _fileWatcher.EnableRaisingEvents = true;
+                _dirWatcher.Filter = "*.*";
+                _dirWatcher.Changed += new FileSystemEventHandler(OnChanged);
+                _dirWatcher.Created += new FileSystemEventHandler(OnChanged);
+                _dirWatcher.Deleted += new FileSystemEventHandler(OnChanged);
+                _dirWatcher.Renamed += new RenamedEventHandler(OnChanged);
+                _dirWatcher.EnableRaisingEvents = true;
+        }
+
+
+     async   private static void OnChanged(object source, FileSystemEventArgs e)
+        {
+            string name = @"" + e.FullPath.ToString();
+            int id = 0;
+         OleDocumentProperties myFileMetaData   = new OleDocumentProperties();
+            
+         //Console.WriteLine("ONCHANGED File: " + name + " " + e.ChangeType);
+          /*  if (source == _fileWatcher)
+            Console.WriteLine("source FILE", source);
+            else
+                Console.WriteLine("source DIRECT", source);
+            */
+            try
+            {
+                myFileMetaData.Open(name, false, dsoFileOpenOptions.dsoOptionDefault);
+               
+                myFileMetaData.Save();
+                myFileMetaData.Close(true);
+            }
+            catch (Exception ex)
+            {
+                 Console.WriteLine(ex.ToString());
+            }
+          
+            if (isSynchronizeFinished)
+            {
+                if (source == _fileWatcher)
+                {
+                    Console.WriteLine("folder name {0} - folder id ", name, id);
+
+                    if (e.ChangeType.ToString() == "Created")
+                    {
+                        await CreateFile(name);
+                    }
+                    else if (e.ChangeType.ToString() == "Renamed" || e.ChangeType.ToString() == "Changed")
+                    {
+                        await UpdateFile(id);
+                    }
+                    else if (e.ChangeType.ToString() == "Deleted")
+                    {
+                        await RemoveFile(id);
+                    }
+
+                }
+                else
+                {
+                    Console.WriteLine("file name {0} - file id ", name, id);
+
+                    if (e.ChangeType.ToString() == "Created")
+                    {
+                        await CreateFolder(name);
+                    }
+                    else if (e.ChangeType.ToString() == "Renamed" || e.ChangeType.ToString() == "Changed")
+                    {
+                        await UpdateFolder(id);
+                    }
+                    else if (e.ChangeType.ToString() == "Deleted")
+                    {
+                        await RemoveFolder(id);
+                    }
+                } 
+            }
+
+
+        }
+
+         public static void ManageMetaData(string filename, int id)
+        {
+           OleDocumentProperties myFileMetaData = new DSOFile.OleDocumentProperties();
+            myFileMetaData.Open(filename, false, DSOFile.dsoFileOpenOptions.dsoOptionDefault);
+            object val = id;
+            Random m = new Random();
+            string MetaDataName = "FolderID";
+           
+            if (myFileMetaData.CustomProperties.Count == 0)
+            {
+                Console.WriteLine("here");
+                myFileMetaData.CustomProperties.Add(MetaDataName, ref val);
+            }
+            else
+           {
+               foreach (DSOFile.CustomProperty property in myFileMetaData.CustomProperties)
+                {
+                    if (property.Name == MetaDataName)
+                    {
+                        Console.WriteLine("property.Name {0}", property.Name);
+                        property.set_Value(val);
+                        Console.WriteLine("PROPERTy Value {0}", property.get_Value().ToString());
+                    }
+                }
+            } 
+            myFileMetaData.Save();
+            myFileMetaData.Close(true);
+        }
 
         async public static void DepileFiles()
         {
@@ -210,15 +491,28 @@ namespace CubbyHole
                 CubbyHole.ApiClasses.File fil =  myfile.Dequeue();
                 string fileName = fil.name;
                 string filePath = "";
+                int fileId = fil.id;
                 if (fil.local_path == Properties.Settings.Default.ApplicationFolder)
                     filePath = fil.local_path + "\\" + fileName;
                 else
                     filePath = fil.local_path;
-                int fileId = fil.id;
 
-                Console.WriteLine("fileId {0} - fileName  ({1}) -  PATH {2}", fileId, fileName, filePath);
+            
                 await Synchronize(fileId, filePath);
+            
+                
+                //ManageMetaData(filePath, fileId);
+               OleDocumentProperties myFileMetaData = new OleDocumentProperties();
+                myFileMetaData.Open(filePath, false, dsoFileOpenOptions.dsoOptionDefault);
+
+                myFileMetaData.SummaryProperties.Author = fileId.ToString();
+                Console.WriteLine("fileId {0}", myFileMetaData.SummaryProperties.Author);
+                myFileMetaData.Save();
+                myFileMetaData.Close(true);
+                isSynchronizeFinished = false;
             } while (myfile.Count > 0);
+            isSynchronizeFinished = true;
+            Console.WriteLine("BOOOOl");
         }
 
         
@@ -266,7 +560,6 @@ namespace CubbyHole
         {
             string pathcomplete = "";
             pathcomplete = path + "\\" + name;
-
            // Console.WriteLine("createFolderLocal " + pathcomplete);
 
             try

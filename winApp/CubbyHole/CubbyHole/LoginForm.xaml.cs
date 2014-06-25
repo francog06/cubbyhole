@@ -35,16 +35,6 @@ namespace CubbyHole
             }
         }
 
-       /* protected override void Dispose(bool disposing)
-        {
-            // Clean up any components being used.
-            if (disposing)
-                if (components != null)
-                    components.Dispose();
-
-            base.Dispose(disposing);
-        }*/
-
         private void notifyIcon1_DoubleClick(object Sender, EventArgs e)
         {
             // Show the form when the user double clicks on the notify icon.
@@ -89,13 +79,14 @@ namespace CubbyHole
                     this.Hide();
                     this.notifyIcon1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon1_MouseDoubleClick);
                     DownLoadLocal();
-                    
+                    Request.watch();
                 }
                 else
                 {
                     notifyIcon1.Visible = false;
                 }
             }
+         //   Request.watch();
         }
 
 
@@ -116,14 +107,9 @@ namespace CubbyHole
              {
                  Request.DepileFiles();
              }
-
-
-         }
-
-
-           // await Request.Synchronize(105);
-         
-        }
+             
+         }         
+       }
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {

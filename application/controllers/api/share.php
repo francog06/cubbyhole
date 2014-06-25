@@ -102,6 +102,9 @@ class Share extends REST_Controller {
             $this->response(array('error' => true, 'message' => 'Partage non trouvé.', 'data' => $data), 400);
         }
 
+        if ($share->getOwner() != $this->rest->user || $this->rest->level != ADMIN_KEY_LEVEL)
+            $this->response(array('error' => true, 'message' => 'Vous n\'avez pas le droit de voir ce partage', 'data' => $data), 401);
+
         $data->share = $share;
         $this->response(array('error' => false, 'message' => 'Récupération du partage réussi.', 'data' => $data), 200);
     }
@@ -132,7 +135,7 @@ class Share extends REST_Controller {
             }
 
             if ($file->getUser() != $this->rest->user)
-                $this->response(array('error' => true, 'message' => "Vous ne pouvez pas partager les fichiers d'un autre utilisateur. Namého", 'data' => $data), 400);
+                $this->response(array('error' => true, 'message' => "Vous ne pouvez pas partager les fichiers d'un autre utilisateur.", 'data' => $data), 400);
             $type = "file";
             $entity = $file;
         }
@@ -144,7 +147,7 @@ class Share extends REST_Controller {
             }
 
             if ($folder->getUser() != $this->rest->user)
-                $this->response(array('error' => true, 'message' => "Vous ne pouvez pas partager les dossiers d'un autre utilisateur. Namého", 'data' => $data), 400);
+                $this->response(array('error' => true, 'message' => "Vous ne pouvez pas partager les dossiers d'un autre utilisateur.", 'data' => $data), 400);
             $type = "folder";
             $entity = $folder;
         }
