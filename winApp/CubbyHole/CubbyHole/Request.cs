@@ -352,7 +352,7 @@ namespace CubbyHole
               myFileMetaData.Open(folPath, false, dsoFileOpenOptions.dsoOptionDefault);
 
               myFileMetaData.SummaryProperties.Author = folderId.ToString();
-              Console.WriteLine("folderId {0}", myFileMetaData.SummaryProperties.Author);
+              Console.WriteLine("fol.local_path {0}", fol.local_path);
               myFileMetaData.Save();
               myFileMetaData.Close(true); 
 
@@ -395,12 +395,7 @@ namespace CubbyHole
             int id = 0;
          OleDocumentProperties myFileMetaData   = new OleDocumentProperties();
             
-         //Console.WriteLine("ONCHANGED File: " + name + " " + e.ChangeType);
-          /*  if (source == _fileWatcher)
-            Console.WriteLine("source FILE", source);
-            else
-                Console.WriteLine("source DIRECT", source);
-            */
+
             try
             {
                 myFileMetaData.Open(name, false, dsoFileOpenOptions.dsoOptionDefault);
@@ -496,10 +491,16 @@ namespace CubbyHole
                     filePath = fil.local_path + "\\" + fileName;
                 else
                     filePath = fil.local_path;
+                try
+                {
+                    await Synchronize(fileId, filePath);
+            
+                } catch ( Exception e)
+                {
 
+                }
             
-                await Synchronize(fileId, filePath);
-            
+                
                 
                 //ManageMetaData(filePath, fileId);
                OleDocumentProperties myFileMetaData = new OleDocumentProperties();
@@ -580,9 +581,14 @@ namespace CubbyHole
             request.Method = "GET";
             request.Headers.Add("X-API-KEY", Properties.Settings.Default.Token);
 
+            WebClient client = new WebClient();
+            client.Headers.Add("X-API-KEY", Properties.Settings.Default.Token);
+
             Task<string> Tjson = Request.GetResponseAsync(request);
             string json = await Tjson;
-            byte[] rawData = System.Text.Encoding.UTF8.GetBytes(json);
+            Console.WriteLine("FILE {0}", Properties.Settings.Default.SiteUrl + "api/file/synchronize/" + id + "?hash=ab14d0415c485464a187d5a9c97cc27c");
+            byte[] rawData = client.DownloadData(Properties.Settings.Default.SiteUrl + "api/file/synchronize/" + id + "?hash=ab14d0415c485464a187d5a9c97cc27c");
+          
             Console.WriteLine("FILE SYNCHO " + file);
             System.IO.File.WriteAllBytes(file, rawData);
 
