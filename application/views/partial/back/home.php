@@ -334,7 +334,164 @@
         }
     })
     .inertia(true);</script>
+<script type="text/javascript">
+    /* ------------------
+        DRAG AND DROP UPLOAD FILE
+    --------------------- */
 
+    $(document).on('dragenter', function (e) 
+    {
+        e.stopPropagation();
+        e.preventDefault();
+    });
+
+    $(document).on('dragover', function (e) 
+    {
+      e.stopPropagation();
+      e.preventDefault();
+      obj.css('border', '2px dotted #0B85A1');
+    });
+
+    $(document).on('drop', function (e) 
+    {
+        e.stopPropagation();
+        e.preventDefault();
+    });
+
+    $(function() {
+        console.log(obj);
+        obj.on('dragenter', function (e) 
+        {
+            e.stopPropagation();
+            e.preventDefault();
+            $(this).css('border', '2px solid #ccc');
+        });
+        obj.on('dragover', function (e) 
+        {
+             e.stopPropagation();
+             e.preventDefault();
+        });
+        obj.on('drop', function (e) 
+        {
+             $(this).css('border', '2px dashed #ccc');
+             e.preventDefault();
+             var files = e.originalEvent.dataTransfer.files;
+         
+             //We need to send dropped files to Server
+             handleFileUpload(files,obj);
+        });
+    });
+
+    function handleFileUpload(files,obj)
+    {
+       for (var i = 0; i < files.length; i++) 
+       {
+            var fd = new FormData();
+            fd.append('file', files[i]);
+            fd.append('user_id', user_id);
+            fd.append('folder_id', $("#folder_id").val());
+     
+            var status = new createStatusbar(obj); //Using this we can set progress.
+            status.setFileNameSize(files[i].name,files[i].size);
+            sendFileToServer(fd,status);
+     
+       }
+    }
+
+    var rowCount=0;
+    function createStatusbar(obj)
+    {
+         rowCount++;
+         var row="odd";
+         if(rowCount %2 ==0) row ="even";
+         this.statusbar = $("<div class='statusbar "+row+"'></div>");
+         this.filename = $("<div class='filename'></div>").appendTo(this.statusbar);
+         this.size = $("<div class='filesize'></div>").appendTo(this.statusbar);
+         this.progressBar = $("<div class='progressBar'><div></div></div>").appendTo(this.statusbar);
+         this.abort = $("<div class='abort'>Abort</div>").appendTo(this.statusbar);
+         obj.after(this.statusbar);
+     
+        this.setFileNameSize = function(name,size)
+        {
+            var sizeStr="";
+            var sizeKB = size/1024;
+            if(parseInt(sizeKB) > 1024)
+            {
+                var sizeMB = sizeKB/1024;
+                sizeStr = sizeMB.toFixed(2)+" MB";
+            }
+            else
+            {
+                sizeStr = sizeKB.toFixed(2)+" KB";
+            }
+     
+            this.filename.html(name);
+            this.size.html(sizeStr);
+        }
+        this.setProgress = function(progress)
+        {       
+            var progressBarWidth =progress*this.progressBar.width()/ 100;  
+            this.progressBar.find('div').animate({ width: progressBarWidth }, 10).html(progress + "% ");
+            if(parseInt(progress) >= 100)
+            {
+                this.abort.hide();
+            }
+        }
+        this.setAbort = function(jqxhr)
+        {
+            var sb = this.statusbar;
+            this.abort.click(function()
+            {
+                jqxhr.abort();
+                sb.hide();
+            });
+        }
+    }
+
+    function sendFileToServer(formData,status)
+    {
+        var extraData ={}; //Extra Data.
+        console.log(formData);
+        var jqXHR=$.ajax({
+                xhr: function() {
+                var xhrobj = $.ajaxSettings.xhr();
+                if (xhrobj.upload) {
+                        xhrobj.upload.addEventListener('progress', function(event) {
+                            var percent = 0;
+                            var position = event.loaded || event.position;
+                            var total = event.total;
+                            if (event.lengthComputable) {
+                                percent = Math.ceil(position / total * 100);
+                            }
+                            //Set progress
+                            status.setProgress(percent);
+                        }, false);
+                    }
+                return xhrobj;
+            },
+            url: "/api/file/add",
+            type: "POST",
+            contentType:false,
+            processData: false,
+            cache: false,
+            data: formData,
+            headers:{
+                "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
+            },
+            success: function(data){
+                status.setProgress(100);
+                $("#status1").append("File upload Done<br>");       
+                $("#newFileModal").modal("hide");
+                 if($(".breadcrumb a:last-child").attr("data-id") == undefined){
+                    getRoot();
+                }else{
+                    getFolder($(".breadcrumb a:last-child").attr("data-id"));
+                }    
+            }
+        }); 
+     
+        status.setAbort(jqXHR);
+    }</script>
 <div class="inner cover admin">
    <h1>Mon Cubbyhole</h1>
    <script type="text/javascript">
@@ -633,142 +790,7 @@
   </div>
 </div>
 
-<script type="text/javascript">
-    /* ------------------
-        DRAG AND DROP UPLOAD FILE
-    --------------------- */
-    var obj = $("#dragandrophandler");
-    obj.on('dragenter', function (e) 
-    {
-        e.stopPropagation();
-        e.preventDefault();
-        $(this).css('border', '2px solid #ccc');
-    });
-    obj.on('dragover', function (e) 
-    {
-         e.stopPropagation();
-         e.preventDefault();
-    });
-    obj.on('drop', function (e) 
-    {
-         $(this).css('border', '2px dashed #ccc');
-         e.preventDefault();
-         var files = e.originalEvent.dataTransfer.files;
-     
-         //We need to send dropped files to Server
-         handleFileUpload(files,obj);
-    });
 
-    function handleFileUpload(files,obj)
-    {
-       for (var i = 0; i < files.length; i++) 
-       {
-            var fd = new FormData();
-            fd.append('file', files[i]);
-            fd.append('user_id', user_id);
-            fd.append('folder_id', $("#folder_id").val());
-     
-            var status = new createStatusbar(obj); //Using this we can set progress.
-            status.setFileNameSize(files[i].name,files[i].size);
-            sendFileToServer(fd,status);
-     
-       }
-    }
-
-    var rowCount=0;
-    function createStatusbar(obj)
-    {
-         rowCount++;
-         var row="odd";
-         if(rowCount %2 ==0) row ="even";
-         this.statusbar = $("<div class='statusbar "+row+"'></div>");
-         this.filename = $("<div class='filename'></div>").appendTo(this.statusbar);
-         this.size = $("<div class='filesize'></div>").appendTo(this.statusbar);
-         this.progressBar = $("<div class='progressBar'><div></div></div>").appendTo(this.statusbar);
-         this.abort = $("<div class='abort'>Abort</div>").appendTo(this.statusbar);
-         obj.after(this.statusbar);
-     
-        this.setFileNameSize = function(name,size)
-        {
-            var sizeStr="";
-            var sizeKB = size/1024;
-            if(parseInt(sizeKB) > 1024)
-            {
-                var sizeMB = sizeKB/1024;
-                sizeStr = sizeMB.toFixed(2)+" MB";
-            }
-            else
-            {
-                sizeStr = sizeKB.toFixed(2)+" KB";
-            }
-     
-            this.filename.html(name);
-            this.size.html(sizeStr);
-        }
-        this.setProgress = function(progress)
-        {       
-            var progressBarWidth =progress*this.progressBar.width()/ 100;  
-            this.progressBar.find('div').animate({ width: progressBarWidth }, 10).html(progress + "% ");
-            if(parseInt(progress) >= 100)
-            {
-                this.abort.hide();
-            }
-        }
-        this.setAbort = function(jqxhr)
-        {
-            var sb = this.statusbar;
-            this.abort.click(function()
-            {
-                jqxhr.abort();
-                sb.hide();
-            });
-        }
-    }
-
-    function sendFileToServer(formData,status)
-    {
-        var extraData ={}; //Extra Data.
-        console.log(formData);
-        var jqXHR=$.ajax({
-                xhr: function() {
-                var xhrobj = $.ajaxSettings.xhr();
-                if (xhrobj.upload) {
-                        xhrobj.upload.addEventListener('progress', function(event) {
-                            var percent = 0;
-                            var position = event.loaded || event.position;
-                            var total = event.total;
-                            if (event.lengthComputable) {
-                                percent = Math.ceil(position / total * 100);
-                            }
-                            //Set progress
-                            status.setProgress(percent);
-                        }, false);
-                    }
-                return xhrobj;
-            },
-            url: "/api/file/add",
-            type: "POST",
-            contentType:false,
-            processData: false,
-            cache: false,
-            data: formData,
-            headers:{
-                "X-API-KEY":"<?= $this->session->userdata('user_token'); ?>"
-            },
-            success: function(data){
-                status.setProgress(100);
-                $("#status1").append("File upload Done<br>");       
-                $("#newFileModal").modal("hide");
-                 if($(".breadcrumb a:last-child").attr("data-id") == undefined){
-                    getRoot();
-                }else{
-                    getFolder($(".breadcrumb a:last-child").attr("data-id"));
-                }    
-            }
-        }); 
-     
-        status.setAbort(jqXHR);
-    }</script>
 <script type="text/javascript">
 
 function getFile(id){
@@ -1090,9 +1112,9 @@ function getRoot(){
                             $("#shared_y").addClass("active");
                             $("#publicPartage").fadeIn();
                             $("#shareUrl").val("http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+filepartagekey);
-                            $("#facebook").attr("href","https://www.facebook.com/sharer/sharer.php?u=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+filepartagekey);
-                            $("#twitter").attr("href","http://twitter.com/intent/tweet/?url=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+filepartagekey+"&text=Télécharge ce fichier depuis Cubbyhole !");
-                            $("#mail").attr("href","mailto:?subject=Cubbyhole&body=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+filepartagekey+"&text=Télécharge ce fichier depuis Cubbyhole !");
+                            $("#facebook").attr('target', '_blank').attr("href","https://www.facebook.com/sharer/sharer.php?u=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+filepartagekey);
+                            $("#twitter").attr('target', '_blank').attr("href","http://twitter.com/intent/tweet/?url=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+filepartagekey+"&text=Télécharge ce fichier depuis Cubbyhole !");
+                            $("#mail").attr('target', '_blank').attr("href","mailto:?subject=Cubbyhole&body=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+filepartagekey+"&text=Télécharge ce fichier depuis Cubbyhole !");
                         }
                         else {
                             $("#shared_n").addClass("active");
@@ -1204,9 +1226,9 @@ function getRoot(){
                                     $("#loadingModal").modal("hide");
                                     if(result.error == false){
                                         $("#shareUrl").val("http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+result.data.file.access_key);
-                                        $("#facebook").attr("href","https://www.facebook.com/sharer/sharer.php?u=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+result.data.file.access_key);
-                                        $("#twitter").attr("href","http://twitter.com/intent/tweet/?url=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+result.data.file.access_key+"&text=Télécharge ce fichier depuis Cubbyhole !");
-                                        $("#mail").attr("href","mailto:?subject=Cubbyhole&body=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+result.data.file.access_key+"&text=Télécharge ce fichier depuis Cubbyhole !");
+                                        $("#facebook").attr('target', '_blank').attr("href","https://www.facebook.com/sharer/sharer.php?u=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+result.data.file.access_key);
+                                        $("#twitter").attr('target', '_blank').attr("href","http://twitter.com/intent/tweet/?url=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+result.data.file.access_key+"&text=Télécharge ce fichier depuis Cubbyhole !");
+                                        $("#mail").attr('target', '_blank').attr("href","mailto:?subject=Cubbyhole&body=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+result.data.file.access_key+"&text=Télécharge ce fichier depuis Cubbyhole !");
                                     }
                                 }
                             })
@@ -1701,9 +1723,9 @@ function getFolder(id){
                                     $("#loadingModal").modal("hide");
                                     if(result.error == false){
                                         $("#shareUrl").val("http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+result.data.file.access_key);
-                                        $("#facebook").attr("href","https://www.facebook.com/sharer/sharer.php?u=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+result.data.file.access_key);
-                                        $("#twitter").attr("href","http://twitter.com/intent/tweet/?url=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+result.data.file.access_key+"&text=Télécharge ce fichier depuis Cubbyhole !");
-                                        $("#mail").attr("href","mailto:?subject=Cubbyhole&body=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+result.data.file.access_key+"&text=Télécharge ce fichier depuis Cubbyhole !");
+                                        $("#facebook").attr('target', '_blank').attr("href","https://www.facebook.com/sharer/sharer.php?u=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+result.data.file.access_key);
+                                        $("#twitter").attr('target', '_blank').attr("href","http://twitter.com/intent/tweet/?url=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+result.data.file.access_key+"&text=Télécharge ce fichier depuis Cubbyhole !");
+                                        $("#mail").attr('target', '_blank').attr("href","mailto:?subject=Cubbyhole&body=http://www.cubbyhole.name/api/file/download/"+filepartageid+"?accessKey="+result.data.file.access_key+"&text=Télécharge ce fichier depuis Cubbyhole !");
                                     }
                                 }
                             })

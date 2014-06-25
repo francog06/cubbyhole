@@ -172,7 +172,7 @@ class Share extends REST_Controller {
         }
         if ($type == "file") {
             $share->setFile($file);
-            $file->addShare($file);
+            $file->addShare($share);
         }
 
 //        $user->addSharedWithMe($share);
