@@ -451,8 +451,9 @@ class File extends REST_Controller {
 			$file->setName($fileName);
 		}
 
+		$fileName = $file->getName();
 		// Verify is the file is not too big for the plan
-		if ( isset($_FILES['file']) && ($this->rest->user == $file->getUser() || ($share && $share->getIsWritable())) ) {
+		if ( isset($_FILES['file']) && ($this->rest->user == $file->getUser() || ($share && $share->getIsWritable())) ) {
 			$fileSize = $_FILES['file']['size']; // Valeur octale
 			$fileName = $_FILES['file']['name'];
 
